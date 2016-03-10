@@ -1,5 +1,6 @@
 package com.homer.util.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.homer.util.core.IBaseObject;
 import org.joda.time.DateTime;
 
@@ -13,8 +14,10 @@ public class BaseObject implements IBaseObject {
     @Column
     private long id;
     @Column
+    @JsonIgnore
     private DateTime createdDateUTC;
     @Column
+    @JsonIgnore
     private DateTime updatedDateUTC;
 
     @Override

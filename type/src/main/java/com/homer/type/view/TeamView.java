@@ -1,6 +1,5 @@
 package com.homer.type.view;
 
-import com.homer.type.Player;
 import com.homer.type.Team;
 
 import java.util.List;
@@ -11,7 +10,8 @@ import java.util.List;
 public class TeamView {
 
     private Team team;
-    private List<Player> players;
+    private List<PlayerView> majorLeaguers;
+    private List<PlayerView> minorLeaguers;
 
     public Team getTeam() {
         return team;
@@ -21,11 +21,19 @@ public class TeamView {
         this.team = team;
     }
 
-    public List<Player> getPlayers() {
-        return players;
+    public List<PlayerView> getMajorLeaguers() {
+        return majorLeaguers;
     }
 
-    public void setPlayers(List<Player> players) {
-        this.players = players;
+    public void setMajorLeaguers(List<PlayerView> majorLeaguers) {
+        this.majorLeaguers = majorLeaguers;
+    }
+
+    public List<PlayerView> getMinorLeaguers() {
+        return minorLeaguers;
+    }
+
+    public void setMinorLeaguers(List<PlayerView> minorLeaguers) {
+        this.minorLeaguers = minorLeaguers;
     }
 }

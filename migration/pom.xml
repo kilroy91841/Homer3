@@ -27,6 +27,9 @@
                 <configuration>
                     <url>jdbc:mysql://localhost/homer3</url>
                     <user>root</user>
+                    <locations>
+                        <location>filesystem:src/main/resources/db/migration</location>
+                    </locations>
                 </configuration>
                 <executions>
                     <execution>

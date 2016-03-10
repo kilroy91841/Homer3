@@ -7,7 +7,6 @@ import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
@@ -198,14 +197,15 @@ public class Connector {
     public static <T extends IBaseObject> List<T> get(Class<T> baseObject, Map<String, ?> filters) {
         List<T> results = null;
         Statement stmt = null;
+        Connection con = null;
         String query = buildQuery(baseObject, filters);
         try {
             System.out.println(query);
-            Connection con = getConnection();
+            con = getConnection();
             stmt = con.createStatement();
             results = hydrate(baseObject, stmt.executeQuery(query));
         } catch (SQLException e ) {
-            //do something
+            e.printStackTrace();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -215,12 +215,16 @@ public class Connector {
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } finally {
-            if (stmt != null) {
-                try {
+            try {
+                if (stmt != null) {
                     stmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
                 }
+                if (con != null) {
+                    con.close();
+                }
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return results;

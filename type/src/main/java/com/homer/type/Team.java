@@ -10,18 +10,28 @@ import javax.persistence.Table;
 public class Team extends BaseObject {
 
     @Column
-    private String teamName;
+    private String name;
+    @Column
+    private String abbreviation;
     @Column
     private String owner1;
     @Column
     private String owner2;
 
-    public String getTeamName() {
-        return teamName;
+    public String getName() {
+        return name;
     }
 
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
+    public void setAbbreviation(String abbreviation) {
+        this.abbreviation = abbreviation;
     }
 
     public String getOwner1() {

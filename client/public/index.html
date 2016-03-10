@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>React Tutorial</title>
+    <!-- Not present in the tutorial. Just for basic styling. -->
+    <link rel="stylesheet" href="css/base.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.6.15/browser.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/babel">
+      
+      var PlayerList = React.createClass({
+        render: function() {
+          var players = this.props.data.map(function(player) {
+            return (
+                <Player data={player} />
+              );
+          });
+          return (
+            <div className="playerList">
+              <h2>{this.props.title}</h2>
+              {players}
+            </div>
+          );
+        }
+      });
+
+      var Player = React.createClass({
+        render: function() {
+          return (
+            <p>
+              {this.props.data.player.name + ' ' + this.props.data.playerSeason.salary}
+            </p>
+          );
+        }
+      });
+
+      var Team = React.createClass({
+        render: function() {
+          return (
+              <div>
+                <PlayerList data={this.props.majorLeaguers} title="Major Leaguers" />
+                <PlayerList data={this.props.minorLeaguers} title="Minor Leaguers" />
+              </div>
+            );
+        }
+      });
+      var TeamLink = React.createClass({
+          linkClicked: function() {
+            this.props.onTeamChange(this.props.teamId);
+          },
+          render: function() {
+            return (
+                <p teamId={this.props.teamId} onClick={this.linkClicked}>{this.props.name}</p>
+              );
+          }
+      });
+      var Controls = React.createClass({
+          getInitialState: function() {
+            return { teams : [], team: { majorLeaguers: [], minorLeaguers: [] } }
+          },
+          componentDidMount: function() {
+            $.ajax({
+              url: this.props.url,
+              dataType: 'json',
+              cache: false,
+              success: function(data) {
+                this.setState({teams: data});
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+            });
+          },
+          handleTeamClick: function(teamId) {
+            $.ajax({
+              url: '/team/' + teamId,
+              dataType: 'json',
+              cache: false,
+              success: function(data) {
+                this.setState({team:data});
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+              }.bind(this)
+            });
+          },
+          render: function() {
+            var me = this;
+            return (
+                <div>
+                  {this.state.teams.map(function(team) {
+                    return (
+                      <TeamLink teamId={team.id} name={team.name} onTeamChange={me.handleTeamClick} />
+                      );
+                  })}
+                  <Team majorLeaguers={this.state.team.majorLeaguers} minorLeaguers={this.state.team.minorLeaguers}/>
+                </div>
+              );
+          }
+      });
+      ReactDOM.render(
+        <Controls url="/team"/>,
+        document.getElementById('content')
+      );
+    </script>
+  </body>
+</html>

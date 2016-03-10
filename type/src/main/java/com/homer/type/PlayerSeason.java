@@ -1,12 +1,14 @@
 package com.homer.type;
 
+import com.homer.util.EnumUtil;
+
 import javax.persistence.Column;
 import javax.persistence.Table;
 
 /**
  * Created by arigolub on 2/14/16.
  */
-@Table(name = "playerSeason")
+@Table(name = "player_season")
 public class PlayerSeason extends BaseObject {
 
     @Column
@@ -16,13 +18,15 @@ public class PlayerSeason extends BaseObject {
     @Column
     private long teamId;
     @Column
-    private String position;
+    private int positionId;
     @Column
     private int keeperSeason;
     @Column
     private int salary;
     @Column
     private boolean isMinorLeaguer;
+
+    private Position fantasyPosition;
 
     public int getSeason() {
         return season;
@@ -48,12 +52,24 @@ public class PlayerSeason extends BaseObject {
         this.teamId = teamId;
     }
 
-    public String getPosition() {
-        return position;
+    public int getPositionId() {
+        return positionId;
     }
 
-    public void setPosition(String position) {
-        this.position = position;
+    public void setPositionId(int positionId) {
+        this.positionId = positionId;
+    }
+
+    public Position getFantasyPosition() {
+        if (fantasyPosition == null) {
+            fantasyPosition = EnumUtil.from(Position.class, positionId);
+        }
+        return fantasyPosition;
+    }
+
+    public void setFantasyPosition(Position fantasyPosition) {
+        this.fantasyPosition = fantasyPosition;
+        this.positionId = fantasyPosition.getId();
     }
 
     public int getKeeperSeason() {
