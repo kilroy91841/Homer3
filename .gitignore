@@ -1,7 +1,7 @@
-*.iml
 /target
 **/target
 /logs
 /.idea
 /client/node_modules
 npm-debug.log
+*.iml
