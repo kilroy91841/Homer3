@@ -27,18 +27,31 @@ public class Resource {
         teamService = new TeamService();
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String helloWord() {
+        return "Hello World";
+    }
+
     @Path("player")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public List<Player> getAllPlayers() {
-        return playerService.getPlayers();
+    public List<PlayerView> getAllPlayers() {
+        return playerService.getAllPlayers();
     }
 
     @Path("player/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public List<Player> getPlayers(@PathParam(value = "id") long id) {
+    public List<PlayerView> getPlayers(@PathParam(value = "id") long id) {
         return playerService.getPlayersById(Lists.newArrayList(id));
+    }
+
+    @Path("player/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public List<PlayerView> searchPlayersByName(@QueryParam(value = "name") String name) {
+        return playerService.searchPlayersByName(name);
     }
 
     @Path("team/{id}")
@@ -47,10 +60,17 @@ public class Resource {
     public TeamView getTeam(@PathParam(value = "id") long id,
                             @QueryParam(value = "season") Integer season) {
         TeamView teamView = new TeamView();
-        List<PlayerView> allPlayers = playerService.getPlayersByTeam(id, season);
+        List<PlayerView> allPlayers = playerService.getPlayersByTeam(id);
         teamView.setTeam(teamService.getTeamById(id));
-        teamView.setMajorLeaguers(allPlayers.stream().filter(p -> !p.getPlayerSeason().isMinorLeaguer()).collect(Collectors.toList()));
-        teamView.setMinorLeaguers(allPlayers.stream().filter(p -> p.getPlayerSeason().isMinorLeaguer()).collect(Collectors.toList()));
+        teamView.setMajorLeaguers(allPlayers.stream().filter(p -> !p.getCurrentSeason().isMinorLeaguer()).collect(Collectors.toList()));
+        teamView.setMinorLeaguers(allPlayers.stream().filter(p -> p.getCurrentSeason().isMinorLeaguer()).collect(Collectors.toList()));
+        teamView.setSalary(
+                teamView.getMajorLeaguers()
+                        .stream()
+                        .map(pv -> pv.getCurrentSeason().getSalary())
+                        .reduce(Integer::sum)
+                        .get()
+        );
         return teamView;
     }
 

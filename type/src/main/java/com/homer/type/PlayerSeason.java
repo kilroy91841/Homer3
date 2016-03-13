@@ -1,5 +1,6 @@
 package com.homer.type;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.homer.util.EnumUtil;
 
 import javax.persistence.Column;
@@ -16,9 +17,14 @@ public class PlayerSeason extends BaseObject {
     @Column
     private long playerId;
     @Column
+    @JsonIgnore
     private long teamId;
     @Column
+    @JsonIgnore
     private int positionId;
+    @Column
+    @JsonIgnore
+    private Long keeperTeamId;
     @Column
     private int keeperSeason;
     @Column
@@ -27,6 +33,8 @@ public class PlayerSeason extends BaseObject {
     private boolean isMinorLeaguer;
 
     private Position fantasyPosition;
+    private Team team;
+    private Team keeperTeam;
 
     public int getSeason() {
         return season;
@@ -94,5 +102,29 @@ public class PlayerSeason extends BaseObject {
 
     public void setMinorLeaguer(boolean minorLeaguer) {
         isMinorLeaguer = minorLeaguer;
+    }
+
+    public Long getKeeperTeamId() {
+        return keeperTeamId;
+    }
+
+    public void setKeeperTeamId(Long keeperTeamId) {
+        this.keeperTeamId = keeperTeamId;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
+    public Team getKeeperTeam() {
+        return keeperTeam;
+    }
+
+    public void setKeeperTeam(Team keeperTeam) {
+        this.keeperTeam = keeperTeam;
     }
 }

@@ -20,7 +20,8 @@ public enum Position implements IIntEnum<Position> {
     SHORTSTOP(6, "SS", MIDDLEINFIELD, UTILITY),
     OUTFIELD(7, "OF", UTILITY, null),
     DESIGNATEDHITTER(8, "DH", UTILITY, null),
-    RELIEFPITCHER(9, "RP", null, null);
+    RELIEFPITCHER(9, "RP", null, null),
+    DISABLIEDLIST(13, "DL", null, null);
 
     private final int id;
     private final String name;

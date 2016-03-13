@@ -5,15 +5,24 @@ import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.type.Team;
 
+import java.util.List;
+
 /**
  * Created by arigolub on 3/5/16.
  */
 public class PlayerView {
 
     private Player player;
-    private PlayerSeason playerSeason;
-    private Team fantasyTeam;
-    private Position fantasyPosition;
+    private List<PlayerSeason> playerSeasons;
+    private PlayerSeason currentSeason;
+
+    public PlayerView() {
+    }
+
+    public PlayerView(Player player, List<PlayerSeason> playerSeasons) {
+        this.player = player;
+        this.playerSeasons = playerSeasons;
+    }
 
     public Player getPlayer() {
         return player;
@@ -23,27 +32,19 @@ public class PlayerView {
         this.player = player;
     }
 
-    public PlayerSeason getPlayerSeason() {
-        return playerSeason;
+    public List<PlayerSeason> getPlayerSeasons() {
+        return playerSeasons;
     }
 
-    public void setPlayerSeason(PlayerSeason playerSeason) {
-        this.playerSeason = playerSeason;
+    public void setPlayerSeasons(List<PlayerSeason> playerSeasons) {
+        this.playerSeasons = playerSeasons;
     }
 
-    public Team getFantasyTeam() {
-        return fantasyTeam;
+    public PlayerSeason getCurrentSeason() {
+        return currentSeason;
     }
 
-    public void setFantasyTeam(Team fantasyTeam) {
-        this.fantasyTeam = fantasyTeam;
-    }
-
-    public Position getFantasyPosition() {
-        return fantasyPosition;
-    }
-
-    public void setFantasyPosition(Position fantasyPosition) {
-        this.fantasyPosition = fantasyPosition;
+    public void setCurrentSeason(PlayerSeason currentSeason) {
+        this.currentSeason = currentSeason;
     }
 }

@@ -25,6 +25,10 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -37,7 +41,7 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <finalName>homer-${project.version}</finalName>
+                    <finalName>homer-good-${project.version}</finalName>
                     <archive>
                         <manifest>
                             <mainClass>com.homer.web.MyApp</mainClass>
@@ -64,6 +68,15 @@
                         <goals><goal>copy-dependencies</goal></goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.boxfuse.client</groupId>
+                <artifactId>boxfuse-maven-plugin</artifactId>
+                <version>1.18.2.913</version>
+                <configuration>
+                    <user>e794913f958a49e8ac376c8bf131f9d8</user>
+                    <secret>KX0FMerZcQkGPhYG3lr1FAocqHiHs1qUYJuMD36japBXzZPPhJUSR7g4JFde0DCf</secret>
+                </configuration>
             </plugin>
         </plugins>
     </build>

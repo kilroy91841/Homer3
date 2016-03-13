@@ -1,8 +1,11 @@
 package com.homer.util.data;
 
+import com.homer.util.EnvironmentUtility;
 import com.homer.util.core.IBaseObject;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.joda.time.DateTime;
 
 import javax.persistence.Column;
@@ -18,14 +21,19 @@ import java.util.*;
 public class Connector {
 
     private static Connection getConnection() throws SQLException {
-        Connection conn = null;
-        Properties connectionProps = new Properties();
-        connectionProps.put("user", "root");
-        connectionProps.put("password", "");
+        EnvironmentUtility envUtil;
+        try {
+            envUtil = EnvironmentUtility.getInstance();
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+            return null;
+        }
 
-        conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost/homer3",
-                connectionProps);
+        Properties connectionProps = new Properties();
+        connectionProps.put("user", envUtil.getDatabaseUser());
+        connectionProps.put("password", envUtil.getDatabasePassword());
+
+        Connection conn = DriverManager.getConnection(envUtil.getDatabaseUrl(), connectionProps);
         conn.setAutoCommit(false);
         System.out.println("Connected to database");
         return conn;
@@ -70,19 +78,27 @@ public class Connector {
             }
         }
         query.append(join(columns));
-        query.append("\n FROM ").append(tableName);
+        query.append("\n FROM ").append("homer3.").append(tableName);
         if (filters.size() > 0) {
             query.append("\n WHERE ");
             Iterator<String> iterator = filters.keySet().iterator();
             while (iterator.hasNext()) {
                 String key = iterator.next();
-                query.append(key);
                 if (List.class.isAssignableFrom(filters.get(key).getClass())) {
-                    query.append(" in ").append("(");
-                    List objects = (List)filters.get(key);
-                    query.append(join(objects));
-                    query.append(")");
+                    query.append(key);
+                    List objects = (List) filters.get(key);
+                    if (objects.size() == 0) {
+                        query.append(" = ").append(key);
+                    } else {
+                        query.append(" in ").append("(");
+                        query.append(join(objects));
+                        query.append(")");
+                    }
+                } else if (Matcher.class.isAssignableFrom(filters.get(key).getClass())) {
+                    Matcher matcher = (Matcher) filters.get(key);
+                    query.append(matcher.getField()).append(" like '%").append(matcher.getMatch()).append("%'");
                 } else {
+                    query.append(key);
                     query.append(" = '").append(filters.get(key)).append("'");
                 }
                 if (iterator.hasNext()) {
