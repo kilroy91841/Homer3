@@ -10,6 +10,7 @@ import com.homer.type.view.PlayerView;
 import com.homer.util.EnumUtil;
 import com.homer.util.data.Connector;
 import com.homer.util.data.Matcher;
+import com.homer.util.data.Repository;
 
 import java.util.Collection;
 import java.util.List;
@@ -91,7 +92,7 @@ public class PlayerService {
     }
 
     private List<Player> getPlayersImpl(Map<String, Object> filters) {
-        return Connector.get(Player.class, filters);
+        return Repository.get(Player.class, filters);
     }
 
     //endregion

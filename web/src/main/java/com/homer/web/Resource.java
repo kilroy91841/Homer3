@@ -57,21 +57,8 @@ public class Resource {
     @Path("team/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public TeamView getTeam(@PathParam(value = "id") long id,
-                            @QueryParam(value = "season") Integer season) {
-        TeamView teamView = new TeamView();
-        List<PlayerView> allPlayers = playerService.getPlayersByTeam(id);
-        teamView.setTeam(teamService.getTeamById(id));
-        teamView.setMajorLeaguers(allPlayers.stream().filter(p -> !p.getCurrentSeason().isMinorLeaguer()).collect(Collectors.toList()));
-        teamView.setMinorLeaguers(allPlayers.stream().filter(p -> p.getCurrentSeason().isMinorLeaguer()).collect(Collectors.toList()));
-        teamView.setSalary(
-                teamView.getMajorLeaguers()
-                        .stream()
-                        .map(pv -> pv.getCurrentSeason().getSalary())
-                        .reduce(Integer::sum)
-                        .get()
-        );
-        return teamView;
+    public TeamView getTeam(@PathParam(value = "id") long id) {
+        return teamService.getTeamById(id);
     }
 
     @Path("/team")

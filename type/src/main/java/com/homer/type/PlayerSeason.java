@@ -100,7 +100,7 @@ public class PlayerSeason extends BaseObject {
         return isMinorLeaguer;
     }
 
-    public void setMinorLeaguer(boolean minorLeaguer) {
+    public void setIsMinorLeaguer(boolean minorLeaguer) {
         isMinorLeaguer = minorLeaguer;
     }
 

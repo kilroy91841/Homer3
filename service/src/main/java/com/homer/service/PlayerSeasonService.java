@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Team;
 import com.homer.util.data.Connector;
+import com.homer.util.data.Repository;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,42 +19,43 @@ public class PlayerSeasonService {
 
     private static final int SEASON = 2016;
 
-    private List<Team> teams;
-
     public PlayerSeasonService() {
-        TeamService teamService = new TeamService();
-        teams = teamService.getTeams();
+
     }
 
     public List<PlayerSeason> getPlayerSeasons() {
         List<PlayerSeason> playerSeasons = getPlayerSeasonsImpl(Lists.newArrayList());
-        addTeamsToPlayerSeasons(teams, playerSeasons);
+        addTeamsToPlayerSeasons(TeamService.getTeams(), playerSeasons);
         return playerSeasons;
     }
 
     public List<PlayerSeason> getPlayerSeasons(Collection<Long> playerIds) {
         List<PlayerSeason> playerSeasons = getPlayerSeasonsImpl(playerIds);
-        addTeamsToPlayerSeasons(teams, playerSeasons);
+        addTeamsToPlayerSeasons(TeamService.getTeams(), playerSeasons);
         return playerSeasons;
     }
 
     public List<PlayerSeason> getPlayerSeasonsForTeam(long teamId) {
         List<PlayerSeason> playerSeasons = getPlayerSeasonsByTeamImpl(teamId);
-        addTeamsToPlayerSeasons(teams, playerSeasons);
+        addTeamsToPlayerSeasons(TeamService.getTeams(), playerSeasons);
         return playerSeasons;
     }
 
-    private List<PlayerSeason> getPlayerSeasonsByTeamImpl(long teamId) {
+    private List<PlayerSeason> getPlayerSeasonsByTeamImpl(long teamId, int season) {
         Map<String, Object> map = Maps.newHashMap();
         map.put("teamId", teamId);
-        map.put("season", SEASON);
-        return Connector.get(PlayerSeason.class, map);
+        map.put("season", season);
+        return Repository.get(PlayerSeason.class, map);
+    }
+
+    private List<PlayerSeason> getPlayerSeasonsByTeamImpl(long teamId) {
+        return getPlayerSeasonsByTeamImpl(teamId, SEASON);
     }
 
     private List<PlayerSeason> getPlayerSeasonsImpl(Collection<Long> playerIds) {
         Map<String, Object> map = Maps.newHashMap();
         map.put("playerId", playerIds);
-        return Connector.get(PlayerSeason.class, map);
+        return Repository.get(PlayerSeason.class, map);
     }
 
     private static void addTeamsToPlayerSeasons(Collection<Team> teams, Collection<PlayerSeason> playerSeasons) {

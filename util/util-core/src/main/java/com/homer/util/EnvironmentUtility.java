@@ -26,7 +26,6 @@ public class EnvironmentUtility {
     private EnvironmentUtility() throws ConfigurationException {
         String boxfuseEnv = System.getProperty(BOXFUSE_ENV);
         if (boxfuseEnv != null) {
-            System.out.println("USING BOXFUSE PROPERTIES");
             setDatabaseUrl(System.getProperty(BOXFUSE_DATABASE_URL));
             setDatabaseUser(System.getProperty(BOXFUSE_DATABASE_USER));
             setDatabasePassword(System.getProperty(BOXFUSE_DATABASE_PASSWORD));
@@ -46,20 +45,17 @@ public class EnvironmentUtility {
             setShouldMigrate(config.getBoolean("migrate"));
             setDatabaseSchema(config.getString("schema"));
         }
-        System.out.println(getDatabaseUrl());
-        System.out.println(getDatabaseUser());
-        System.out.println(getDatabasePassword());
-        System.out.println(getInstanceIP());
-        System.out.println(getInstancePort());
-        System.out.println(getDatabaseUrl());
-        System.out.println(getDatabaseUrl());
     }
 
     private static EnvironmentUtility instance;
 
-    public static EnvironmentUtility getInstance() throws ConfigurationException {
+    public static EnvironmentUtility getInstance() {
         if (instance == null) {
-            instance = new EnvironmentUtility();
+            try {
+                instance = new EnvironmentUtility();
+            } catch (ConfigurationException e) {
+                e.printStackTrace();
+            }
         }
         return instance;
     }

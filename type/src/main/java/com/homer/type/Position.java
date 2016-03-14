@@ -21,7 +21,8 @@ public enum Position implements IIntEnum<Position> {
     OUTFIELD(7, "OF", UTILITY, null),
     DESIGNATEDHITTER(8, "DH", UTILITY, null),
     RELIEFPITCHER(9, "RP", null, null),
-    DISABLIEDLIST(13, "DL", null, null);
+    DISABLIEDLIST(13, "DL", null, null),
+    MINORLEAGUES(14, "MIN", null, null);
 
     private final int id;
     private final String name;
