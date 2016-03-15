@@ -8,4 +8,5 @@ import java.util.EnumSet;
 public interface IIntEnum<T extends IIntEnum<T>> {
 
     int getId();
+    String getName();
 }

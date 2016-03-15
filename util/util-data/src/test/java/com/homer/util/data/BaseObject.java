@@ -57,18 +57,13 @@ public class BaseObject implements IBaseObject {
 
         BaseObject that = (BaseObject) o;
 
-        if (id != that.id) return false;
-        if (!createdDateUTC.equals(that.createdDateUTC)) return false;
-        return updatedDateUTC.equals(that.updatedDateUTC);
+        return id == that.id;
 
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + createdDateUTC.hashCode();
-        result = 31 * result + updatedDateUTC.hashCode();
-        return result;
+        return (int) (id ^ (id >>> 32));
     }
 
     @Override

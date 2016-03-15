@@ -2,6 +2,7 @@ package com.homer.type.history;
 
 import com.homer.type.PlayerSeason;
 import com.homer.util.core.IHistoryObject;
+import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
@@ -9,19 +10,43 @@ import javax.persistence.Table;
 /**
  * Created by arigolub on 2/14/16.
  */
-@Table(name = "historyPlayerSeason")
+@Table(name = "history_player_seasons", schema = "homer")
 public class HistoryPlayerSeason extends PlayerSeason implements IHistoryObject {
 
     @Column
-    private long objectId;
+    private long historyId;
+    @Column
+    private DateTime historyCreatedDateUTC;
+    @Column
+    private boolean isDeleted;
 
     @Override
-    public long getObjectId() {
-        return objectId;
+    public long getHistoryId() {
+        return historyId;
     }
 
     @Override
-    public void setObjectId(long objectId) {
-        this.objectId = objectId;
+    public void setHistoryId(long historyId) {
+        this.historyId = historyId;
+    }
+
+    @Override
+    public DateTime getHistoryCreatedDateUTC() {
+        return historyCreatedDateUTC;
+    }
+
+    @Override
+    public void setHistoryCreatedDateUTC(DateTime historyCreatedDateUTC) {
+        this.historyCreatedDateUTC = historyCreatedDateUTC;
+    }
+
+    @Override
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    @Override
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

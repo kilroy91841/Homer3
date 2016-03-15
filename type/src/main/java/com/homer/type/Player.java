@@ -1,16 +1,16 @@
 package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.homer.util.EnumUtil;
-import org.apache.commons.collections.EnumerationUtils;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
+import java.util.Objects;
 
 /**
  * Created by arigolub on 2/14/16.
  */
-@Table(name = "player")
+@Table(name = "players", schema = "homer")
 public class Player extends BaseObject {
 
     @Column
@@ -20,14 +20,54 @@ public class Player extends BaseObject {
     @Column
     private String lastName;
     @Column
-    @JsonIgnore
-    private int positionId;
+    private Position position;
     @Column
     @JsonIgnore
     private int mlbTeamId;
+    @Column
+    @Nullable
+    private Long mlbPlayerId;
 
-    private MLBTeam mlbTeam;
-    private Position position;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Player player = (Player) o;
+
+        if (mlbTeamId != player.mlbTeamId) return false;
+        if (!name.equals(player.name)) return false;
+        if (!firstName.equals(player.firstName)) return false;
+        if (!lastName.equals(player.lastName)) return false;
+        if (mlbPlayerId != null ? !mlbPlayerId.equals(player.mlbPlayerId) : player.mlbPlayerId!= null) return false;
+        return position == player.position;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + firstName.hashCode();
+        result = 31 * result + lastName.hashCode();
+        result = 31 * result + position.hashCode();
+        result = 31 * result + mlbTeamId;
+        result = 31 * result + (mlbPlayerId != null ? mlbPlayerId.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", position=" + position +
+                ", mlbTeamId=" + mlbTeamId +
+                ", mlbPlayerId=" + mlbPlayerId +
+                "} " + super.toString();
+    }
 
     public String getName() {
         return name;
@@ -53,36 +93,12 @@ public class Player extends BaseObject {
         this.lastName = lastName;
     }
 
-    public int getPositionId() {
-        return positionId;
-    }
-
-    public void setPositionId(int positionId) {
-        this.positionId = positionId;
-    }
-
     public Position getPosition() {
-        if (position == null) {
-            position = EnumUtil.from(Position.class, positionId);
-        }
         return position;
     }
 
     public void setPosition(Position position) {
         this.position = position;
-        this.positionId = position.getId();
-    }
-
-    public MLBTeam getMlbTeam() {
-        if (mlbTeam == null) {
-            mlbTeam = EnumUtil.from(MLBTeam.class, mlbTeamId);
-        }
-        return mlbTeam;
-    }
-
-    public void setMlbTeam(MLBTeam mlbTeam) {
-        this.mlbTeam = mlbTeam;
-        this.mlbTeamId = mlbTeam.getId();
     }
 
     public int getMlbTeamId() {
@@ -91,5 +107,14 @@ public class Player extends BaseObject {
 
     public void setMlbTeamId(int mlbTeamId) {
         this.mlbTeamId = mlbTeamId;
+    }
+
+    @Nullable
+    public Long getMlbPlayerId() {
+        return mlbPlayerId;
+    }
+
+    public void setMlbPlayerId(@Nullable Long mlbPlayerId) {
+        this.mlbPlayerId = mlbPlayerId;
     }
 }

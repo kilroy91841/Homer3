@@ -13,8 +13,10 @@ public class EnvironmentUtility {
     private String databasePassword;
     private String instanceIP;
     private String instancePort;
-    private boolean doMigrate;
     private String databaseSchema;
+
+    private boolean doMigrate;
+    private boolean doClean;
 
     private static String BOXFUSE_DATABASE_URL = "BOXFUSE_DATABASE_URL";
     private static String BOXFUSE_DATABASE_USER = "BOXFUSE_DATABASE_USER";
@@ -32,8 +34,9 @@ public class EnvironmentUtility {
             setInstanceIP(System.getProperty(BOXFUSE_INSTANCE_IP));
             setInstancePort(System.getProperty(BOXFUSE_PORTS_HTTP));
             //TODO don't just set this to true
+            setShouldClean(true);
             setShouldMigrate(true);
-            setDatabaseSchema("homer3");
+            setDatabaseSchema("homer");
 
         } else {
             PropertiesConfiguration config = new PropertiesConfiguration("prop_local.properties");
@@ -44,6 +47,7 @@ public class EnvironmentUtility {
             setInstancePort(config.getString("instancePort"));
             setShouldMigrate(config.getBoolean("migrate"));
             setDatabaseSchema(config.getString("schema"));
+            setShouldClean(config.getBoolean("clean"));
         }
     }
 
@@ -114,5 +118,13 @@ public class EnvironmentUtility {
 
     private void setDatabaseSchema(String databaseSchema) {
         this.databaseSchema = databaseSchema;
+    }
+
+    public boolean shouldClean() {
+        return doClean;
+    }
+
+    public void setShouldClean(boolean doClean) {
+        this.doClean = doClean;
     }
 }

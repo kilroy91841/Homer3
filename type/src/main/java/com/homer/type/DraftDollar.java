@@ -2,29 +2,61 @@ package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.homer.util.EnumUtil;
+import com.homer.util.HomerBeanUtil;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
 
 /**
  * Created by arigolub on 2/14/16.
  */
-@Table(name = "draft_dollar")
+@Table(name = "draft_dollars", schema = "homer")
 public class DraftDollar extends BaseObject {
 
-    @Column
+    @Column(updatable = false)
     @JsonIgnore
     private long teamId;
-    @Column
-    private String season;
-    @Column
-    @JsonIgnore
-    private int draftDollarTypeId;
+    @Column(updatable = false)
+    private int season;
+    @Column(updatable = false)
+    private DraftDollarType draftDollarType;
     @Column
     private int amount;
 
-    private Team team;
-    private DraftDollarType draftDollarType;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        DraftDollar that = (DraftDollar) o;
+
+        if (teamId != that.teamId) return false;
+        if (season != that.season) return false;
+        if (amount != that.amount) return false;
+        return draftDollarType == that.draftDollarType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) (teamId ^ (teamId >>> 32));
+        result = 31 * result + season;
+        result = 31 * result + draftDollarType.hashCode();
+        result = 31 * result + amount;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "DraftDollar{" +
+                "teamId=" + teamId +
+                ", season=" + season +
+                ", draftDollarType=" + draftDollarType +
+                ", amount=" + amount +
+                "} " + super.toString();
+    }
 
     public long getTeamId() {
         return teamId;
@@ -34,20 +66,12 @@ public class DraftDollar extends BaseObject {
         this.teamId = teamId;
     }
 
-    public String getSeason() {
+    public int getSeason() {
         return season;
     }
 
-    public void setSeason(String season) {
+    public void setSeason(int season) {
         this.season = season;
-    }
-
-    public int getDraftDollarTypeId() {
-        return draftDollarTypeId;
-    }
-
-    public void setDraftDollarTypeId(int draftDollarTypeId) {
-        this.draftDollarTypeId = draftDollarTypeId;
     }
 
     public int getAmount() {
@@ -58,23 +82,11 @@ public class DraftDollar extends BaseObject {
         this.amount = amount;
     }
 
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
     public DraftDollarType getDraftDollarType() {
-        if (draftDollarType == null) {
-            draftDollarType = EnumUtil.from(DraftDollarType.class, draftDollarTypeId);
-        }
         return draftDollarType;
     }
 
     public void setDraftDollarType(DraftDollarType draftDollarType) {
         this.draftDollarType = draftDollarType;
-        this.draftDollarTypeId = draftDollarType.getId();
     }
 }

@@ -18,4 +18,12 @@ public class EnumUtil {
         return null;
     }
 
+    public static <T extends IIntEnum> T fromNotParameterized(Class<T> clazz, int id) {
+        return (T) from(clazz, id);
+    }
+
+    public static <T extends IIntEnum> int to(T obj) {
+        return obj.getId();
+    }
+
 }

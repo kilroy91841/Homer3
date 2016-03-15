@@ -1,6 +1,8 @@
 package com.homer.type;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.homer.util.EnumUtil;
 import com.homer.util.core.IIntEnum;
 
 /**
@@ -36,10 +38,12 @@ public enum Position implements IIntEnum<Position> {
         this.grants2 = grants2;
     }
 
+    @Override
     public int getId() {
         return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -50,5 +54,10 @@ public enum Position implements IIntEnum<Position> {
 
     public Position getGrants2() {
         return grants2;
+    }
+
+    @JsonCreator
+    public static Position forValue(String value) {
+        return EnumUtil.from(Position.class, Integer.valueOf(value));
     }
 }
