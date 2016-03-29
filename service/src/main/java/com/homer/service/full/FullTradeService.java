@@ -5,7 +5,7 @@ import com.homer.service.*;
 import com.homer.type.*;
 import com.homer.type.view.TradeView;
 import com.homer.util.LeagueUtil;
-import com.sun.tools.javac.util.Pair;
+import com.homer.util.core.Tuple;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -64,13 +64,13 @@ public class FullTradeService implements IFullTradeService {
                 picksToUpdate.add(updatedPick);
                 te.setMinorLeaguePickId(updatedPick.getId());
             } else if (tev.getDraftDollar() != null) {
-                Pair<DraftDollar, DraftDollar> pair =
+                Tuple<DraftDollar> pair =
                         draftDollarService.transferMoney(teamFromId, teamToId,
                                 tev.getDraftDollar().getSeason(), tev.getDraftDollar().getDraftDollarType(),
                                 tev.getDraftDollarAmount());
-                dollarsToUpdate.add(pair.fst);
-                dollarsToUpdate.add(pair.snd);
-                te.setDraftDollarId(pair.fst.getId());
+                dollarsToUpdate.add(pair.getLeft());
+                dollarsToUpdate.add(pair.getRight());
+                te.setDraftDollarId(pair.getLeft().getId());
                 te.setDraftDollarAmount(tev.getDraftDollarAmount());
             } else if (tev.getPlayer() != null) {
                 PlayerSeason updatedPlayer = playerSeasonService.switchTeam(tev.getPlayer().getId(), LeagueUtil.SEASON,

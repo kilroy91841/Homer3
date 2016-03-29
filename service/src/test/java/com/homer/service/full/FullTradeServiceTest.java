@@ -5,8 +5,8 @@ import com.homer.type.*;
 import com.homer.type.view.TradeElementView;
 import com.homer.type.view.TradeView;
 import com.homer.util.LeagueUtil;
+import com.homer.util.core.Tuple;
 import org.junit.Before;
-import com.sun.tools.javac.util.Pair;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -42,7 +42,7 @@ public class FullTradeServiceTest {
 
         when(playerSeasonService.switchTeam(anyLong(), anyInt(), anyLong(), anyLong())).thenReturn(new PlayerSeason());
         when(draftDollarService.transferMoney(anyLong(), anyLong(), anyInt(), any(DraftDollarType.class), anyInt()))
-                .thenReturn(Pair.of(new DraftDollar(), new DraftDollar()));
+                .thenReturn(new Tuple<>(new DraftDollar(), new DraftDollar()));
         when(minorLeaguePickService.transferPick(anyLong(), anyLong(), anyLong(), anyInt(), anyInt())).thenReturn(new MinorLeaguePick());
         when(minorLeaguePickService.transferSwapRights(anyLong(), anyLong(), anyLong(), anyInt(), anyInt())).thenReturn(new MinorLeaguePick());
 

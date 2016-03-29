@@ -5,7 +5,7 @@ import com.homer.data.common.IDraftDollarRepository;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.type.DraftDollar;
 import com.homer.type.DraftDollarType;
-import com.sun.tools.javac.util.Pair;
+import com.homer.util.core.Tuple;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -44,7 +44,7 @@ public class DraftDollarService extends BaseIdService<DraftDollar> implements ID
     }
 
     @Override
-    public Pair<DraftDollar, DraftDollar> transferMoney(long fromTeamId, long toTeamId, int season, DraftDollarType draftDollarType, int amount) {
+    public Tuple<DraftDollar> transferMoney(long fromTeamId, long toTeamId, int season, DraftDollarType draftDollarType, int amount) {
         DraftDollar fromDollar = getDraftDollar(fromTeamId, draftDollarType, season);
         DraftDollar toDollar = getDraftDollar(toTeamId, draftDollarType, season);
         if (fromDollar == null || toDollar == null) {
@@ -56,7 +56,7 @@ public class DraftDollarService extends BaseIdService<DraftDollar> implements ID
         }
         fromDollar.setAmount(fromDollar.getAmount() - amount);
         toDollar.setAmount(toDollar.getAmount() + amount);
-        return Pair.of(fromDollar, toDollar);
+        return new Tuple<>(fromDollar, toDollar);
     }
 
     @Nullable

@@ -4,7 +4,7 @@ import com.homer.data.common.IDraftDollarRepository;
 import com.homer.type.DraftDollar;
 import com.homer.type.DraftDollarType;
 import com.homer.util.LeagueUtil;
-import com.sun.tools.javac.util.Pair;
+import com.homer.util.core.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,9 +55,9 @@ public class DraftDollarServiceTest {
 
     @Test
     public void test_SuccessfulTransfer() {
-        Pair<DraftDollar, DraftDollar> pair = service.transferMoney(FROM_TEAM, TO_TEAM, LeagueUtil.SEASON, DraftDollarType.MLBAUCTION, 100);
-        DraftDollar fromDollar = pair.fst;
-        DraftDollar toDollar = pair.snd;
+        Tuple<DraftDollar> pair = service.transferMoney(FROM_TEAM, TO_TEAM, LeagueUtil.SEASON, DraftDollarType.MLBAUCTION, 100);
+        DraftDollar fromDollar = pair.getLeft();
+        DraftDollar toDollar = pair.getRight();
         assertEquals(fromDollar.getAmount(), FROM_STARTING_AMOUNT - 100);
         assertEquals(toDollar.getAmount(), TO_STARTING_AMOUNT + 100);
     }
