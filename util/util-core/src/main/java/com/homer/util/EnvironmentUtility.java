@@ -33,8 +33,8 @@ public class EnvironmentUtility {
             setDatabasePassword(System.getProperty(BOXFUSE_DATABASE_PASSWORD));
             setInstanceIP(System.getProperty(BOXFUSE_INSTANCE_IP));
             setInstancePort(System.getProperty(BOXFUSE_PORTS_HTTP));
+            setShouldClean(false);
             //TODO don't just set this to true
-            setShouldClean(true);
             setShouldMigrate(true);
             setDatabaseSchema("homer");
 
