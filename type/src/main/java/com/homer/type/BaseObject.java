@@ -8,20 +8,36 @@ import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 
-
 /**
  * Created by arigolub on 2/14/16.
  */
 public class BaseObject implements IBaseObject {
 
-    @Column(name = "id")
+    @Column(name = "id", updatable = false)
     private long id;
-    @Column(name = "createdDateUTC")
+
+    @Column(name = "createdDateUTC", updatable = false)
     @JsonIgnore
     private DateTime createdDateUTC;
+
     @Column(name = "updatedDateUTC")
     @JsonIgnore
     private DateTime updatedDateUTC;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BaseObject that = (BaseObject) o;
+
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 
     public long getId() {
         return id;

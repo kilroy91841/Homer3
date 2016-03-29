@@ -9,56 +9,65 @@ import com.homer.util.core.IIntEnum;
 @SuppressWarnings("SpellCheckingInspection")
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum MLBTeam implements IIntEnum<MLBTeam> {
-    NEWYORKYANKEES(1, "New York Yankees", "NYY"),
-    BOSTONREDSOX(2, "Boston Red Sox", "BOS"),
-    BALTIMOREORIOLES(3, "Baltimore Orioles", "BAL"),
-    TORONTOBLUEJAYS(4, "Toronto Blue Jays", "TOR"),
-    TAMPABAYRAYS(5, "Tampa Bay Rays", "TB"),
-    KANSASCITYROYALS(6, "Kansas City Royals", "KC"),
-    DETROITTIGERS(7, "Detroit Tigers", "DET"),
-    CHICAGOWHITESOX(8, "Chicago White Sox", "CHW"),
-    CLEVELANDINDIANS(9, "Cleveland Indians", "CLE"),
-    MINNESOTATWINS(10, "Minnesota Twins", "MIN"),
-    TEXASRANGERS(11, "Texas Rangers", "TEX"),
-    OAKLANDATHLETICS(12, "Oakland Athletics", "OAK"),
-    SEATTLEMARINERS(13, "Seattle Marines", "SEA"),
-    LOSANGELESANGELS(14, "Los Angeles Angels", "LAA"),
-    HOUSTONASTROS(15, "Houston Astros", "HOU"),
-    NEWYORKMETS(16, "New York Mets", "NYM"),
-    WASHINGTONNATIONALS(17, "Washington Nationals", "WAS"),
-    ATLANTABRAVES(18, "Atlanta Braves", "ATL"),
-    MIAMIMARLINS(19, "Miami Marlins", "MIA"),
-    PHILADELPHIAPHILLIES(20, "Philadelphia Phillies", "PHI"),
-    STLOUISCARDINALS(21, "St. Louis Cardinals", "STL"),
-    CHICAGOCUBS(22, "Chicago Cubs", "CHC"),
-    PITTSBURGHPIRATES(23, "Pittsburgh Pirates", "PIT"),
-    MILWAUKEEBREWERS(24, "Milwaukee Brewers", "MIL"),
-    CINCINNATIREDS(25, "Cincinnati Reds", "CIN"),
-    LOSANGELESDODGERS(26, "Los Angeles Dodgers", "LAD"),
-    COLORADOROCKIES(27, "Colorado Rockies", "COL"),
-    SANFRANCISCOGIANTS(28, "San Francisco Giants", "SF"),
-    SANDIEGOPADRES(29, "San Diego Padres", "SD"),
-    ARIZONADIAMONDBACKS(30, "Arizona Diamondbacks", "ARI");
+    LOSANGELESANGELS(108, "ana", "Los Angeles Angels", "LAA"),
+    ARIZONADIAMONDBACKS(109, "ari", "Arizona Diamondbacks", "ARI"),
+    ATLANTABRAVES(144, "atl", "Atlanta Braves", "ATL"),
+    BALTIMOREORIOLES(110, "bal", "Baltimore Orioles", "BAL"),
+    BOSTONREDSOX(111, "bos", "Boston Red Sox", "BOS"),
+    CHICAGOCUBS(112, "chn", "Chicago Cubs", "CHC"),
+    CINCINNATIREDS(113, "cin", "Cincinnati Reds", "CIN"),
+    CLEVELANDINDIANS(114, "cle", "Cleveland Indians", "CLE"),
+    COLORADOROCKIES(115, "col", "Colorado Rockies", "COL"),
+    CHICAGOWHITESOX(145, "cha", "Chicago White Sox", "CHW"),
+    DETROITTIGERS(116, "det", "Detroit Tigers", "DET"),
+    HOUSTONASTROS(117, "hou", "Houston Astros", "HOU"),
+    KANSASCITYROYALS(118, "kca", "Kansas City Royals", "KC"),
+    LOSANGELESDODGERS(119, "lan", "Los Angeles Dodgers", "LAD"),
+    MIAMIMARLINS(146, "mia", "Miami Marlins", "MIA"),
+    MILWAUKEEBREWERS(158, "mil", "Milwaukee Brewers", "MIL"),
+    MINNESOTATWINS(142, "min", "Minnesota Twins", "MIN"),
+    NEWYORKMETS(121, "nyn", "New York Mets", "NYM"),
+    NEWYORKYANKEES(147, "nya", "New York Yankees", "NYY"),
+    OAKLANDATHLETICS(133, "oak", "Oakland Athletics", "OAK"),
+    PHILADELPHIAPHILLIES(143, "phi", "Philadelphia Phillies", "PHI"),
+    PITTSBURGHPIRATES(134, "pit", "Pittsburgh Pirates", "PIT"),
+    SANDIEGOPADRES(135, "sdn", "San Diego Padres", "SD"),
+    SEATTLEMARINERS(136, "sea", "Seattle Mariners", "SEA"),
+    SANFRANCISCOGIANTS(137, "sfn", "San Francisco Giants", "SF"),
+    STLOUISCARDINALS(138, "sln", "St. Louis Cardinals", "STL"),
+    TAMPABAYRAYS(139, "tba", "Tampa Bay Rays", "TB"),
+    TEXASRANGERS(140, "tex", "Texas Rangers", "TEX"),
+    TORONTOBLUEJAYS(141, "tor", "Toronto Blue Jays", "TOR"),
+    WASHINGTONNATIONALS(120, "was", "Washington Nationals", "WAS"),
+    ;
 
     private final int id;
     private final String name;
     private final String abbreviation;
+    private final String mlbAbbreviation;
 
-    private MLBTeam(int id, String name, String abbreviation) {
+    private MLBTeam(int id, String mlbAbbreviation, String name, String abbreviation) {
         this.id = id;
         this.name = name;
         this.abbreviation = abbreviation;
+        this.mlbAbbreviation = mlbAbbreviation;
     }
 
+    @Override
     public int getId() {
         return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
     public String getAbbreviation() {
         return abbreviation;
+    }
+
+    public String getMlbAbbreviation() {
+        return mlbAbbreviation;
     }
 }

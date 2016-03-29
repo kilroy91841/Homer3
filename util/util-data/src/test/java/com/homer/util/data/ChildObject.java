@@ -6,17 +6,19 @@ import javax.persistence.Table;
 /**
  * Created by arigolub on 2/14/16.
  */
-@Table(name = "test")
+@Table(name = "test", schema="homer")
 public class ChildObject extends BaseObject {
 
-    @Column(name = "longObject")
+    @Column
     private Long longObject;
-    @Column(name = "count")
+    @Column
     private int count;
-    @Column(name = "name")
+    @Column
     private String name;
-    @Column(name = "myBool")
+    @Column
     private boolean myBool;
+    @Column
+    private DummyEnum dummyEnum;
 
     public Long getLongObject() {
         return longObject;
@@ -50,17 +52,27 @@ public class ChildObject extends BaseObject {
         this.myBool = myBool;
     }
 
+    public DummyEnum getDummyEnum() {
+        return dummyEnum;
+    }
+
+    public void setDummyEnum(DummyEnum dummyEnum) {
+        this.dummyEnum = dummyEnum;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         ChildObject that = (ChildObject) o;
 
         if (count != that.count) return false;
         if (myBool != that.myBool) return false;
         if (longObject != null ? !longObject.equals(that.longObject) : that.longObject != null) return false;
-        return name.equals(that.name);
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return dummyEnum == that.dummyEnum;
 
     }
 
@@ -71,6 +83,7 @@ public class ChildObject extends BaseObject {
         result = 31 * result + count;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (myBool ? 1 : 0);
+        result = 31 * result + (dummyEnum != null ? dummyEnum.hashCode() : 0);
         return result;
     }
 
@@ -79,8 +92,9 @@ public class ChildObject extends BaseObject {
         return "ChildObject{" +
                 "longObject=" + longObject +
                 ", count=" + count +
-                ", myBool=" + myBool +
                 ", name='" + name + '\'' +
-                '}';
+                ", myBool=" + myBool +
+                ", dummyEnum=" + dummyEnum +
+                "} " + super.toString();
     }
 }

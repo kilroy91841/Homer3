@@ -23,6 +23,9 @@ public class Migrate {
                 ENV_UTIL.getDatabasePassword());
         flyway.setSchemas(ENV_UTIL.getDatabaseSchema());
         flyway.repair();
+        if (ENV_UTIL.shouldClean()) {
+            flyway.clean();
+        }
         flyway.migrate();
     }
 }

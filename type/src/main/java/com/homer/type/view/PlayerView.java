@@ -1,50 +1,49 @@
 package com.homer.type.view;
 
+import com.homer.type.MLBTeam;
 import com.homer.type.Player;
-import com.homer.type.PlayerSeason;
-import com.homer.type.Position;
-import com.homer.type.Team;
+import com.homer.util.HomerBeanUtil;
 
 import java.util.List;
 
 /**
  * Created by arigolub on 3/5/16.
  */
-public class PlayerView {
+public class PlayerView extends Player {
 
-    private Player player;
-    private List<PlayerSeason> playerSeasons;
-    private PlayerSeason currentSeason;
+    private MLBTeam mlbTeam;
+    private List<PlayerSeasonView> playerSeasons;
+    private PlayerSeasonView currentSeason;
 
-    public PlayerView() {
+    public PlayerView() { }
+
+    public static PlayerView from(Player player) {
+        PlayerView pv = new PlayerView();
+        HomerBeanUtil.copyProperties(pv, player);
+        return pv;
     }
 
-    public PlayerView(Player player, List<PlayerSeason> playerSeasons) {
-        this.player = player;
-        this.playerSeasons = playerSeasons;
+    public MLBTeam getMlbTeam() {
+        return mlbTeam;
     }
 
-    public Player getPlayer() {
-        return player;
+    public void setMlbTeam(MLBTeam mlbTeam) {
+        this.mlbTeam = mlbTeam;
     }
 
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public List<PlayerSeason> getPlayerSeasons() {
+    public List<PlayerSeasonView> getPlayerSeasons() {
         return playerSeasons;
     }
 
-    public void setPlayerSeasons(List<PlayerSeason> playerSeasons) {
+    public void setPlayerSeasons(List<PlayerSeasonView> playerSeasons) {
         this.playerSeasons = playerSeasons;
     }
 
-    public PlayerSeason getCurrentSeason() {
+    public PlayerSeasonView getCurrentSeason() {
         return currentSeason;
     }
 
-    public void setCurrentSeason(PlayerSeason currentSeason) {
+    public void setCurrentSeason(PlayerSeasonView currentSeason) {
         this.currentSeason = currentSeason;
     }
 }

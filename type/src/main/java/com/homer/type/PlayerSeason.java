@@ -1,28 +1,30 @@
 package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.homer.util.EnumUtil;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
 
 /**
  * Created by arigolub on 2/14/16.
  */
-@Table(name = "player_season")
+@Table(name = "player_seasons", schema = "homer")
 public class PlayerSeason extends BaseObject {
 
-    @Column
+    @Column(updatable = false)
     private int season;
-    @Column
+    @Column(updatable = false)
     private long playerId;
     @Column
-    @JsonIgnore
-    private long teamId;
+    @Nullable
+    private Long teamId;
+    @Nullable
     @Column
-    @JsonIgnore
-    private int positionId;
+    private Position fantasyPosition;
     @Column
+    @Nullable
     @JsonIgnore
     private Long keeperTeamId;
     @Column
@@ -32,9 +34,52 @@ public class PlayerSeason extends BaseObject {
     @Column
     private boolean isMinorLeaguer;
 
-    private Position fantasyPosition;
-    private Team team;
-    private Team keeperTeam;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        PlayerSeason that = (PlayerSeason) o;
+
+        if (season != that.season) return false;
+        if (playerId != that.playerId) return false;
+        if (keeperSeason != that.keeperSeason) return false;
+        if (salary != that.salary) return false;
+        if (isMinorLeaguer != that.isMinorLeaguer) return false;
+        if (teamId != null ? !teamId.equals(that.teamId) : that.teamId != null) return false;
+        if (fantasyPosition != null ? !fantasyPosition.equals(that.fantasyPosition) : that.fantasyPosition != null) return false;
+        return keeperTeamId != null ? keeperTeamId.equals(that.keeperTeamId) : that.keeperTeamId == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + season;
+        result = 31 * result + (int) (playerId ^ (playerId >>> 32));
+        result = 31 * result + (teamId != null ? teamId.hashCode() : 0);
+        result = 31 * result + (fantasyPosition != null ? fantasyPosition.hashCode() : 0);
+        result = 31 * result + (keeperTeamId != null ? keeperTeamId.hashCode() : 0);
+        result = 31 * result + keeperSeason;
+        result = 31 * result + salary;
+        result = 31 * result + (isMinorLeaguer ? 1 : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerSeason{" +
+                "season=" + season +
+                ", playerId=" + playerId +
+                ", teamId=" + teamId +
+                ", fantasyPosition=" + fantasyPosition +
+                ", keeperTeamId=" + keeperTeamId +
+                ", keeperSeason=" + keeperSeason +
+                ", salary=" + salary +
+                ", isMinorLeaguer=" + isMinorLeaguer +
+                "} " + super.toString();
+    }
 
     public int getSeason() {
         return season;
@@ -52,32 +97,31 @@ public class PlayerSeason extends BaseObject {
         this.playerId = playerId;
     }
 
-    public long getTeamId() {
+    @Nullable
+    public Long getTeamId() {
         return teamId;
     }
 
-    public void setTeamId(long teamId) {
+    public void setTeamId(@Nullable Long teamId) {
         this.teamId = teamId;
     }
 
-    public int getPositionId() {
-        return positionId;
-    }
-
-    public void setPositionId(int positionId) {
-        this.positionId = positionId;
-    }
-
+    @Nullable
     public Position getFantasyPosition() {
-        if (fantasyPosition == null) {
-            fantasyPosition = EnumUtil.from(Position.class, positionId);
-        }
         return fantasyPosition;
     }
 
-    public void setFantasyPosition(Position fantasyPosition) {
+    public void setFantasyPosition(@Nullable Position fantasyPosition) {
         this.fantasyPosition = fantasyPosition;
-        this.positionId = fantasyPosition.getId();
+    }
+
+    @Nullable
+    public Long getKeeperTeamId() {
+        return keeperTeamId;
+    }
+
+    public void setKeeperTeamId(@Nullable Long keeperTeamId) {
+        this.keeperTeamId = keeperTeamId;
     }
 
     public int getKeeperSeason() {
@@ -96,35 +140,11 @@ public class PlayerSeason extends BaseObject {
         this.salary = salary;
     }
 
-    public boolean isMinorLeaguer() {
+    public boolean getIsMinorLeaguer() {
         return isMinorLeaguer;
     }
 
     public void setIsMinorLeaguer(boolean minorLeaguer) {
-        isMinorLeaguer = minorLeaguer;
-    }
-
-    public Long getKeeperTeamId() {
-        return keeperTeamId;
-    }
-
-    public void setKeeperTeamId(Long keeperTeamId) {
-        this.keeperTeamId = keeperTeamId;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
-    public Team getKeeperTeam() {
-        return keeperTeam;
-    }
-
-    public void setKeeperTeam(Team keeperTeam) {
-        this.keeperTeam = keeperTeam;
+        this.isMinorLeaguer = minorLeaguer;
     }
 }

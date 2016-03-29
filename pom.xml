@@ -12,8 +12,8 @@
         <module>util</module>
         <module>type</module>
         <module>web</module>
-        <module>migration</module>
         <module>service</module>
+        <module>data</module>
     </modules>
 
     <pluginRepositories>
@@ -81,6 +81,21 @@
                 <artifactId>flyway-core</artifactId>
                 <version>4.0</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.10.19</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.collections</groupId>
+                <artifactId>google-collections</artifactId>
+                <version>1.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -101,8 +116,11 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>3.2.1</version>
                 <configuration>
-                    <url>jdbc:mysql://localhost/homer3</url>
+                    <url>jdbc:mysql://localhost</url>
                     <user>root</user>
+                    <schemas>
+                        <schema>homer</schema>
+                    </schemas>
                 </configuration>
             </plugin>
         </plugins>

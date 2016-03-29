@@ -1,43 +1,76 @@
 package com.homer.type.view;
 
+import com.google.common.collect.Lists;
 import com.homer.type.Position;
 import com.homer.type.Team;
+import com.homer.util.HomerBeanUtil;
+import com.homer.util.core.$;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
  * Created by arigolub on 2/15/16.
  */
-public class TeamView {
+public class TeamView extends Team {
 
-    private Team team;
-    private List<PlayerView> majorLeaguers;
-    private List<PlayerView> minorLeaguers;
+    private List<PlayerView> majorLeaguers = Lists.newArrayList();
+    private List<PlayerView> minorLeaguers = Lists.newArrayList();
     private int salary;
 
-    private List<PlayerView> catcher;
-    private List<PlayerView> firstBase;
-    private List<PlayerView> secondBase;
-    private List<PlayerView> thirdBase;
-    private List<PlayerView> shortstop;
-    private List<PlayerView> middleInfield;
-    private List<PlayerView> cornerInfield;
-    private List<PlayerView> outfield;
-    private List<PlayerView> utility;
-    private List<PlayerView> pitcher;
-    private List<PlayerView> disabledList;
+    private List<PlayerView> catcher = Lists.newArrayList();
+    private List<PlayerView> firstBase = Lists.newArrayList();
+    private List<PlayerView> secondBase = Lists.newArrayList();
+    private List<PlayerView> thirdBase = Lists.newArrayList();
+    private List<PlayerView> shortstop = Lists.newArrayList();
+    private List<PlayerView> middleInfield = Lists.newArrayList();
+    private List<PlayerView> cornerInfield = Lists.newArrayList();
+    private List<PlayerView> outfield = Lists.newArrayList();
+    private List<PlayerView> utility = Lists.newArrayList();
+    private List<PlayerView> pitcher = Lists.newArrayList();
+    private List<PlayerView> disabledList = Lists.newArrayList();
 
-    public Team getTeam() {
-        return team;
+    private List<DraftDollarView> draftDollars = Lists.newArrayList();
+    private List<MinorLeaguePickView> minorLeaguePicks = Lists.newArrayList();
+
+    private List<TradeView> trades = Lists.newArrayList();
+
+    public TeamView() { }
+
+    public static TeamView from(Team team) {
+        TeamView tv = new TeamView();
+        HomerBeanUtil.copyProperties(tv, team);
+        return tv;
     }
 
-    public void setTeam(Team team) {
-        this.team = team;
+    //region getters + setters
+
+    public List<MinorLeaguePickView> getMinorLeaguePicks() {
+        return minorLeaguePicks;
     }
+
+    public void setMinorLeaguePicks(List<MinorLeaguePickView> minorLeaguePicks) {
+        this.minorLeaguePicks = minorLeaguePicks;
+    }
+
+    public List<DraftDollarView> getDraftDollars() {
+        return draftDollars;
+    }
+
+    public void setDraftDollars(List<DraftDollarView> draftDollars) {
+        this.draftDollars = draftDollars;
+    }
+
+    public List<TradeView> getTrades() {
+        return trades;
+    }
+
+    public void setTrades(List<TradeView> trades) {
+        this.trades = trades;
+    }
+
+    //region players
 
     public List<PlayerView> getMajorLeaguers() {
         return majorLeaguers;
@@ -63,15 +96,8 @@ public class TeamView {
         this.salary = salary;
     }
 
-    private void setPosition(BiConsumer<TeamView, List<PlayerView>> setter, Position position) {
-        setter.accept(this, majorLeaguers.
-                stream().
-                filter(p -> p.getCurrentSeason().getFantasyPosition() == position).
-                collect(Collectors.toList()));
-    }
-
     public List<PlayerView> getCatcher() {
-        if (catcher == null) {
+        if (catcher.size() == 0) {
             setPosition(TeamView::setCatcher, Position.CATCHER);
         }
         return catcher;
@@ -82,7 +108,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getFirstBase() {
-        if (firstBase == null) {
+        if (firstBase.size() == 0) {
             setPosition(TeamView::setFirstBase, Position.FIRSTBASE);
         }
         return firstBase;
@@ -93,7 +119,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getSecondBase() {
-        if (secondBase == null) {
+        if (secondBase.size() == 0) {
             setPosition(TeamView::setSecondBase, Position.SECONDBASE);
         }
         return secondBase;
@@ -104,7 +130,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getShortstop() {
-        if (shortstop == null) {
+        if (shortstop.size() == 0) {
             setPosition(TeamView::setShortstop, Position.SHORTSTOP);
         }
         return shortstop;
@@ -115,7 +141,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getThirdBase() {
-        if (thirdBase == null) {
+        if (thirdBase.size() == 0) {
             setPosition(TeamView::setThirdBase, Position.THIRDBASE);
         }
         return thirdBase;
@@ -126,7 +152,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getMiddleInfield() {
-        if (middleInfield == null) {
+        if (middleInfield.size() == 0) {
             setPosition(TeamView::setMiddleInfield, Position.MIDDLEINFIELD);
         }
         return middleInfield;
@@ -137,7 +163,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getCornerInfield() {
-        if (cornerInfield == null) {
+        if (cornerInfield.size() == 0) {
             setPosition(TeamView::setCornerInfield, Position.CORNERINFIELD);
         }
         return cornerInfield;
@@ -148,7 +174,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getOutfield() {
-        if (outfield == null) {
+        if (outfield.size() == 0) {
             setPosition(TeamView::setOutfield, Position.OUTFIELD);
         }
         return outfield;
@@ -159,7 +185,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getUtility() {
-        if (utility == null) {
+        if (utility.size() == 0) {
             setPosition(TeamView::setUtility, Position.UTILITY);
         }
         return utility;
@@ -170,7 +196,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getPitcher() {
-        if (pitcher == null) {
+        if (pitcher.size() == 0) {
             setPosition(TeamView::setPitcher, Position.PITCHER);
         }
         return pitcher;
@@ -181,7 +207,7 @@ public class TeamView {
     }
 
     public List<PlayerView> getDisabledList() {
-        if (disabledList == null) {
+        if (disabledList.size() == 0) {
             setPosition(TeamView::setDisabledList, Position.DISABLIEDLIST);
         }
         return disabledList;
@@ -190,4 +216,16 @@ public class TeamView {
     public void setDisabledList(List<PlayerView> disabledList) {
         this.disabledList = disabledList;
     }
+
+    //endregion
+
+    //endregion
+
+    //region helpers
+
+    private void setPosition(BiConsumer<TeamView, List<PlayerView>> setter, Position position) {
+        setter.accept(this, $.of(majorLeaguers).filterToList(p -> p.getCurrentSeason().getFantasyPosition() == position));
+    }
+
+    //endregion
 }
