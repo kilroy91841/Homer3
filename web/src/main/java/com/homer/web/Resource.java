@@ -111,6 +111,9 @@ public class Resource {
                                  PlayerSeason playerSeason) {
         int season = playerSeason.getSeason();
         Long oldTeamId = playerSeason.getTeamId();
+        if (newTeamId != null && newTeamId == 0) {
+            newTeamId = null;
+        }
         PlayerSeason updated = playerSeasonService.switchTeam(playerId, season, oldTeamId, newTeamId);
         return playerSeasonService.upsert(updated);
     }
