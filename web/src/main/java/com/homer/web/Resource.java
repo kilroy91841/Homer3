@@ -9,10 +9,11 @@ import com.homer.service.gather.IGatherer;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.type.Team;
+import com.homer.type.Trade;
 import com.homer.type.view.PlayerView;
 import com.homer.type.view.TeamView;
-import com.homer.type.view.TradeView;
 import com.homer.util.EnumUtil;
+import com.homer.web.response.ApiResponse;
 
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
@@ -136,12 +137,14 @@ public class Resource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @POST
-    public boolean acceptTrade(TradeView tradeView) {
+    public ApiResponse acceptTrade(Trade trade) {
+        ApiResponse apiResponse = new ApiResponse();
         try {
-            return fullTradeService.validateAndProcess(tradeView);
+            apiResponse.setData(fullTradeService.validateAndProcess(trade));
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            apiResponse.setMessage(e.getMessage());
         }
+        return apiResponse;
     }
 }

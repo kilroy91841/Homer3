@@ -1,11 +1,11 @@
 package com.homer.type;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
+import java.util.List;
 
 /**
  * Created by arigolub on 2/14/16.
@@ -14,15 +14,17 @@ import javax.persistence.Table;
 public class Trade extends BaseObject {
 
     @Column(updatable = false)
-    @JsonIgnore
     private long team1Id;
     @Column(updatable = false)
-    @JsonIgnore
     private long team2Id;
     @Column(updatable = false)
     private DateTime tradeDate;
     @Column(updatable = false)
     private int season;
+
+    private Team team1;
+    private Team team2;
+    private List<TradeElement> tradeElements = Lists.newArrayList();
 
     @Override
     public boolean equals(Object o) {
@@ -89,5 +91,25 @@ public class Trade extends BaseObject {
 
     public void setSeason(int season) {
         this.season = season;
+    }
+
+    public Team getTeam1() {
+        return team1;
+    }
+
+    public void setTeam1(Team team1) {
+        this.team1 = team1;
+    }
+
+    public Team getTeam2() {
+        return team2;
+    }
+
+    public void setTeam2(Team team2) {
+        this.team2 = team2;
+    }
+
+    public List<TradeElement> getTradeElements() {
+        return tradeElements;
     }
 }

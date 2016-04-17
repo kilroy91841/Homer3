@@ -1,15 +1,19 @@
 package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.homer.util.HomerBeanUtil;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * Created by arigolub on 2/14/16.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "minor_league_picks", schema = "homer")
 public class MinorLeaguePick extends BaseObject {
 

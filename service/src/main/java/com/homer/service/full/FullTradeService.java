@@ -3,7 +3,6 @@ package com.homer.service.full;
 import com.google.common.collect.Lists;
 import com.homer.service.*;
 import com.homer.type.*;
-import com.homer.type.view.TradeView;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.Tuple;
 import org.joda.time.DateTime;
@@ -33,14 +32,14 @@ public class FullTradeService implements IFullTradeService {
     }
 
     @Override
-    public boolean validateAndProcess(TradeView tradeView) {
+    public boolean validateAndProcess(Trade inTrade) {
         List<TradeElement> tradeElements = Lists.newArrayList();
 
         List<PlayerSeason> playersToUpdate = Lists.newArrayList();
         List<MinorLeaguePick> picksToUpdate = Lists.newArrayList();
         List<DraftDollar> dollarsToUpdate = Lists.newArrayList();
 
-        tradeView.getTradeElements().forEach(tev -> {
+        inTrade.getTradeElements().forEach(tev -> {
             long teamFromId = tev.getTeamFrom().getId();
             long teamToId = tev.getTeamTo().getId();
 
@@ -50,7 +49,7 @@ public class FullTradeService implements IFullTradeService {
 
             if (tev.getMinorLeaguePick() != null) {
                 MinorLeaguePick updatedPick;
-                if (tev.getSwapTrade()) {
+                if (tev.getSwapTrade() != null && tev.getSwapTrade()) {
                     updatedPick = minorLeaguePickService.transferSwapRights(teamFromId,
                             teamToId, tev.getMinorLeaguePick().getOriginalTeamId(),
                             tev.getMinorLeaguePick().getRound(), tev.getMinorLeaguePick().getSeason());
@@ -85,8 +84,8 @@ public class FullTradeService implements IFullTradeService {
         });
 
         Trade trade = new Trade();
-        trade.setTeam1Id(tradeView.getTeam1().getId());
-        trade.setTeam2Id(tradeView.getTeam2().getId());
+        trade.setTeam1Id(inTrade.getTeam1().getId());
+        trade.setTeam2Id(inTrade.getTeam2().getId());
         trade.setSeason(LeagueUtil.SEASON);
         trade.setTradeDate(DateTime.now(DateTimeZone.UTC));
         trade = tradeService.upsert(trade);

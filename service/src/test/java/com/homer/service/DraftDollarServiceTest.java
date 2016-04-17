@@ -55,12 +55,14 @@ public class DraftDollarServiceTest {
 
     @Test
     public void test_SuccessfulTransfer() {
-        Tuple<DraftDollar> pair = service.transferMoney(FROM_TEAM, TO_TEAM, LeagueUtil.SEASON, DraftDollarType.MLBAUCTION, 100);
+        Tuple<DraftDollar> pair = service.transferMoney(FROM_TEAM, TO_TEAM, LeagueUtil.SEASON, DraftDollarType.MLBAUCTION, 5);
         DraftDollar fromDollar = pair.getLeft();
         DraftDollar toDollar = pair.getRight();
-        assertEquals(fromDollar.getAmount(), FROM_STARTING_AMOUNT - 100);
-        assertEquals(toDollar.getAmount(), TO_STARTING_AMOUNT + 100);
+        assertEquals(fromDollar.getAmount(), FROM_STARTING_AMOUNT - 5);
+        assertEquals(toDollar.getAmount(), TO_STARTING_AMOUNT + 5);
     }
+
+    //TODO Add test for transferring money that violates dollar limit
 
     @Test(expected = IllegalArgumentException.class)
     public void test_InsufficientFunds() {

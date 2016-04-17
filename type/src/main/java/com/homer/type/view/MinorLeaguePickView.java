@@ -1,5 +1,6 @@
 package com.homer.type.view;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.homer.type.MinorLeaguePick;
 import com.homer.type.Player;
 import com.homer.type.Team;
@@ -59,5 +60,10 @@ public class MinorLeaguePickView extends MinorLeaguePick {
 
     public void setPlayer(@Nullable Player player) {
         this.player = player;
+    }
+
+    @JsonProperty
+    public String getText() {
+        return originalTeam.getName() + "/" + getSeason() + "/" + getRound();
     }
 }

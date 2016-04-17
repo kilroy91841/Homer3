@@ -1,5 +1,6 @@
 package com.homer.type.history;
 
+import com.homer.type.DraftDollar;
 import com.homer.type.Player;
 import com.homer.util.core.IHistoryObject;
 import org.joda.time.DateTime;
@@ -10,8 +11,8 @@ import javax.persistence.Table;
 /**
  * Created by arigolub on 2/14/16.
  */
-@Table(name = "history_players", schema = "homer")
-public class HistoryPlayer extends Player implements IHistoryObject {
+@Table(name = "history_draft_dollars", schema = "homer")
+public class HistoryDraftDollar extends DraftDollar implements IHistoryObject {
 
     @Column
     private long historyId;

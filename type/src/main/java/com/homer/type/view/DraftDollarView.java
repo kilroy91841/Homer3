@@ -1,5 +1,6 @@
 package com.homer.type.view;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.homer.type.DraftDollar;
 import com.homer.type.Player;
 import com.homer.type.Team;
@@ -26,5 +27,10 @@ public class DraftDollarView extends DraftDollar {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    @JsonProperty
+    public String getText() {
+        return team.getName() + "/" + getSeason() + "/" + getDraftDollarType().getDisplayText();
     }
 }
