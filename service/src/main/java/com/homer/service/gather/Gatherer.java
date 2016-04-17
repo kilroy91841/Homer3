@@ -76,12 +76,12 @@ public class Gatherer implements IGatherer {
         List<PlayerView> playerViews = hydratePlayerViews(players, playerSeasons);
         List<DraftDollarView> draftDollarViews = hydrateDraftDollarViews(draftDollars);
         List<MinorLeaguePickView> minorLeaguePickViews = hydrateMinorLeaguePickViews(minorLeaguePicks);
-        List<TradeView> tradeViews = hydrateTradeViews(trades);
+        hydrateTrades(trades);
         Multimap<Long, PlayerView> teamToPlayers = Multimaps.index(playerViews, pv -> pv.getCurrentSeason().getTeamId());
         Multimap<Long, DraftDollarView> teamToDraftDollars = Multimaps.index(draftDollarViews, DraftDollarView::getTeamId);
         Multimap<Long, MinorLeaguePickView> teamToMinorLeaguePicks = Multimaps.index(minorLeaguePickViews, MinorLeaguePickView::getOwningTeamId);
-        Multimap<Long, TradeView> team1ToTrades = Multimaps.index(tradeViews, TradeView::getTeam1Id);
-        Multimap<Long, TradeView> team2ToTrades = Multimaps.index(tradeViews, TradeView::getTeam2Id);
+        Multimap<Long, Trade> team1ToTrades = Multimaps.index(trades, Trade::getTeam1Id);
+        Multimap<Long, Trade> team2ToTrades = Multimaps.index(trades, Trade::getTeam2Id);
 
         teams.forEach(t -> {
             TeamView tv = TeamView.from(t);
@@ -92,9 +92,9 @@ public class Gatherer implements IGatherer {
             tv.setSalary(salary);
             tv.setDraftDollars($.of(teamToDraftDollars.get(t.getId())).toList());
             tv.setMinorLeaguePicks($.of(teamToMinorLeaguePicks.get(t.getId())).toList());
-            List<TradeView> teamTradeViews = $.of(team1ToTrades.get(t.getId())).toList();
-            teamTradeViews.addAll(team2ToTrades.get(t.getId()));
-            tv.setTrades(teamTradeViews);
+            List<Trade> teamTrades = $.of(team1ToTrades.get(t.getId())).toList();
+            teamTrades.addAll(team2ToTrades.get(t.getId()));
+            tv.setTrades(teamTrades);
             teamViews.add(tv);
         });
         return teamViews;
@@ -157,9 +157,7 @@ public class Gatherer implements IGatherer {
         return minorLeaguePickViews;
     }
 
-    private List<TradeView> hydrateTradeViews(Collection<Trade> trades) {
-        List<TradeView> tradeViews = Lists.newArrayList();
-
+    private void hydrateTrades(Collection<Trade> trades) {
         List<TradeElement> allTradeElements = tradeElementService.getTradeElementsByTradeIds($.of(trades).toIdList());
         Multimap<Long, TradeElement> tradeElementMap = Multimaps.index(allTradeElements, TradeElement::getTradeId);
 
@@ -175,23 +173,16 @@ public class Gatherer implements IGatherer {
         Map<Long, DraftDollar> draftDollarMap = $.of(draftDollars).toIdMap();
 
         trades.forEach(t -> {
-            TradeView tv = TradeView.from(t);
-            tv.setTeam1(FANTASY_TEAM_MAP.get(tv.getTeam1Id()));
-            tv.setTeam2(FANTASY_TEAM_MAP.get(tv.getTeam2Id()));
+            t.setTeam1(FANTASY_TEAM_MAP.get(t.getTeam1Id()));
+            t.setTeam2(FANTASY_TEAM_MAP.get(t.getTeam2Id()));
 
-            List<TradeElement> tradeElements = $.of(tradeElementMap.get(tv.getId())).toList();
+            List<TradeElement> tradeElements = $.of(tradeElementMap.get(t.getId())).toList();
             tradeElements.forEach(te -> {
-                TradeElementView tev = TradeElementView.from(te);
-                tev.setPlayer(playerMap.get(tev.getPlayerId()));
-                tev.setMinorLeaguePick(minorLeaguePickMap.get(tev.getMinorLeaguePickId()));
-                tev.setDraftDollar(draftDollarMap.get(tev.getDraftDollarId()));
-                tv.getTradeElements().add(tev);
+                te.setPlayer(playerMap.get(te.getPlayerId()));
+                te.setMinorLeaguePick(minorLeaguePickMap.get(te.getMinorLeaguePickId()));
+                te.setDraftDollar(draftDollarMap.get(te.getDraftDollarId()));
             });
-
-            tradeViews.add(tv);
         });
-
-        return tradeViews;
     }
 
     // endregion

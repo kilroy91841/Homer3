@@ -55,7 +55,7 @@ public class MinorLeaguePickService extends BaseIdService<MinorLeaguePick> imple
             throw new ObjectNotFoundException("Could not find minor league pick to transfer");
         }
         if (onlySwapRightTransfer) {
-            if (pickToTransfer.getSwapTeamId() != fromTeamId) {
+            if (pickToTransfer.getSwapTeamId() != null && pickToTransfer.getSwapTeamId() != fromTeamId) {
                 throw new IllegalArgumentException("Illegal attempt to transfer swap rights for minor league pick from team that does " +
                         "not have right to do so");
             }

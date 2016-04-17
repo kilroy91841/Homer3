@@ -2,8 +2,6 @@ package com.homer.service.full;
 
 import com.homer.service.*;
 import com.homer.type.*;
-import com.homer.type.view.TradeElementView;
-import com.homer.type.view.TradeView;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.Tuple;
 import org.junit.Before;
@@ -55,7 +53,7 @@ public class FullTradeServiceTest {
 
     @Test
     public void test_FullTrade() {
-        TradeView tv = new TradeView();
+        Trade tv = new Trade();
         Team team1 = new Team();
         team1.setId(1);
         Team team2 = new Team();
@@ -63,13 +61,13 @@ public class FullTradeServiceTest {
         tv.setTeam1(team1);
         tv.setTeam2(team2);
 
-        TradeElementView tev = new TradeElementView();
+        TradeElement tev = new TradeElement();
         tev.setTeamFrom(team1);
         tev.setTeamTo(team2);
         tev.setPlayer(new Player());
         tv.getTradeElements().add(tev);
 
-        TradeElementView tev1 = new TradeElementView();
+        TradeElement tev1 = new TradeElement();
         tev1.setTeamFrom(team2);
         tev1.setTeamTo(team1);
         MinorLeaguePick mlp = new MinorLeaguePick();
@@ -80,7 +78,7 @@ public class FullTradeServiceTest {
         tev1.setSwapTrade(false);
         tv.getTradeElements().add(tev1);
 
-        TradeElementView tev2 = new TradeElementView();
+        TradeElement tev2 = new TradeElement();
         tev2.setTeamFrom(team2);
         tev2.setTeamTo(team1);
         DraftDollar dd = new DraftDollar();

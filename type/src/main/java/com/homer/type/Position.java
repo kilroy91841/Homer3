@@ -2,8 +2,11 @@ package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.homer.util.EnumUtil;
 import com.homer.util.core.IIntEnum;
+
+import java.util.LinkedHashMap;
 
 /**
  * Created by arigolub on 3/5/16.
@@ -28,7 +31,9 @@ public enum Position implements IIntEnum<Position> {
 
     private final int id;
     private final String name;
+    @JsonIgnore
     private final Position grants1;
+    @JsonIgnore
     private final Position grants2;
 
     private Position(int id, String name, Position grants1, Position grants2) {
@@ -48,16 +53,26 @@ public enum Position implements IIntEnum<Position> {
         return name;
     }
 
+    @JsonIgnore
     public Position getGrants1() {
         return grants1;
     }
 
+    @JsonIgnore
     public Position getGrants2() {
         return grants2;
     }
 
     @JsonCreator
-    public static Position forValue(String value) {
-        return EnumUtil.from(Position.class, Integer.valueOf(value));
+    public static Position forValue(Object value) {
+        Integer position;
+        if (value instanceof LinkedHashMap) {
+            position = (Integer)((LinkedHashMap)value).get("id");
+        } else if (value instanceof String) {
+            position = Integer.valueOf((String)value);
+        } else {
+            throw new IllegalArgumentException("Unknown object type for POSITION");
+        }
+        return EnumUtil.from(Position.class, position);
     }
 }

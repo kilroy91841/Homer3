@@ -3,6 +3,7 @@ package com.homer.type.view;
 import com.google.common.collect.Lists;
 import com.homer.type.Position;
 import com.homer.type.Team;
+import com.homer.type.Trade;
 import com.homer.util.HomerBeanUtil;
 import com.homer.util.core.$;
 
@@ -34,7 +35,7 @@ public class TeamView extends Team {
     private List<DraftDollarView> draftDollars = Lists.newArrayList();
     private List<MinorLeaguePickView> minorLeaguePicks = Lists.newArrayList();
 
-    private List<TradeView> trades = Lists.newArrayList();
+    private List<Trade> trades = Lists.newArrayList();
 
     public TeamView() { }
 
@@ -62,11 +63,11 @@ public class TeamView extends Team {
         this.draftDollars = draftDollars;
     }
 
-    public List<TradeView> getTrades() {
+    public List<Trade> getTrades() {
         return trades;
     }
 
-    public void setTrades(List<TradeView> trades) {
+    public void setTrades(List<Trade> trades) {
         this.trades = trades;
     }
 

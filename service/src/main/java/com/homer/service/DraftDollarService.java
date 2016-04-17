@@ -19,6 +19,9 @@ public class DraftDollarService extends BaseIdService<DraftDollar> implements ID
 
     private IDraftDollarRepository repo;
 
+    private static final int MLB_DRAFT_DOLLAR_MIN = 220;
+    private static final int MLB_DRAFT_DOLLAR_MAX = 400;
+
     public DraftDollarService(IDraftDollarRepository repo) {
         super(repo);
         this.repo = repo;
@@ -52,10 +55,22 @@ public class DraftDollarService extends BaseIdService<DraftDollar> implements ID
         }
         if (fromDollar.getAmount() < amount) {
             throw new IllegalArgumentException(String.format("Attempt to transfer %s dollar(s) from teamId %s failed due" +
-                    "to insufficient funds (available funds: %s)", amount, fromTeamId, fromDollar.getAmount()));
+                    " to insufficient funds (available funds: %s)", amount, fromTeamId, fromDollar.getAmount()));
         }
         fromDollar.setAmount(fromDollar.getAmount() - amount);
         toDollar.setAmount(toDollar.getAmount() + amount);
+
+        if (DraftDollarType.MLBAUCTION.equals(draftDollarType)) {
+            if (MLB_DRAFT_DOLLAR_MIN > fromDollar.getAmount()) {
+                throw new IllegalArgumentException(String.format("Attempt to transfer %s dollar(s) from teamId %s failed due" +
+                " to going below dollar floor (new value: %s)", amount, fromTeamId, fromDollar.getAmount()));
+            }
+            if (MLB_DRAFT_DOLLAR_MAX < toDollar.getAmount()) {
+                throw new IllegalArgumentException(String.format("Attempt to transfer %s dollar(s) to teamId %s failed due" +
+                        " to going above dollar limit (new value: %s)", amount, toTeamId, toDollar.getAmount()));
+            }
+        }
+
         return new Tuple<>(fromDollar, toDollar);
     }
 

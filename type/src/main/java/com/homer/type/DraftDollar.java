@@ -1,6 +1,7 @@
 package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.homer.util.EnumUtil;
 import com.homer.util.HomerBeanUtil;
 
@@ -11,6 +12,7 @@ import javax.persistence.Table;
 /**
  * Created by arigolub on 2/14/16.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "draft_dollars", schema = "homer")
 public class DraftDollar extends BaseObject {
 

@@ -1,6 +1,7 @@
 package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import java.util.Objects;
 /**
  * Created by arigolub on 2/14/16.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "players", schema = "homer")
 public class Player extends BaseObject {
 

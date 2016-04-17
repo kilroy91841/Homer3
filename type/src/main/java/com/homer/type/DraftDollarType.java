@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.homer.util.EnumUtil;
 import com.homer.util.core.IIntEnum;
 
+import java.util.LinkedHashMap;
+
 /**
  * Created by arigolub on 3/13/16.
  */
@@ -38,8 +40,16 @@ public enum DraftDollarType implements IIntEnum<DraftDollarType> {
     }
 
     @JsonCreator
-    public static DraftDollarType forValue(String value) {
-        return EnumUtil.from(DraftDollarType.class, Integer.valueOf(value));
+    public static DraftDollarType forValue(Object value) {
+        Integer typeId;
+        if (value instanceof LinkedHashMap) {
+            typeId = (Integer)((LinkedHashMap)value).get("id");
+        } else if (value instanceof String) {
+            typeId = Integer.valueOf((String)value);
+        } else {
+            throw new IllegalArgumentException("Unknown object type for DRAFTDOLLARTYPE");
+        }
+        return EnumUtil.from(DraftDollarType.class, typeId);
     }
 
 }

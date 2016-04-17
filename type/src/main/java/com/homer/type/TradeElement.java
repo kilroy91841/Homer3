@@ -12,25 +12,20 @@ import javax.persistence.Table;
 @Table(name = "trade_elements", schema = "homer")
 public class TradeElement extends BaseObject {
 
-    @JsonIgnore
     @Column
     private long tradeId;
-    @JsonIgnore
     @Column
     private long teamFromId;
-    @JsonIgnore
     @Column
     private long teamToId;
 
     //Player
     @Nullable
-    @JsonIgnore
     @Column(updatable = false)
     private Long playerId;
 
     //DraftDollar
     @Nullable
-    @JsonIgnore
     @Column(updatable = false)
     private Long draftDollarId;
     @Nullable
@@ -39,12 +34,26 @@ public class TradeElement extends BaseObject {
 
     //MinorLeaguePick
     @Nullable
-    @JsonIgnore
     @Column(updatable = false)
     private Long minorLeaguePickId;
     @Nullable
     @Column(updatable = false)
     private Boolean swapTrade;
+
+    //region transient objects
+
+    @Nullable
+    private Team teamFrom;
+    @Nullable
+    private Team teamTo;
+    @Nullable
+    private Player player;
+    @Nullable
+    private DraftDollar draftDollar;
+    @Nullable
+    private MinorLeaguePick minorLeaguePick;
+
+    //endregion
 
     @Override
     public boolean equals(Object o) {
@@ -163,4 +172,53 @@ public class TradeElement extends BaseObject {
     public void setSwapTrade(@Nullable Boolean swapTrade) {
         this.swapTrade = swapTrade;
     }
+
+    //region transient object getters + setters
+
+    @Nullable
+    public Team getTeamFrom() {
+        return teamFrom;
+    }
+
+    public void setTeamFrom(@Nullable Team teamFrom) {
+        this.teamFrom = teamFrom;
+    }
+
+    @Nullable
+    public Team getTeamTo() {
+        return teamTo;
+    }
+
+    public void setTeamTo(@Nullable Team teamTo) {
+        this.teamTo = teamTo;
+    }
+
+    @Nullable
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(@Nullable Player player) {
+        this.player = player;
+    }
+
+    @Nullable
+    public DraftDollar getDraftDollar() {
+        return draftDollar;
+    }
+
+    public void setDraftDollar(@Nullable DraftDollar draftDollar) {
+        this.draftDollar = draftDollar;
+    }
+
+    @Nullable
+    public MinorLeaguePick getMinorLeaguePick() {
+        return minorLeaguePick;
+    }
+
+    public void setMinorLeaguePick(@Nullable MinorLeaguePick minorLeaguePick) {
+        this.minorLeaguePick = minorLeaguePick;
+    }
+
+    //endregion
 }
