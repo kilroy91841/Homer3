@@ -2,7 +2,6 @@ package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.homer.util.EnumUtil;
 import com.homer.util.core.IIntEnum;
 
@@ -26,14 +25,13 @@ public enum Position implements IIntEnum<Position> {
     OUTFIELD(7, "OF", UTILITY, null),
     DESIGNATEDHITTER(8, "DH", UTILITY, null),
     RELIEFPITCHER(9, "RP", null, null),
-    DISABLIEDLIST(13, "DL", null, null),
-    MINORLEAGUES(14, "MIN", null, null);
+    DISABLEDLIST(13, "DL", null, null),
+    MINORLEAGUES(14, "MIN", null, null),
+    ;
 
     private final int id;
     private final String name;
-    @JsonIgnore
     private final Position grants1;
-    @JsonIgnore
     private final Position grants2;
 
     private Position(int id, String name, Position grants1, Position grants2) {
@@ -53,12 +51,10 @@ public enum Position implements IIntEnum<Position> {
         return name;
     }
 
-    @JsonIgnore
     public Position getGrants1() {
         return grants1;
     }
 
-    @JsonIgnore
     public Position getGrants2() {
         return grants2;
     }

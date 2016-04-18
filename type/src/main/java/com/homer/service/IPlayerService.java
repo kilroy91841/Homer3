@@ -22,4 +22,6 @@ public interface IPlayerService extends IIdService<Player> {
     }
 
     List<Player> searchPlayersByName(String search);
+
+    Player createPlayer(Player player);
 }

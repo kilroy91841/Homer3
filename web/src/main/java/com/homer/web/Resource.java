@@ -1,19 +1,20 @@
 package com.homer.web;
 
+import com.google.common.collect.Lists;
 import com.homer.data.*;
 import com.homer.service.*;
+import com.homer.service.full.FullPlayerService;
 import com.homer.service.full.FullTradeService;
+import com.homer.service.full.IFullPlayerService;
 import com.homer.service.full.IFullTradeService;
 import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
-import com.homer.type.PlayerSeason;
-import com.homer.type.Position;
-import com.homer.type.Team;
-import com.homer.type.Trade;
+import com.homer.type.*;
 import com.homer.type.view.PlayerView;
 import com.homer.type.view.TeamView;
 import com.homer.util.EnumUtil;
-import com.homer.web.response.ApiResponse;
+import com.homer.web.model.ApiResponse;
+import com.homer.web.model.MetadataView;
 
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
@@ -38,6 +39,7 @@ public class Resource {
     private ITradeElementService tradeElementService;
     private IMinorLeaguePickService minorLeaguePickService;
     private IDraftDollarService draftDollarService;
+    private IFullPlayerService fullPlayerService;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -47,6 +49,7 @@ public class Resource {
         this.minorLeaguePickService = new MinorLeaguePickService(new MinorLeaguePickRepository());
         this.tradeService = new TradeService(new TradeRepository());
         this.tradeElementService = new TradeElementService(new TradeElementRepository());
+        this.fullPlayerService = new FullPlayerService(playerService, playerSeasonService);
 
         gatherer = new Gatherer(
                 playerService,
@@ -107,7 +110,7 @@ public class Resource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @POST
-    public PlayerSeason switchTeam(@PathParam(value = "id") long playerId,
+    public ApiResponse switchTeam(@PathParam(value = "id") long playerId,
                                  @PathParam(value = "newTeamId") @Nullable Long newTeamId,
                                  PlayerSeason playerSeason) {
         int season = playerSeason.getSeason();
@@ -115,22 +118,38 @@ public class Resource {
         if (newTeamId != null && newTeamId == 0) {
             newTeamId = null;
         }
-        PlayerSeason updated = playerSeasonService.switchTeam(playerId, season, oldTeamId, newTeamId);
-        return playerSeasonService.upsert(updated);
+        PlayerSeason updated;
+        try {
+            updated = playerSeasonService.switchTeam(playerId, season, oldTeamId, newTeamId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ApiResponse(e.getMessage(), null);
+        }
+        updated = playerSeasonService.upsert(updated);
+        return new ApiResponse(String.format("Moved %s from team %s to team %s", updated.getPlayerId(),
+                oldTeamId, newTeamId), updated);
     }
 
     @Path("player/{id}/position/{newPosition}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @POST
-    public PlayerSeason switchPosition(@PathParam(value = "id") long playerId,
+    public ApiResponse switchPosition(@PathParam(value = "id") long playerId,
                                    @PathParam(value = "newPosition") int newPositionId,
                                    PlayerSeason playerSeason) {
         int season = playerSeason.getSeason();
         Position oldPosition = playerSeason.getFantasyPosition();
         Position newPosition = EnumUtil.from(Position.class, newPositionId);
-        PlayerSeason updated = playerSeasonService.switchFantasyPosition(playerId, season, oldPosition, newPosition);
-        return playerSeasonService.upsert(updated);
+        PlayerSeason updated;
+        try {
+            updated = playerSeasonService.switchFantasyPosition(playerId, season, oldPosition, newPosition);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ApiResponse(e.getMessage(), null);
+        }
+        updated = playerSeasonService.upsert(updated);
+        return new ApiResponse(String.format("Moved %s from position %s to position %s", updated.getPlayerId(),
+                oldPosition.getName(), newPosition.getName()), updated);
     }
 
     @Path("trade")
@@ -146,5 +165,29 @@ public class Resource {
             apiResponse.setMessage(e.getMessage());
         }
         return apiResponse;
+    }
+
+    @Path("player")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    public ApiResponse addPlayer(Player player) {
+        try {
+            player = fullPlayerService.createPlayer(player);
+            return new ApiResponse(String.format("Created %s", player.getName()), player);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @Path("metadata")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public MetadataView getMetadata() {
+        MetadataView mv = new MetadataView();
+        mv.setPositions(Lists.newArrayList(Position.class.getEnumConstants()));
+        mv.setMlbTeams(Lists.newArrayList(MLBTeam.class.getEnumConstants()));
+        return mv;
     }
 }

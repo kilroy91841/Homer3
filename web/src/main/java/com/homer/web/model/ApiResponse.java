@@ -1,4 +1,4 @@
-package com.homer.web.response;
+package com.homer.web.model;
 
 /**
  * Created by arigolub on 4/17/16.
@@ -8,6 +8,11 @@ public class ApiResponse {
     private Object data;
 
     public ApiResponse() {
+    }
+
+    public ApiResponse(String message, Object data) {
+        this.message = message;
+        this.data = data;
     }
 
     public String getMessage() {

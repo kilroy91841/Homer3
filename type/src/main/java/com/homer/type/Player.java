@@ -24,7 +24,6 @@ public class Player extends BaseObject {
     @Column
     private Position position;
     @Column
-    @JsonIgnore
     private int mlbTeamId;
     @Column
     @Nullable

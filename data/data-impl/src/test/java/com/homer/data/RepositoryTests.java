@@ -1,6 +1,7 @@
 package com.homer.data;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.homer.type.*;
 import com.homer.util.HomerBeanUtil;
 import com.homer.util.core.IBaseObject;
@@ -9,6 +10,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
@@ -30,7 +32,19 @@ public class RepositoryTests {
         List<Consumer<Player>> funcs = Lists.newArrayList();
         funcs.add(p -> p.setPosition(Position.OUTFIELD));
 
-        testCRUD(player, new PlayerRepository(), funcs);
+        PlayerRepository repo = new PlayerRepository();
+        testCRUD(player, repo, funcs);
+    }
+
+    @Test
+    public void testPlayerSearch() throws Exception {
+        String name = "Mike Trout";
+        Map<String, Object> filters = Maps.newHashMap();
+        filters.put("name", name);
+        PlayerRepository repo = new PlayerRepository();
+        Player player = repo.get(filters);
+        assertNotNull(player);
+        assertEquals(name, player.getName());
     }
 
     @Test
