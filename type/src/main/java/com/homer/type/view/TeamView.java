@@ -9,7 +9,6 @@ import com.homer.util.core.$;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 /**
  * Created by arigolub on 2/15/16.
@@ -209,7 +208,7 @@ public class TeamView extends Team {
 
     public List<PlayerView> getDisabledList() {
         if (disabledList.size() == 0) {
-            setPosition(TeamView::setDisabledList, Position.DISABLIEDLIST);
+            setPosition(TeamView::setDisabledList, Position.DISABLEDLIST);
         }
         return disabledList;
     }

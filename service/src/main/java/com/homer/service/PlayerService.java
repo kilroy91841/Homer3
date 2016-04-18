@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.homer.data.common.IPlayerRepository;
 import com.homer.type.Player;
+import com.homer.type.Position;
 import com.homer.util.data.Matcher;
 
 import java.util.Collection;
@@ -39,5 +40,29 @@ public class PlayerService extends BaseIdService<Player> implements IPlayerServi
         Map<String, Object> map = Maps.newHashMap();
         map.put("nameMatcher", new Matcher("name", name));
         return repo.getMany(map);
+    }
+
+    @Override
+    public Player createPlayer(Player player) {
+        if (player.getFirstName() == null || player.getFirstName().isEmpty() ||
+                player.getLastName() == null || player.getLastName().isEmpty()) {
+            throw new IllegalArgumentException(
+                    String.format("Player was missing first name or last name, supplied %s and %s", player.getFirstName(),
+                            player.getLastName()));
+        }
+        if (player.getMlbTeamId() == 0) {
+            throw new IllegalArgumentException("Player was missing mlb team id");
+        }
+        if (player.getPosition() == null) {
+            throw new IllegalArgumentException("Player was missing position");
+        }
+
+        player.setName(player.getFirstName() + " " + player.getLastName());
+        Player existingPlayer = getPlayerByName(player.getName());
+        if (existingPlayer != null) {
+            throw new IllegalArgumentException(String.format("Player with name %s already exists", existingPlayer.getName()));
+        }
+
+        return super.upsert(player);
     }
 }

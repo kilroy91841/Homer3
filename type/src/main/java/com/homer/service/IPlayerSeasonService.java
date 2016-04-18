@@ -24,6 +24,8 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
         return getPlayerSeasonsByTeamIds(Lists.newArrayList(teamId), season);
     }
 
+    PlayerSeason createPlayerSeason(long playerId, int season);
+
     PlayerSeason switchTeam(long playerId, int season, @Nullable Long oldTeamId, @Nullable Long newTeamId);
 
     PlayerSeason switchFantasyPosition(long playerId, int season, @Nullable Position oldFantasyPosition,

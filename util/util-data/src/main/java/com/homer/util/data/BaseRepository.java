@@ -166,12 +166,20 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
 
     //region helpers
 
-    private static String join(List objs)
+    private static String join(List objs, boolean addQuotes)
     {
         StringBuilder sb = new StringBuilder("");
         for(int i = 0; i < objs.size(); i++)
         {
-            sb.append(" ").append(objs.get(i)).append(" ");
+            sb.append(" ");
+            if (addQuotes) {
+                sb.append("'");
+            }
+            sb.append(objs.get(i));
+            if (addQuotes) {
+                sb.append("'");
+            }
+            sb.append(" ");
             if (i < objs.size() - 1) {
                 sb.append(",");
             }
@@ -194,7 +202,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         String schema = annotation.schema();
         StringBuilder query = new StringBuilder("SELECT ");
         List<String> columns = ColumnUtil.getColumns(clazz);
-        query.append(join(columns));
+        query.append(join(columns, false));
         query.append("\n FROM ").append(schema).append(".").append(tableName);
         if (filters.size() > 0) {
             query.append("\n WHERE ");
@@ -205,10 +213,10 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                     query.append(key);
                     List objects = (List) filters.get(key);
                     if (objects.size() == 0) {
-                        query.append(" = ").append(key);
+                        query.append(" = '").append(filters.get(key)).append("'");
                     } else {
                         query.append(" in ").append("(");
-                        query.append(join(objects));
+                        query.append(join(objects, true));
                         query.append(")");
                     }
                 } else if (Matcher.class.isAssignableFrom(filters.get(key).getClass())) {
@@ -250,7 +258,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         query.append(schema).append(".").append(tableName).append(" (");
         List<String> columns = ColumnUtil.getColumns(clazz);
         List<Field> fields = ColumnUtil.getFields(clazz);
-        query.append(join(columns));
+        query.append(join(columns, false));
         query.append(")").append(" VALUES ").append(" ( ");
         for(int i = 0; i < fields.size(); i++) {
             Field f = fields.get(i);

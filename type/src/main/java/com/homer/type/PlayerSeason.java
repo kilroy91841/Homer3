@@ -25,7 +25,6 @@ public class PlayerSeason extends BaseObject {
     private Position fantasyPosition;
     @Column
     @Nullable
-    @JsonIgnore
     private Long keeperTeamId;
     @Column
     private int keeperSeason;

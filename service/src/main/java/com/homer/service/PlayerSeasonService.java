@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.homer.data.common.IPlayerSeasonRepository;
 import com.homer.exception.ObjectNotFoundException;
+import com.homer.type.MLBTeam;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.type.Team;
@@ -25,6 +26,25 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
     public PlayerSeasonService(IPlayerSeasonRepository repo) {
         super(repo);
         this.repo = repo;
+    }
+
+    @Override
+    public PlayerSeason createPlayerSeason(long playerId, int season) {
+        if (playerId == 0) {
+            throw new IllegalArgumentException("Cannot create a player season for id 0");
+        }
+        PlayerSeason existingPlayerSeason = getPlayerSeason(playerId, season);
+        if (existingPlayerSeason != null) {
+            throw new IllegalArgumentException(String.format("PlayerSeason already exists for playerId/season combo %s/%s",
+                    playerId, season));
+        }
+        PlayerSeason playerSeason = new PlayerSeason();
+        playerSeason.setPlayerId(playerId);
+        playerSeason.setSeason(season);
+        playerSeason.setKeeperSeason(0);
+        playerSeason.setSalary(0);
+        playerSeason.setIsMinorLeaguer(false);
+        return super.upsert(playerSeason);
     }
 
     @Override
@@ -55,6 +75,11 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
             throw new IllegalArgumentException("Supplied old team does not match existing team");
         }
         existing.setTeamId(newTeamId);
+
+        //Free agents should have fantasy position removed
+        if (newTeamId == null) {
+            existing.setFantasyPosition(null);
+        }
         return existing;
     }
 
@@ -80,11 +105,15 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
     }
 
     private PlayerSeason getPlayerSeasonOrThrow(long playerId, int season) {
-        PlayerSeason existing = $.of(this.getPlayerSeasons(playerId)).filter(ps -> ps.getSeason() == season).first();
+        PlayerSeason existing = getPlayerSeason(playerId, season);
         if (existing == null) {
             throw new ObjectNotFoundException(
                     String.format("Could not find PlayerSeason for player/season combo %s/%s", playerId, season));
         }
         return existing;
+    }
+
+    private PlayerSeason getPlayerSeason(long playerId, int season) {
+        return $.of(this.getPlayerSeasons(playerId)).filter(ps -> ps.getSeason() == season).first();
     }
 }

@@ -39,6 +39,7 @@ public enum MLBTeam implements IIntEnum<MLBTeam> {
     TEXASRANGERS(140, "tex", "Texas Rangers", "TEX"),
     TORONTOBLUEJAYS(141, "tor", "Toronto Blue Jays", "TOR"),
     WASHINGTONNATIONALS(120, "was", "Washington Nationals", "WAS"),
+    FREEAGENT(1, "fa", "Free Agency", "FA"),
     ;
 
     private final int id;
