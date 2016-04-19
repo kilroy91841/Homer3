@@ -54,6 +54,7 @@ public class RepositoryTests {
         playerSeason.setPlayerId(1);
         playerSeason.setTeamId(1L);
         playerSeason.setFantasyPosition(Position.CATCHER);
+        playerSeason.setMlbStatus(Status.ACTIVE);
         playerSeason.setKeeperTeamId(1L);
         playerSeason.setKeeperSeason(2020);
         playerSeason.setSalary(20);
@@ -63,6 +64,7 @@ public class RepositoryTests {
         funcs.add(p -> p.setTeamId(2L));
         funcs.add(p -> p.setFantasyPosition(Position.FIRSTBASE));
         funcs.add(p -> p.setIsMinorLeaguer(false));
+        funcs.add(p -> p.setMlbStatus(Status.DISABLEDLIST));
 
         testCRUD(playerSeason, new PlayerSeasonRepository(), funcs);
     }

@@ -175,7 +175,12 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
             if (addQuotes) {
                 sb.append("'");
             }
-            sb.append(objs.get(i));
+            Object obj = objs.get(i);
+            if (obj instanceof String) {
+                sb.append(cleanString((String) obj));
+            } else {
+                sb.append(objs.get(i));
+            }
             if (addQuotes) {
                 sb.append("'");
             }
@@ -224,7 +229,10 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                     query.append(matcher.getField()).append(" like '%").append(matcher.getMatch()).append("%'");
                 } else if (IIntEnum.class.isAssignableFrom(filters.get(key).getClass())) {
                     query.append(key);
-                    query.append(" = ").append(EnumUtil.to((IIntEnum)filters.get(key)));
+                    query.append(" = ").append(EnumUtil.to((IIntEnum) filters.get(key)));
+                } else if (String.class.isAssignableFrom(filters.get(key).getClass())) {
+                    query.append(key);
+                    query.append(" = '").append(cleanString((String)filters.get(key))).append("'");
                 } else {
                     query.append(key);
                     query.append(" = '").append(filters.get(key)).append("'");
@@ -266,7 +274,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
             if (obj == null) {
                 query.append("null");
             } else if(String.class.isAssignableFrom(obj.getClass())) {
-                query.append("'").append(obj.toString()).append("'");
+                query.append("'").append(cleanString(obj.toString())).append("'");
             } else if (DateTime.class.isAssignableFrom(obj.getClass())) {
                 query.append("'").append(dateTimeToString((DateTime)obj)).append("'");
             } else if ("boolean".equals(obj.getClass().getName())) {
@@ -290,7 +298,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
             if (obj == null) {
                 query.append(columnName).append(" = ").append("null");
             } else if(String.class.isAssignableFrom(obj.getClass())) {
-                query.append(columnName).append(" = ").append("'").append(obj.toString()).append("'");
+                query.append(columnName).append(" = ").append("'").append(cleanString(obj.toString())).append("'");
             } else if (DateTime.class.isAssignableFrom(obj.getClass())) {
                 query.append(columnName).append(" = ").append("'").append(dateTimeToString((DateTime)obj)).append("'");
             } else if ("boolean".equals(obj.getClass().getName())) {
@@ -355,6 +363,10 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
             results.add(obj);
         }
         return results;
+    }
+
+    private static String cleanString(String input) {
+        return input.replace("'", "\\'");
     }
 
     //endregion

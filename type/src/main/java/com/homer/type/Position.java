@@ -61,14 +61,6 @@ public enum Position implements IIntEnum<Position> {
 
     @JsonCreator
     public static Position forValue(Object value) {
-        Integer position;
-        if (value instanceof LinkedHashMap) {
-            position = (Integer)((LinkedHashMap)value).get("id");
-        } else if (value instanceof String) {
-            position = Integer.valueOf((String)value);
-        } else {
-            throw new IllegalArgumentException("Unknown object type for POSITION");
-        }
-        return EnumUtil.from(Position.class, position);
+        return EnumUtil.deserialize(Position.class, value);
     }
 }
