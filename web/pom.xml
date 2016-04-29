@@ -19,6 +19,11 @@
         </dependency>
         <dependency>
             <groupId>com.homer</groupId>
+            <artifactId>external-rest</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.homer</groupId>
             <artifactId>data-impl</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>

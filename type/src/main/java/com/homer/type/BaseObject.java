@@ -39,6 +39,12 @@ public class BaseObject implements IBaseObject {
         return (int) (id ^ (id >>> 32));
     }
 
+    @Override
+    public String toString() {
+        return "BaseObject{" +
+                "id=" + id + "}";
+    }
+
     public long getId() {
         return id;
     }

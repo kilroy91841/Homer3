@@ -7,6 +7,7 @@ import com.homer.type.Player;
 import com.homer.type.Position;
 import com.homer.util.data.Matcher;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,14 @@ public class PlayerService extends BaseIdService<Player> implements IPlayerServi
         Map<String, Object> map = Maps.newHashMap();
         map.put("name", names);
         return repo.getMany(map);
+    }
+
+    @Nullable
+    @Override
+    public Player getPlayerByMLBPlayerId(long mlbPlayerId) {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("mlbPlayerId", mlbPlayerId);
+        return repo.get(map);
     }
 
     @Override

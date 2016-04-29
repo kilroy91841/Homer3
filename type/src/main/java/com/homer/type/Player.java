@@ -1,12 +1,11 @@
 package com.homer.type;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.base.Objects;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
-import java.util.Objects;
 
 /**
  * Created by arigolub on 2/14/16.
@@ -34,28 +33,18 @@ public class Player extends BaseObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         Player player = (Player) o;
-
-        if (mlbTeamId != player.mlbTeamId) return false;
-        if (!name.equals(player.name)) return false;
-        if (!firstName.equals(player.firstName)) return false;
-        if (!lastName.equals(player.lastName)) return false;
-        if (mlbPlayerId != null ? !mlbPlayerId.equals(player.mlbPlayerId) : player.mlbPlayerId!= null) return false;
-        return position == player.position;
-
+        return mlbTeamId == player.mlbTeamId &&
+                Objects.equal(name, player.name) &&
+                Objects.equal(firstName, player.firstName) &&
+                Objects.equal(lastName, player.lastName) &&
+                position == player.position &&
+                Objects.equal(mlbPlayerId, player.mlbPlayerId);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + name.hashCode();
-        result = 31 * result + firstName.hashCode();
-        result = 31 * result + lastName.hashCode();
-        result = 31 * result + position.hashCode();
-        result = 31 * result + mlbTeamId;
-        result = 31 * result + (mlbPlayerId != null ? mlbPlayerId.hashCode() : 0);
-        return result;
+        return Objects.hashCode(super.hashCode(), name, firstName, lastName, position, mlbTeamId, mlbPlayerId);
     }
 
     @Override

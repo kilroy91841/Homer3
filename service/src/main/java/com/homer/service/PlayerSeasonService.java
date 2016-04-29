@@ -4,10 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.homer.data.common.IPlayerSeasonRepository;
 import com.homer.exception.ObjectNotFoundException;
-import com.homer.type.MLBTeam;
-import com.homer.type.PlayerSeason;
-import com.homer.type.Position;
-import com.homer.type.Team;
+import com.homer.external.common.mlb.MLBPlayerStatus;
+import com.homer.type.*;
 import com.homer.util.core.$;
 
 import javax.annotation.Nullable;
@@ -44,6 +42,8 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         playerSeason.setKeeperSeason(0);
         playerSeason.setSalary(0);
         playerSeason.setIsMinorLeaguer(false);
+        playerSeason.setMlbStatus(Status.UNKNOWN);
+        playerSeason.setVulturable(false);
         return super.upsert(playerSeason);
     }
 
@@ -63,6 +63,13 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
     }
 
     @Override
+    public List<PlayerSeason> getActivePlayers(int season) {
+        Map<String, Object> filters = Maps.newHashMap();
+        filters.put("season", season);
+        return repo.getMany(filters);
+    }
+
+    @Override
     public PlayerSeason switchTeam(long playerId, int season, @Nullable Long oldTeamId, @Nullable Long newTeamId) {
         if (oldTeamId == newTeamId) {
             throw new IllegalArgumentException("Old team and new team must be different");
@@ -76,9 +83,10 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         }
         existing.setTeamId(newTeamId);
 
-        //Free agents should have fantasy position removed
+        //Free agents should have fantasy position removed and vulturable status set to false
         if (newTeamId == null) {
             existing.setFantasyPosition(null);
+            existing.setVulturable(false);
         }
         return existing;
     }
@@ -101,7 +109,30 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         if (!Position.MINORLEAGUES.equals(newFantasyPosition)) {
             existing.setIsMinorLeaguer(false);
         }
+
+        updateVulturable(existing);
+
         return existing;
+    }
+
+    @Override
+    public void updateVulturable(PlayerSeason playerSeason) {
+        if (playerSeason.getMlbStatus() == Status.UNKNOWN) {
+            return;
+        }
+
+        Position position = playerSeason.getFantasyPosition();
+        if (
+                (position != Position.DISABLEDLIST && playerSeason.getMlbStatus() == Status.DISABLEDLIST) ||
+                        (position != Position.MINORLEAGUES && playerSeason.getMlbStatus() == Status.MINORS) ||
+                        (position == Position.DISABLEDLIST && playerSeason.getMlbStatus() != Status.DISABLEDLIST) ||
+                        (position == Position.MINORLEAGUES && playerSeason.getMlbStatus() != Status.MINORS && !playerSeason.getIsMinorLeaguer())
+                )
+        {
+            playerSeason.setVulturable(true);
+            return;
+        }
+        playerSeason.setVulturable(false);
     }
 
     private PlayerSeason getPlayerSeasonOrThrow(long playerId, int season) {

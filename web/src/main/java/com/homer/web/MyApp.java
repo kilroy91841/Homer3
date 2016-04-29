@@ -1,5 +1,15 @@
 package com.homer.web;
 
+import com.homer.data.PlayerRepository;
+import com.homer.data.PlayerSeasonRepository;
+import com.homer.external.rest.mlb.MLBRestClient;
+import com.homer.service.PlayerSeasonService;
+import com.homer.service.PlayerService;
+import com.homer.service.importer.IPlayerImporter;
+import com.homer.service.importer.PlayerImporter;
+import com.homer.type.MLBTeam;
+import com.homer.type.Player;
+import com.homer.type.Team;
 import com.homer.util.EnvironmentUtility;
 import com.homer.web.flyway.Migrate;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -25,6 +35,9 @@ public class MyApp  {
         GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), getResourceConfig());
 
         System.out.println("Exposing app at: " + uri);
+
+        Scheduler scheduler = new Scheduler();
+        scheduler.run();
     }
 
     static ResourceConfig getResourceConfig() {

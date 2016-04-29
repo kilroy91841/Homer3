@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -68,6 +69,10 @@ public class $<T> {
 
     public <T extends IId> Map<Long, T> toIdMap() {
         return backing.map(t -> (T) t).collect(Collectors.toMap(T::getId, t -> t));
+    }
+
+    public <K, T> Map<K, T> toMap(Function<T, K> keyFunction) {
+        return backing.map(t -> (T) t).collect(Collectors.toMap(keyFunction, t -> t));
     }
 
     public <T extends IId> List<Long> toIdList() {

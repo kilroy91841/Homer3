@@ -1,11 +1,10 @@
 package com.homer.type;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
+
+import com.google.common.base.Objects;
 
 /**
  * Created by arigolub on 2/14/16.
@@ -32,38 +31,32 @@ public class PlayerSeason extends BaseObject {
     private int salary;
     @Column
     private boolean isMinorLeaguer;
+    @Column
+    private Status mlbStatus;
+    @Column
+    private boolean vulturable;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         PlayerSeason that = (PlayerSeason) o;
-
-        if (season != that.season) return false;
-        if (playerId != that.playerId) return false;
-        if (keeperSeason != that.keeperSeason) return false;
-        if (salary != that.salary) return false;
-        if (isMinorLeaguer != that.isMinorLeaguer) return false;
-        if (teamId != null ? !teamId.equals(that.teamId) : that.teamId != null) return false;
-        if (fantasyPosition != null ? !fantasyPosition.equals(that.fantasyPosition) : that.fantasyPosition != null) return false;
-        return keeperTeamId != null ? keeperTeamId.equals(that.keeperTeamId) : that.keeperTeamId == null;
-
+        return season == that.season &&
+                playerId == that.playerId &&
+                keeperSeason == that.keeperSeason &&
+                salary == that.salary &&
+                isMinorLeaguer == that.isMinorLeaguer &&
+                vulturable == that.vulturable &&
+                Objects.equal(teamId, that.teamId) &&
+                fantasyPosition == that.fantasyPosition &&
+                Objects.equal(keeperTeamId, that.keeperTeamId) &&
+                mlbStatus == that.mlbStatus;
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + season;
-        result = 31 * result + (int) (playerId ^ (playerId >>> 32));
-        result = 31 * result + (teamId != null ? teamId.hashCode() : 0);
-        result = 31 * result + (fantasyPosition != null ? fantasyPosition.hashCode() : 0);
-        result = 31 * result + (keeperTeamId != null ? keeperTeamId.hashCode() : 0);
-        result = 31 * result + keeperSeason;
-        result = 31 * result + salary;
-        result = 31 * result + (isMinorLeaguer ? 1 : 0);
-        return result;
+        return Objects.hashCode(super.hashCode(), season, playerId, teamId, fantasyPosition, keeperTeamId, keeperSeason, salary, isMinorLeaguer, mlbStatus, vulturable);
     }
 
     @Override
@@ -77,6 +70,8 @@ public class PlayerSeason extends BaseObject {
                 ", keeperSeason=" + keeperSeason +
                 ", salary=" + salary +
                 ", isMinorLeaguer=" + isMinorLeaguer +
+                ", mlbStatus=" + mlbStatus +
+                ", vulturable=" + vulturable +
                 "} " + super.toString();
     }
 
@@ -145,5 +140,21 @@ public class PlayerSeason extends BaseObject {
 
     public void setIsMinorLeaguer(boolean minorLeaguer) {
         this.isMinorLeaguer = minorLeaguer;
+    }
+
+    public Status getMlbStatus() {
+        return mlbStatus;
+    }
+
+    public void setMlbStatus(Status mlbStatus) {
+        this.mlbStatus = mlbStatus;
+    }
+
+    public boolean getVulturable() {
+        return vulturable;
+    }
+
+    public void setVulturable(boolean vulturable) {
+        this.vulturable = vulturable;
     }
 }

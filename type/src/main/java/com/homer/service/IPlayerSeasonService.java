@@ -3,7 +3,7 @@ package com.homer.service;
 import com.google.common.collect.Lists;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
-import com.homer.util.core.$;
+import com.homer.util.LeagueUtil;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -24,10 +24,17 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
         return getPlayerSeasonsByTeamIds(Lists.newArrayList(teamId), season);
     }
 
+    List<PlayerSeason> getActivePlayers(int season);
+    default List<PlayerSeason> getActivePlayers() {
+        return this.getActivePlayers(LeagueUtil.SEASON);
+    }
+
     PlayerSeason createPlayerSeason(long playerId, int season);
 
     PlayerSeason switchTeam(long playerId, int season, @Nullable Long oldTeamId, @Nullable Long newTeamId);
 
     PlayerSeason switchFantasyPosition(long playerId, int season, @Nullable Position oldFantasyPosition,
                                        @Nullable Position newFantasyPosition);
+
+    void updateVulturable(PlayerSeason playerSeason);
 }
