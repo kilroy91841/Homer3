@@ -86,9 +86,11 @@ public class Gatherer implements IGatherer {
         teams.forEach(t -> {
             TeamView tv = TeamView.from(t);
             List<PlayerView> playersForTeam = $.of(teamToPlayers.get(t.getId())).toList();
-            int salary = $.of(playersForTeam).reduceToInt(pv -> pv.getCurrentSeason().getSalary());
             tv.setMajorLeaguers($.of(playersForTeam).filterToList(p -> p.getCurrentSeason().getFantasyPosition() != Position.MINORLEAGUES));
             tv.setMinorLeaguers($.of(playersForTeam).filterToList(p -> p.getCurrentSeason().getFantasyPosition() == Position.MINORLEAGUES));
+            int salary = $.of(tv.getMajorLeaguers())
+                    .filter(pv -> pv.getPosition() != Position.DISABLEDLIST)
+                    .reduceToInt(pv -> pv.getCurrentSeason().getSalary());
             tv.setSalary(salary);
             tv.setDraftDollars($.of(teamToDraftDollars.get(t.getId())).toList());
             tv.setMinorLeaguePicks($.of(teamToMinorLeaguePicks.get(t.getId())).toList());

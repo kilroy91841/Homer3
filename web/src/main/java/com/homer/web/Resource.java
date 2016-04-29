@@ -3,16 +3,15 @@ package com.homer.web;
 import com.google.common.collect.Lists;
 import com.homer.data.*;
 import com.homer.service.*;
-import com.homer.service.full.FullPlayerService;
-import com.homer.service.full.FullTradeService;
-import com.homer.service.full.IFullPlayerService;
-import com.homer.service.full.IFullTradeService;
+import com.homer.service.full.*;
 import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
 import com.homer.type.*;
+import com.homer.type.view.PlayerSeasonView;
 import com.homer.type.view.PlayerView;
 import com.homer.type.view.TeamView;
 import com.homer.util.EnumUtil;
+import com.homer.util.core.$;
 import com.homer.web.model.ApiResponse;
 import com.homer.web.model.MetadataView;
 
@@ -40,6 +39,7 @@ public class Resource {
     private IMinorLeaguePickService minorLeaguePickService;
     private IDraftDollarService draftDollarService;
     private IFullPlayerService fullPlayerService;
+    private IFullTeamService fullTeamService;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -50,6 +50,7 @@ public class Resource {
         this.tradeService = new TradeService(new TradeRepository());
         this.tradeElementService = new TradeElementService(new TradeElementRepository());
         this.fullPlayerService = new FullPlayerService(playerService, playerSeasonService);
+        this.fullTeamService = new FullTeamService(playerSeasonService, teamService);
 
         gatherer = new Gatherer(
                 playerService,
@@ -92,11 +93,27 @@ public class Resource {
         return gatherer.gatherPlayers(playerService.searchPlayersByName(name));
     }
 
+    @Path("player/vulturable")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public List<PlayerView> getVulturablePlayers() {
+        List<PlayerSeason> vulturablePlayers = playerSeasonService.getVulturablePlayerSeasons();
+        return gatherer.gatherPlayersByIds($.of(vulturablePlayers).toList(PlayerSeason::getPlayerId));
+    }
+
     @Path("team/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
     public TeamView getTeam(@PathParam(value = "id") long id) {
         return gatherer.gatherTeamById(id);
+    }
+
+    @Path("team/salary")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse getTeamSalaries() {
+        List<TeamView> teamViews = fullTeamService.getTeamSalaries();
+        return new ApiResponse("success", teamViews);
     }
 
     @Path("team")
@@ -148,8 +165,9 @@ public class Resource {
             return new ApiResponse(e.getMessage(), null);
         }
         updated = playerSeasonService.upsert(updated);
-        return new ApiResponse(String.format("Moved %s from position %s to position %s", updated.getPlayerId(),
-                oldPosition.getName(), newPosition.getName()), updated);
+        String oldPositionText = oldPosition == null ? "no position" : "position " + oldPosition.getName();
+        return new ApiResponse(String.format("Moved %s from %s to position %s", updated.getPlayerId(),
+                oldPositionText, newPosition.getName()), updated);
     }
 
     @Path("trade")
