@@ -4,8 +4,7 @@ import com.google.common.collect.Lists;
 import com.homer.data.*;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
-import com.homer.service.full.FullTradeService;
-import com.homer.service.full.IFullTradeService;
+import com.homer.service.full.*;
 import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
 import com.homer.service.importer.IPlayerImporter;
@@ -39,6 +38,7 @@ public class Resource {
     private IMinorLeaguePickService minorLeaguePickService;
     private IDraftDollarService draftDollarService;
     private IPlayerImporter playerImporter;
+    private IFullTeamService fullTeamService;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -48,6 +48,7 @@ public class Resource {
         this.minorLeaguePickService = new MinorLeaguePickService(new MinorLeaguePickRepository());
         this.tradeService = new TradeService(new TradeRepository());
         this.tradeElementService = new TradeElementService(new TradeElementRepository());
+        this.fullTeamService = new FullTeamService(playerSeasonService, teamService);
 
         gatherer = new Gatherer(
                 playerService,
@@ -80,6 +81,14 @@ public class Resource {
     @GET
     public TeamView getTeam(@PathParam(value = "id") long id) {
         return gatherer.gatherTeamById(id);
+    }
+
+    @Path("team/salary")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse getTeamSalaries() {
+        List<TeamView> teamViews = fullTeamService.getTeamSalaries();
+        return new ApiResponse("success", teamViews);
     }
 
     @Path("team")

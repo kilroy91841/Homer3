@@ -232,7 +232,10 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                     query.append(" = ").append(EnumUtil.to((IIntEnum) filters.get(key)));
                 } else if (String.class.isAssignableFrom(filters.get(key).getClass())) {
                     query.append(key);
-                    query.append(" = '").append(cleanString((String)filters.get(key))).append("'");
+                    query.append(" = '").append(cleanString((String) filters.get(key))).append("'");
+                } else if (Boolean.class.isAssignableFrom(filters.get(key).getClass())) {
+                    query.append(key);
+                    query.append(" = ").append(((Boolean)filters.get(key)) ? 1 : 0);
                 } else {
                     query.append(key);
                     query.append(" = '").append(filters.get(key)).append("'");

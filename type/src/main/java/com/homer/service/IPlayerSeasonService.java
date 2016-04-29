@@ -36,5 +36,11 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
     PlayerSeason switchFantasyPosition(long playerId, int season, @Nullable Position oldFantasyPosition,
                                        @Nullable Position newFantasyPosition);
 
+    //region Vulture
+
     void updateVulturable(PlayerSeason playerSeason);
+
+    List<PlayerSeason> getVulturablePlayerSeasons();
+
+    //endregion
 }

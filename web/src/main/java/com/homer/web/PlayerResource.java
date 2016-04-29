@@ -11,6 +11,7 @@ import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.type.view.PlayerView;
 import com.homer.util.EnumUtil;
+import com.homer.util.core.$;
 import com.homer.web.model.ApiResponse;
 
 import javax.annotation.Nullable;
@@ -148,5 +149,13 @@ public class PlayerResource {
         updated = playerSeasonService.upsert(updated);
         return new ApiResponse(String.format("Moved %s from position %s to position %s", updated.getPlayerId(),
                 oldPosition.getName(), newPosition.getName()), updated);
+    }
+
+    @Path("/vulturable")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public List<PlayerView> getVulturablePlayers() {
+        List<PlayerSeason> vulturablePlayers = playerSeasonService.getVulturablePlayerSeasons();
+        return gatherer.gatherPlayersByIds($.of(vulturablePlayers).toList(PlayerSeason::getPlayerId));
     }
 }
