@@ -2,6 +2,7 @@ package com.homer.web;
 
 import com.google.common.collect.Lists;
 import com.homer.data.*;
+import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.full.FullPlayerService;
 import com.homer.service.full.FullTradeService;
@@ -9,6 +10,8 @@ import com.homer.service.full.IFullPlayerService;
 import com.homer.service.full.IFullTradeService;
 import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
+import com.homer.service.importer.IPlayerImporter;
+import com.homer.service.importer.PlayerImporter;
 import com.homer.type.*;
 import com.homer.type.view.PlayerView;
 import com.homer.type.view.TeamView;
@@ -40,6 +43,7 @@ public class Resource {
     private IMinorLeaguePickService minorLeaguePickService;
     private IDraftDollarService draftDollarService;
     private IFullPlayerService fullPlayerService;
+    private IPlayerImporter playerImporter;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -63,6 +67,12 @@ public class Resource {
 
         fullTradeService = new FullTradeService(tradeService, minorLeaguePickService, draftDollarService,
                 playerSeasonService, tradeElementService);
+
+        playerImporter = new PlayerImporter(
+                playerService,
+                playerSeasonService,
+                new MLBRestClient()
+        );
     }
 
     @GET
@@ -189,5 +199,27 @@ public class Resource {
         mv.setPositions(Lists.newArrayList(Position.class.getEnumConstants()));
         mv.setMlbTeams(Lists.newArrayList(MLBTeam.class.getEnumConstants()));
         return mv;
+    }
+
+    @Path("importer/update40Man")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public List<PlayerView> update40Man() {
+        List<PlayerView> updatedPlayers = Lists.newArrayList();
+        Runnable runnable = Scheduler.update40ManRostersRunnable(playerImporter, x -> updatedPlayers.addAll(x));
+        runnable.run();
+        return updatedPlayers;
+    }
+
+    @Path("importer/updatePlayers")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public List<PlayerView> updatePlayers() {
+        List<PlayerView> updatedPlayers = Lists.newArrayList();
+        Runnable runnable = Scheduler.updatePlayersRunnable(playerImporter,
+                playerSeasonService, playerService,
+                x -> updatedPlayers.add(x));
+        runnable.run();
+        return updatedPlayers;
     }
 }
