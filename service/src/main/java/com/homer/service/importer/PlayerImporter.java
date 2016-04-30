@@ -42,10 +42,16 @@ public class PlayerImporter implements IPlayerImporter {
 
         List<PlayerView> playerViews = Lists.newArrayList();
         for(MLBPlayer mlbPlayer : mlbPlayers) {
-            Player player = nameToPlayerMap.get(mlbPlayer.getName());
-            if (player != null) {
-                playerViews.add(updatePlayerImpl(player, mlbPlayer));
-                System.out.println("Updated " + player.getName());
+            try {
+                Player player = nameToPlayerMap.get(mlbPlayer.getName());
+                if (player != null) {
+                    playerViews.add(updatePlayerImpl(player, mlbPlayer));
+                    System.out.println("Updated " + player.getName());
+                } else {
+                    System.out.println(mlbPlayer.getName() + " not in database");
+                }
+            } catch (Exception e) {
+                System.out.println("Error processing " + mlbPlayer.getName());
             }
         }
         return playerViews;

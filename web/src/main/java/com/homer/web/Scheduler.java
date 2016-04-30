@@ -12,6 +12,7 @@ import com.homer.service.importer.PlayerImporter;
 import com.homer.type.MLBTeam;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
+import com.homer.type.view.PlayerView;
 import com.homer.util.EnvironmentUtility;
 import com.homer.util.core.$;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Created by arigolub on 4/28/16.
@@ -50,14 +52,9 @@ public class Scheduler {
     }
 
     public ScheduledFuture update40ManRosters() {
-        Runnable runnable = () -> {
-                for (MLBTeam team : MLBTeam.values()) {
-                    if (team == MLBTeam.FREEAGENT) {
-                        continue;
-                    }
-                    playerImporter.update40ManRoster(team.getId());
-                }
-            };
+        Runnable runnable = update40ManRostersRunnable(playerImporter, x -> {
+            return;
+        });
         return scheduler.scheduleAtFixedRate(
                 runnable,
                 envUtil.getUpdate40ManRostersDelay(),
@@ -67,19 +64,45 @@ public class Scheduler {
     }
 
     public ScheduledFuture updatePlayers() {
-        Runnable runnable = () -> {
-            List<PlayerSeason> playerSeasons = playerSeasonService.getActivePlayers();
-            List<Long> playerIds = $.of(playerSeasons).toList(PlayerSeason::getPlayerId);
-            List<Player> players = playerService.getByIds(playerIds);
-            for (Player player : players) {
-                playerImporter.updatePlayer(player);
-            }
-        };
+        Runnable runnable = updatePlayersRunnable(playerImporter, playerSeasonService, playerService, x -> {
+            return;
+        });
         return scheduler.scheduleAtFixedRate(
                 runnable,
                 envUtil.getUpdatePlayersDelay(),
                 envUtil.getUpdatePlayersPeriod(),
                 TimeUnit.MINUTES
         );
+    }
+
+    public static Runnable update40ManRostersRunnable(IPlayerImporter playerImporter,
+                                                      Consumer<List<PlayerView>> consumer) {
+        return () -> {
+            for (MLBTeam team : MLBTeam.values()) {
+                if (team == MLBTeam.FREEAGENT) {
+                    continue;
+                }
+                consumer.accept(playerImporter.update40ManRoster(team.getId()));
+            }
+        };
+    }
+
+    public static Runnable updatePlayersRunnable(IPlayerImporter playerImporter,
+                                                 IPlayerSeasonService playerSeasonService,
+                                                 IPlayerService playerService,
+                                                 Consumer<PlayerView> consumer) {
+        return () -> {
+            List<PlayerSeason> playerSeasons = playerSeasonService.getActivePlayers();
+            List<Long> playerIds = $.of(playerSeasons).toList(PlayerSeason::getPlayerId);
+            List<Player> players = playerService.getByIds(playerIds);
+            for (Player player : players) {
+                try {
+                    consumer.accept(playerImporter.updatePlayer(player));
+                } catch (Exception e) {
+                    System.out.println(String.format(
+                            "Error updating %s : \n%s", player.getName(), e.getMessage()));
+                }
+            }
+        };
     }
 }
