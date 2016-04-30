@@ -141,7 +141,7 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         Map<String, Object> filters = Maps.newHashMap();
         filters.put("season", LeagueUtil.SEASON);
         filters.put("vulturable", true);
-        return repo.getMany(filters);
+        return $.of(repo.getMany(filters)).filterToList(ps -> ps.getTeamId() != null);
     }
 
     private PlayerSeason getPlayerSeasonOrThrow(long playerId, int season) {
