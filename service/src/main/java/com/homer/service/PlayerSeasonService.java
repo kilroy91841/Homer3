@@ -6,6 +6,7 @@ import com.homer.data.common.IPlayerSeasonRepository;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.external.common.mlb.MLBPlayerStatus;
 import com.homer.type.*;
+import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
 
 import javax.annotation.Nullable;
@@ -133,6 +134,14 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
             return;
         }
         playerSeason.setVulturable(false);
+    }
+
+    @Override
+    public List<PlayerSeason> getVulturablePlayerSeasons() {
+        Map<String, Object> filters = Maps.newHashMap();
+        filters.put("season", LeagueUtil.SEASON);
+        filters.put("vulturable", true);
+        return repo.getMany(filters);
     }
 
     private PlayerSeason getPlayerSeasonOrThrow(long playerId, int season) {
