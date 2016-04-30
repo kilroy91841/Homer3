@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by arigolub on 2/15/16.
@@ -73,5 +74,29 @@ public class PlayerService extends BaseIdService<Player> implements IPlayerServi
         }
 
         return super.upsert(player);
+    }
+
+    @Override
+    public Player updatePlayer(Player player) {
+        Player existingPlayer = getById(player.getId());
+        if (existingPlayer == null) {
+            throw new IllegalArgumentException(
+                    String.format("Could not find player with id %s", player.getId()));
+        }
+
+        if (Objects.equals(player.getFirstName(), existingPlayer.getFirstName()) &&
+                Objects.equals(player.getLastName(), existingPlayer.getLastName()) &&
+                Objects.equals(player.getMlbPlayerId(), existingPlayer.getMlbPlayerId()) &&
+                Objects.equals(player.getPosition(), existingPlayer.getPosition())) {
+            return existingPlayer;
+        }
+
+        existingPlayer.setFirstName(player.getFirstName());
+        existingPlayer.setLastName(player.getLastName());
+        existingPlayer.setName(player.getFirstName() + " " + player.getLastName());
+        existingPlayer.setMlbPlayerId(player.getMlbPlayerId());
+        existingPlayer.setPosition(player.getPosition());
+
+        return super.upsert(existingPlayer);
     }
 }
