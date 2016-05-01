@@ -23,10 +23,14 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.slf4j.*;
+
 /**
  * Created by arigolub on 4/28/16.
  */
 public class Scheduler {
+
+    final static Logger logger = LoggerFactory.getLogger(Scheduler.class);
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -78,14 +82,14 @@ public class Scheduler {
     public static Runnable update40ManRostersRunnable(IPlayerImporter playerImporter,
                                                       Consumer<List<PlayerView>> consumer) {
         return () -> {
-            System.out.println("BEGIN: update40ManRostersRunnable");
+            logger.info("BEGIN: update40ManRostersRunnable");
             for (MLBTeam team : MLBTeam.values()) {
                 if (team == MLBTeam.FREEAGENT) {
                     continue;
                 }
                 consumer.accept(playerImporter.update40ManRoster(team.getId()));
             }
-            System.out.println("END: update40ManRostersRunnable");
+            logger.info("END: update40ManRostersRunnable");
         };
     }
 
@@ -94,7 +98,7 @@ public class Scheduler {
                                                  IPlayerService playerService,
                                                  Consumer<PlayerView> consumer) {
         return () -> {
-            System.out.println("BEGIN: updatePlayersRunnable");
+            logger.info("BEGIN: updatePlayersRunnable");
             List<PlayerSeason> playerSeasons = playerSeasonService.getActivePlayers();
             List<Long> playerIds = $.of(playerSeasons).toList(PlayerSeason::getPlayerId);
             List<Player> players = playerService.getByIds(playerIds);
@@ -102,11 +106,11 @@ public class Scheduler {
                 try {
                     consumer.accept(playerImporter.updatePlayer(player));
                 } catch (Exception e) {
-                    System.out.println(String.format(
+                    logger.info(String.format(
                             "Error updating %s : \n%s", player.getName(), e.getMessage()));
                 }
             }
-            System.out.println("END: updatePlayersRunnable");
+            logger.info("END: updatePlayersRunnable");
         };
     }
 }
