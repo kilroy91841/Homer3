@@ -30,14 +30,14 @@ public class MyApp  {
             Migrate.doWork();
         }
 
+        Scheduler scheduler = new Scheduler();
+        scheduler.run();
+
         String port = envUtil.getInstancePort();
         String uri = "http://0.0.0.0:" + port;
         GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), getResourceConfig());
 
         System.out.println("Exposing app at: " + uri);
-
-        Scheduler scheduler = new Scheduler();
-        scheduler.run();
     }
 
     static ResourceConfig getResourceConfig() {
