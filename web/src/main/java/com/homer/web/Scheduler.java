@@ -82,14 +82,18 @@ public class Scheduler {
     public static Runnable update40ManRostersRunnable(IPlayerImporter playerImporter,
                                                       Consumer<List<PlayerView>> consumer) {
         return () -> {
-            logger.info("BEGIN: update40ManRostersRunnable");
-            for (MLBTeam team : MLBTeam.values()) {
-                if (team == MLBTeam.FREEAGENT) {
-                    continue;
+            try {
+                logger.info("BEGIN: update40ManRostersRunnable");
+                for (MLBTeam team : MLBTeam.values()) {
+                    if (team == MLBTeam.FREEAGENT) {
+                        continue;
+                    }
+                    consumer.accept(playerImporter.update40ManRoster(team.getId()));
                 }
-                consumer.accept(playerImporter.update40ManRoster(team.getId()));
+                logger.info("END: update40ManRostersRunnable");
+            } catch (Exception e) {
+                logger.error(String.format("ERROR: update40ManRostersRunnable, %s %s", e.getMessage(), e.getStackTrace().toString()));
             }
-            logger.info("END: update40ManRostersRunnable");
         };
     }
 
@@ -98,19 +102,23 @@ public class Scheduler {
                                                  IPlayerService playerService,
                                                  Consumer<PlayerView> consumer) {
         return () -> {
-            logger.info("BEGIN: updatePlayersRunnable");
-            List<PlayerSeason> playerSeasons = playerSeasonService.getActivePlayers();
-            List<Long> playerIds = $.of(playerSeasons).toList(PlayerSeason::getPlayerId);
-            List<Player> players = playerService.getByIds(playerIds);
-            for (Player player : players) {
-                try {
-                    consumer.accept(playerImporter.updatePlayer(player));
-                } catch (Exception e) {
-                    logger.info(String.format(
-                            "Error updating %s : \n%s", player.getName(), e.getMessage()));
+            try {
+                logger.info("BEGIN: updatePlayersRunnable");
+                List<PlayerSeason> playerSeasons = playerSeasonService.getActivePlayers();
+                List<Long> playerIds = $.of(playerSeasons).toList(PlayerSeason::getPlayerId);
+                List<Player> players = playerService.getByIds(playerIds);
+                for (Player player : players) {
+                    try {
+                        consumer.accept(playerImporter.updatePlayer(player));
+                    } catch (Exception e) {
+                        logger.info(String.format(
+                                "Error updating %s : \n%s", player.getName(), e.getMessage()));
+                    }
                 }
+                logger.info("END: updatePlayersRunnable");
+            } catch (Exception e) {
+                logger.error(String.format("ERROR: updatePlayersRunnable, %s %s", e.getMessage(), e.getStackTrace().toString()));
             }
-            logger.info("END: updatePlayersRunnable");
         };
     }
 }
