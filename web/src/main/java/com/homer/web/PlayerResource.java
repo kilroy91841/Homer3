@@ -65,6 +65,7 @@ public class PlayerResource {
         return gatherer.gatherPlayers();
     }
 
+    @AuthRequired
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @PUT
@@ -78,6 +79,7 @@ public class PlayerResource {
         }
     }
 
+    @AuthRequired
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @POST
@@ -105,6 +107,7 @@ public class PlayerResource {
         return gatherer.gatherPlayers(playerService.searchPlayersByName(name));
     }
 
+    @AuthRequired
     @Path("/{id}/team/{newTeamId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -129,6 +132,7 @@ public class PlayerResource {
                 oldTeamId, newTeamId), updated);
     }
 
+    @AuthRequired
     @Path("/{id}/position/{newPosition}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

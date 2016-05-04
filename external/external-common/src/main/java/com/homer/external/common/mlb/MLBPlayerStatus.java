@@ -12,12 +12,13 @@ public enum MLBPlayerStatus {
     FREEAGENT("Free Agent", "FA", null),
     UNKNOWN("Unknown", "UNK", null),
     INACTIVE("Inactive", "I", null),
-    DL_15("15-Day Disabled List", "D15", DISABLEDLIST),
-    DL_60("60-Day Disabled List", "D60", DISABLEDLIST),
+    DL15("15-Day Disabled List", "D15", DISABLEDLIST),
+    DL50("60-Day Disabled List", "D60", DISABLEDLIST),
     REASSIGNED("Re-assigned", "RM", MINORS),
     RESTRICTED("Restricted", "RST", DISABLEDLIST),
     SUSPENDED("Suspended", "SUSP", DISABLEDLIST),
     BEREAVEMENT("Bereavement", "BRV", ACTIVE),
+    NONROSTERINVITEE("Non-Roster Invitee", "NRI", MINORS),
     ;
 
     private final String fullName;
