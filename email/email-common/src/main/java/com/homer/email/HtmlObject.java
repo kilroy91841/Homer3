@@ -61,7 +61,9 @@ public final class HtmlObject {
             sb.append("\"");
         }
         if (styles.size() > 0) {
-
+            sb.append("style=\"");
+            sb.append(Joiner.on(";").join(styles));
+            sb.append("\"");
         }
         sb.append(">");
         addBodyOrChildren(sb);
