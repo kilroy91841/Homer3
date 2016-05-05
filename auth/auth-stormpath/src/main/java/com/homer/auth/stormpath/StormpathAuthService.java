@@ -3,6 +3,9 @@ package com.homer.auth.stormpath;
 import com.homer.service.auth.IAuthService;
 import com.homer.service.auth.User;
 import com.stormpath.sdk.account.Account;
+import com.stormpath.sdk.account.AccountCriteria;
+import com.stormpath.sdk.account.AccountList;
+import com.stormpath.sdk.account.Accounts;
 import com.stormpath.sdk.api.ApiKey;
 import com.stormpath.sdk.api.ApiKeys;
 import com.stormpath.sdk.authc.*;
@@ -58,6 +61,11 @@ public class StormpathAuthService implements IAuthService {
             return instance;
         }
     }
+
+//    public User getUsers() {
+//        Application application = getApplication();)
+//        AccountList accounts = application.getAccounts();
+//    }
 
     @Nullable
     @Override
