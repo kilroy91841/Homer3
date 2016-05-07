@@ -1,5 +1,6 @@
 package com.homer.auth.stormpath;
 
+import com.google.common.collect.Lists;
 import com.homer.service.auth.IAuthService;
 import com.homer.service.auth.User;
 import com.stormpath.sdk.account.Account;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Created by arigolub on 5/1/16.
@@ -35,6 +37,8 @@ public class StormpathAuthService implements IAuthService {
     private static final String APPLICATION = "HomerAtTheBat";
     private static final String TEAM_ID = "teamId";
     private static final String FILE_NAME = "apiKey.properties";
+
+    private static List<User> users = null;
 
     private StormpathAuthService() throws ConfigurationException {
         PropertiesConfiguration config = new PropertiesConfiguration(FILE_NAME);
@@ -62,10 +66,19 @@ public class StormpathAuthService implements IAuthService {
         }
     }
 
-//    public User getUsers() {
-//        Application application = getApplication();)
-//        AccountList accounts = application.getAccounts();
-//    }
+    @Override
+    public List<User> getUsers() {
+        if (users != null) {
+            return users;
+        }
+        Application application = getApplication();
+        AccountList accounts = application.getAccounts();
+        users = Lists.newArrayList();
+        for(Account account : accounts) {
+            users.add(toUser(account));
+        }
+        return users;
+    }
 
     @Nullable
     @Override
@@ -80,19 +93,9 @@ public class StormpathAuthService implements IAuthService {
                     .withResponseOptions(options)
                     .build();
             AuthenticationResult result = application.authenticateAccount(authenticationRequest);
-            Account account = result.getAccount();
-            User user = new User();
-            user.setUserName(account.getUsername());
-            user.setEmail(account.getEmail());
-            user.setFirstName(account.getGivenName());
-            user.setLastName(account.getSurname());
 
-            if (account.getCustomData().containsKey("teamId")) {
-                user.setTeamId(getTeamId(account));
-            }
-            if (account.getCustomData().containsKey("admin")) {
-                user.setAdmin(true);
-            }
+            Account account = result.getAccount();
+            User user = toUser(account);
 
             LOGGER.info("Authentication successful for " + userName);
             return user;
@@ -112,6 +115,22 @@ public class StormpathAuthService implements IAuthService {
         Tenant tenant = client.getCurrentTenant();
         ApplicationList applications = tenant.getApplications(Applications.where(Applications.name().eqIgnoreCase(APPLICATION)));
         return applications.iterator().next();
+    }
+
+    private static User toUser(Account account) {
+        User user = new User();
+        user.setUserName(account.getUsername());
+        user.setEmail(account.getEmail());
+        user.setFirstName(account.getGivenName());
+        user.setLastName(account.getSurname());
+
+        if (account.getCustomData().containsKey("teamId")) {
+            user.setTeamId(getTeamId(account));
+        }
+        if (account.getCustomData().containsKey("admin")) {
+            user.setAdmin(true);
+        }
+        return user;
     }
 
     private static long getTeamId(Account account) {

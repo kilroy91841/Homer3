@@ -16,6 +16,8 @@ public class SessionToken extends BaseObject {
     @Column
     private String userName;
     @Column
+    private long teamId;
+    @Column
     private String token;
     @Column
     private DateTime expirationDateUTC;
@@ -31,18 +33,20 @@ public class SessionToken extends BaseObject {
         SessionToken that = (SessionToken) o;
         return Objects.equal(userName, that.userName) &&
                 Objects.equal(token, that.token) &&
+                Objects.equal(teamId, that.teamId) &&
                 Objects.equal(expirationDateUTC, that.expirationDateUTC);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), userName, token, expirationDateUTC);
+        return Objects.hashCode(super.hashCode(), userName, token, teamId, expirationDateUTC);
     }
 
     @Override
     public String toString() {
         return "SessionToken{" +
                 "userName='" + userName + '\'' +
+                ", teamId="+ teamId +
                 ", expirationDateUTC=" + expirationDateUTC +
                 '}';
     }
@@ -61,6 +65,14 @@ public class SessionToken extends BaseObject {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public long getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(long teamId) {
+        this.teamId = teamId;
     }
 
     public DateTime getExpirationDateUTC() {

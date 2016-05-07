@@ -25,9 +25,10 @@ public class SessionTokenRepository extends BaseRepository<SessionToken> impleme
     }
 
     @Override
-    public String createForUser(String userName) {
+    public String createForUser(String userName, long teamId) {
         SessionToken sessionToken = new SessionToken();
         sessionToken.setUserName(userName);
+        sessionToken.setTeamId(teamId);
         sessionToken.setToken(nextSessionToken());
         sessionToken.setExpirationDateUTC(DateTime.now(DateTimeZone.UTC).plusDays(DAYS_UNTIL_EXPIRATION));
         return super.upsert(sessionToken).getToken();

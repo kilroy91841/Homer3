@@ -5,9 +5,12 @@ import com.google.common.io.BaseEncoding;
 import com.homer.data.common.ISessionTokenRepository;
 import com.homer.exception.LoginFailedException;
 import com.homer.type.auth.SessionToken;
+import com.homer.util.core.$;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Created by arigolub on 5/1/16.
@@ -30,7 +33,7 @@ public class UserService implements IUserService {
         if (user == null) {
             throw new LoginFailedException(String.format("Login failed for %s", userName));
         }
-        String token = sessionTokenRepo.createForUser(user.getUserName());
+        String token = sessionTokenRepo.createForUser(user.getUserName(), user.getTeamId());
         user.setToken(BaseEncoding.base64().encode(token.getBytes(Charsets.US_ASCII)));
         return user;
     }
@@ -43,5 +46,11 @@ public class UserService implements IUserService {
         }
         logger.info(String.format("Successful session auth for %s", sessionToken.getUserName()));
         return true;
+    }
+
+    @Override
+    public List<User> getUsersForTeam(long teamId) {
+        List<User> allUsers = authService.getUsers();
+        return $.of(allUsers).filterToList(user -> user.getTeamId() == teamId);
     }
 }

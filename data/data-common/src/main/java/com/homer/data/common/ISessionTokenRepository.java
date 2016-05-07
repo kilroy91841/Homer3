@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
  */
 public interface ISessionTokenRepository extends IRepository<SessionToken> {
 
-    String createForUser(String userName);
+    String createForUser(String userName, long teamId);
     @Nullable
     SessionToken getByToken(String token);
 }
