@@ -10,6 +10,8 @@ import com.amazonaws.services.simpleemail.model.*;
 import com.amazonaws.regions.*;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
@@ -17,6 +19,8 @@ import javax.annotation.Nullable;
  * Created by arigolub on 5/3/16.
  */
 public class AWSEmailService implements IEmailService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AWSEmailService.class);
 
     private static String EMAIL_FROM_ADDRESS;
     private static AWSCredentials CREDENTIALS;
@@ -44,14 +48,14 @@ public class AWSEmailService implements IEmailService {
             throw new IllegalArgumentException("Email request must have html object");
         }
 
+        logger.info("Sending email: " + emailRequest);
+
         // Construct an object to contain the recipient address.
         Destination destination = new Destination().withToAddresses(emailRequest.getToAddresses());
 
         // Create the subject and body of the message.
         Content subject = new Content().withData(emailRequest.getSubject());
         String html = emailRequest.getHtmlObject().toHtml();
-        System.out.println("Html is: ");
-        System.out.println(html);
         Content textBody = new Content().withData(html);
         Body body = new Body().withHtml(textBody);
 
@@ -63,7 +67,7 @@ public class AWSEmailService implements IEmailService {
 
         try
         {
-            System.out.println("Attempting to send an email through Amazon SES by using the AWS SDK for Java...");
+            logger.info("Attempting to send an email through Amazon SES by using the AWS SDK for Java...");
 
             // Instantiate an Amazon SES client, which will make the service call. The service call requires your AWS credentials.
             // Because we're not providing an argument when instantiating the client, the SDK will attempt to find your AWS credentials
@@ -82,13 +86,12 @@ public class AWSEmailService implements IEmailService {
 
             // Send the email.
             SendEmailResult result = client.sendEmail(request);
-            System.out.println("Email sent!");
+            logger.info("Email sent!");
             return result.getMessageId();
         }
         catch (Exception ex)
         {
-            System.out.println("The email was not sent.");
-            System.out.println("Error message: " + ex.getMessage());
+            logger.error("The email was not sent. Error message: " + ex.getMessage());
             return null;
         }
     }

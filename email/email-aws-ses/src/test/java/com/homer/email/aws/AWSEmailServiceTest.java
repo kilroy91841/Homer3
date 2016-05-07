@@ -33,8 +33,7 @@ public class AWSEmailServiceTest {
                     .child(
                             HtmlObject.of(HtmlTag.P).body("And this is a second P")
                     );
-        System.out.println(htmlObject.toHtml());
-        //EmailRequest emailRequest = new EmailRequest(Lists.newArrayList("arigolub@gmail.com"), "Test Email", htmlObject);
-        //assertNotNull(service.sendEmail(emailRequest));
+        EmailRequest emailRequest = new EmailRequest(Lists.newArrayList("arigolub@gmail.com"), "Test Email", htmlObject);
+        assertNotNull(service.sendEmail(emailRequest));
     }
 }
