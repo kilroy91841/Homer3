@@ -11,6 +11,7 @@ import com.homer.type.MLBTeam;
 import com.homer.type.Player;
 import com.homer.type.Team;
 import com.homer.util.EnvironmentUtility;
+import com.homer.web.filter.AuthFilter;
 import com.homer.web.flyway.Migrate;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -43,6 +44,7 @@ public class MyApp  {
     static ResourceConfig getResourceConfig() {
         ResourceConfig rc = new ResourceConfig().packages("com.homer.web");
         rc.register(JacksonFeature.class);
+        rc.register(AuthFilter.class);
         return rc;
     }
 }

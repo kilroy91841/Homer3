@@ -15,6 +15,7 @@
         <module>service</module>
         <module>data</module>
         <module>external</module>
+        <module>auth</module>
     </modules>
 
     <pluginRepositories>
@@ -108,9 +109,19 @@
                 <version>1.4.2</version>
             </dependency>
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.6</version>
+            </dependency>
+            <dependency>
                 <groupId>org.logback-extensions</groupId>
                 <artifactId>logback-ext-loggly</artifactId>
                 <version>0.1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stormpath.sdk</groupId>
+                <artifactId>stormpath-sdk-api</artifactId>
+                <version>1.0.RC9.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

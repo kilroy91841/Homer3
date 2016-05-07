@@ -3,32 +3,36 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>util</artifactId>
+        <artifactId>auth</artifactId>
         <groupId>com.homer</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>util-data</artifactId>
+    <artifactId>auth-stormpath</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.homer</groupId>
-            <artifactId>util-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>com.stormpath.sdk</groupId>
+            <artifactId>stormpath-sdk-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.stormpath.sdk</groupId>
+            <artifactId>stormpath-sdk-httpclient</artifactId>
+            <version>1.0.RC9.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.homer</groupId>
+            <artifactId>type</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
+
 
 </project>
