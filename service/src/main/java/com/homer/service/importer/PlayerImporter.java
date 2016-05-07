@@ -14,6 +14,7 @@ import com.homer.type.view.PlayerView;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +99,7 @@ public class PlayerImporter implements IPlayerImporter {
         return pv;
     }
 
-    private static Status fromStatus(MLBPlayerStatus status) {
+    private static Status fromStatus(@Nullable MLBPlayerStatus status) {
         if (status == null) {
             return Status.UNKNOWN;
         }

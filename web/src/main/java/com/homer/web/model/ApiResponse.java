@@ -4,6 +4,7 @@ package com.homer.web.model;
  * Created by arigolub on 4/17/16.
  */
 public class ApiResponse {
+
     private String message;
     private Object data;
 

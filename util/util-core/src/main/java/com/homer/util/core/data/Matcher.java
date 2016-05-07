@@ -1,4 +1,4 @@
-package com.homer.util.data;
+package com.homer.util.core.data;
 
 /**
  * Created by arigolub on 3/12/16.
