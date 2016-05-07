@@ -2,8 +2,11 @@ package com.homer.service.full;
 
 import com.google.common.collect.Maps;
 import com.homer.exception.ExistingVultureInProgressException;
+import com.homer.exception.IllegalVultureDropPlayerException;
 import com.homer.exception.NotVulturableException;
 import com.homer.service.IPlayerSeasonService;
+import com.homer.service.IPlayerService;
+import com.homer.service.ITeamService;
 import com.homer.service.IVultureService;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Vulture;
@@ -15,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,6 +32,8 @@ public class FullVultureService implements IFullVultureService {
 
     final static Logger logger = LoggerFactory.getLogger(FullVultureService.class);
 
+    private ITeamService teamService;
+    private IPlayerService playerService;
     private IVultureService vultureService;
     private IPlayerSeasonService playerSeasonService;
 
@@ -35,9 +41,12 @@ public class FullVultureService implements IFullVultureService {
 
     private final static Map<Long, ScheduledFuture> inProgressVultureMap = Maps.newHashMap();
 
-    public FullVultureService(IVultureService vultureService, IPlayerSeasonService playerSeasonService) {
+    public FullVultureService(IVultureService vultureService, IPlayerSeasonService playerSeasonService,
+                              ITeamService teamService, IPlayerService playerService) {
         this.vultureService = vultureService;
         this.playerSeasonService = playerSeasonService;
+        this.teamService = teamService;
+        this.playerService = playerService;
     }
 
     @Override
@@ -98,8 +107,12 @@ public class FullVultureService implements IFullVultureService {
 
         if (playerSeason.getVulturable()) {
             playerSeason.setVulturable(false);
-            movePlayersForSuccessfulVulture(vulture, playerSeason);
-            vulture.setVultureStatus(VultureStatus.SUCCESSFUL);
+            try {
+                movePlayersForSuccessfulVulture(vulture, playerSeason);
+                vulture.setVultureStatus(VultureStatus.SUCCESSFUL);
+            } catch (IllegalVultureDropPlayerException e) {
+                vulture.setVultureStatus(VultureStatus.INVALID);
+            }
         } else {
             vulture.setVultureStatus(VultureStatus.FIXED);
         }
@@ -140,6 +153,17 @@ public class FullVultureService implements IFullVultureService {
         return cancelled;
     }
 
+    @Override
+    public List<Vulture> getInProgressVultures() {
+        List<Vulture> inProgressVultures = vultureService.getInProgressVultures();
+        for(Vulture vulture : inProgressVultures) {
+            vulture.setPlayer(playerService.getById(vulture.getPlayerId()));
+            vulture.setDropPlayer(playerService.getById(vulture.getDropPlayerId()));
+            vulture.setVultureTeam(teamService.getTeamById(vulture.getTeamId()));
+        }
+        return inProgressVultures;
+    }
+
     private void movePlayersForSuccessfulVulture(Vulture vulture, PlayerSeason playerSeason) {
         long teamId = vulture.getTeamId();
         playerSeason = playerSeasonService.switchTeam(playerSeason, playerSeason.getTeamId(), teamId);
@@ -154,9 +178,7 @@ public class FullVultureService implements IFullVultureService {
             try {
                 dropPlayerSeason = playerSeasonService.switchTeam(dropPlayerSeason, teamId, null);
             } catch (IllegalArgumentException e) {
-                vulture.setVultureStatus(VultureStatus.INVALID);
-                vultureService.upsert(vulture);
-                return;
+                throw new IllegalVultureDropPlayerException(e.getMessage());
             }
         }
 

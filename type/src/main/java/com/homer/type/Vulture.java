@@ -35,7 +35,6 @@ public class Vulture extends BaseObject {
     private Player player;
     @Nullable
     private Player dropPlayer;
-    private Team playerTeam;
     private Team vultureTeam;
 
     @Override
@@ -133,14 +132,6 @@ public class Vulture extends BaseObject {
 
     public void setDropPlayer(@Nullable Player dropPlayer) {
         this.dropPlayer = dropPlayer;
-    }
-
-    public Team getPlayerTeam() {
-        return playerTeam;
-    }
-
-    public void setPlayerTeam(Team playerTeam) {
-        this.playerTeam = playerTeam;
     }
 
     public Team getVultureTeam() {

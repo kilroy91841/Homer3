@@ -92,7 +92,7 @@ public class FullVultureServiceTest {
         });
         when(vultureService.upsert(any(Vulture.class))).thenAnswer(x -> x.getArguments()[0]);
 
-        service = new FullVultureService(vultureService, playerSeasonService);
+        service = new FullVultureService(vultureService, playerSeasonService, null, null);
     }
 
     @Test(expected = NotVulturableException.class)

@@ -7,6 +7,7 @@ import com.homer.type.VultureStatus;
 import com.homer.util.core.data.IRepository;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,5 +31,12 @@ public class VultureService extends BaseIdService<Vulture> implements IVultureSe
             filters.put("vultureStatus", VultureStatus.IN_PROGRESS);
         }
         return repo.get(filters);
+    }
+
+    @Override
+    public List<Vulture> getInProgressVultures() {
+        Map<String, Object> filters = Maps.newHashMap();
+        filters.put("vultureStatus", VultureStatus.IN_PROGRESS);
+        return repo.getMany(filters);
     }
 }

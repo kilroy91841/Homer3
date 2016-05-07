@@ -27,5 +27,6 @@ public class VultureRepository extends BaseVersionedRepository<Vulture, HistoryV
         Map<String, Object> filters = Maps.newHashMap();
         filters.put("playerId", playerId);
         filters.put("vultureStatus", VultureStatus.IN_PROGRESS);
+        return get(filters);
     }
 }
