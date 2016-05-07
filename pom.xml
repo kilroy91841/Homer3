@@ -112,6 +112,11 @@
                 <artifactId>logback-ext-loggly</artifactId>
                 <version>0.1.4</version>
             </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.6</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

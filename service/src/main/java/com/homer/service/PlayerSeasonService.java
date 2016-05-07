@@ -79,6 +79,11 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         if (newTeamId == existing.getTeamId()) {
             return existing;
         }
+        return switchTeam(existing, oldTeamId, newTeamId);
+    }
+
+    @Override
+    public PlayerSeason switchTeam(PlayerSeason existing, @Nullable Long oldTeamId, @Nullable Long newTeamId) {
         if (oldTeamId != existing.getTeamId()) {
             throw new IllegalArgumentException("Supplied old team does not match existing team");
         }
@@ -118,22 +123,15 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
 
     @Override
     public void updateVulturable(PlayerSeason playerSeason) {
-        if (playerSeason.getMlbStatus() == Status.UNKNOWN) {
+        Boolean isVulturable = Vulture.isPlayerVulturable(playerSeason);
+        if (isVulturable == null) {
             return;
-        }
-
-        Position position = playerSeason.getFantasyPosition();
-        if (
-                (position != Position.DISABLEDLIST && playerSeason.getMlbStatus() == Status.DISABLEDLIST) ||
-                        (position != Position.MINORLEAGUES && playerSeason.getMlbStatus() == Status.MINORS) ||
-                        (position == Position.DISABLEDLIST && playerSeason.getMlbStatus() != Status.DISABLEDLIST) ||
-                        (position == Position.MINORLEAGUES && playerSeason.getMlbStatus() != Status.MINORS && !playerSeason.getIsMinorLeaguer())
-                )
-        {
+        } else if (isVulturable) {
             playerSeason.setVulturable(true);
-            return;
+        } else {
+            playerSeason.setVulturable(false);
         }
-        playerSeason.setVulturable(false);
+        return;
     }
 
     @Override
