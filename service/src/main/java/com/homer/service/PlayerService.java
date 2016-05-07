@@ -1,11 +1,9 @@
 package com.homer.service;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.homer.data.common.IPlayerRepository;
 import com.homer.type.Player;
-import com.homer.type.Position;
-import com.homer.util.data.Matcher;
+import com.homer.util.core.data.Matcher;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
