@@ -15,11 +15,8 @@
         <module>service</module>
         <module>data</module>
         <module>external</module>
-<<<<<<< HEAD
         <module>email</module>
-=======
         <module>auth</module>
->>>>>>> bbd2e4305348d464dd941793b8269b3254555bcc
     </modules>
 
     <pluginRepositories>
