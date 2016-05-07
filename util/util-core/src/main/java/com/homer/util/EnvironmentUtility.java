@@ -16,7 +16,6 @@ public class EnvironmentUtility {
     private String databaseSchema;
 
     private boolean doMigrate;
-    private boolean doClean;
 
     public int update40ManRostersDelay;
     public int update40ManRostersPeriod;
@@ -34,7 +33,7 @@ public class EnvironmentUtility {
         String boxfuseEnv = System.getProperty(BOXFUSE_ENV);
         PropertiesConfiguration config;
         if (boxfuseEnv != null) {
-            config = new PropertiesConfiguration("prop_local.properties");
+            config = new PropertiesConfiguration("prop_prod.properties");
 
             setDatabaseUrl(System.getProperty(BOXFUSE_DATABASE_URL));
             setDatabaseUser(System.getProperty(BOXFUSE_DATABASE_USER));
@@ -53,7 +52,6 @@ public class EnvironmentUtility {
 
         setShouldMigrate(config.getBoolean("migrate"));
         setDatabaseSchema(config.getString("schema"));
-        setShouldClean(config.getBoolean("clean"));
         setUpdate40ManRostersDelay(config.getInt("update40ManRostersDelay"));
         setUpdate40ManRostersPeriod(config.getInt("update40ManRostersPeriod"));
         setUpdatePlayersDelay(config.getInt("updatePlayersDelay"));
@@ -127,14 +125,6 @@ public class EnvironmentUtility {
 
     private void setDatabaseSchema(String databaseSchema) {
         this.databaseSchema = databaseSchema;
-    }
-
-    public boolean shouldClean() {
-        return doClean;
-    }
-
-    public void setShouldClean(boolean doClean) {
-        this.doClean = doClean;
     }
 
     public int getUpdate40ManRostersDelay() {
