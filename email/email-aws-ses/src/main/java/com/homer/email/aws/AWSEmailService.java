@@ -23,13 +23,11 @@ public class AWSEmailService implements IEmailService {
     private static final Logger logger = LoggerFactory.getLogger(AWSEmailService.class);
 
     private static String EMAIL_FROM_ADDRESS;
-    private static AWSCredentials CREDENTIALS;
 
     static {
         try {
             PropertiesConfiguration config = new PropertiesConfiguration("email.properties");
             EMAIL_FROM_ADDRESS = config.getString("fromAddress");
-            CREDENTIALS = new BasicAWSCredentials(config.getString("accessKey"), config.getString("secretKey"));
         } catch (ConfigurationException e) {
             e.printStackTrace();
         }
@@ -74,7 +72,7 @@ public class AWSEmailService implements IEmailService {
             // using the default credential provider chain. The first place the chain looks for the credentials is in environment variables
             // AWS_ACCESS_KEY_ID and AWS_SECRET_KEY.
             // For more information, see http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/credentials.html
-            AmazonSimpleEmailServiceClient client = new AmazonSimpleEmailServiceClient(CREDENTIALS);
+            AmazonSimpleEmailServiceClient client = new AmazonSimpleEmailServiceClient();
 
             // Choose the AWS region of the Amazon SES endpoint you want to connect to. Note that your sandbox
             // status, sending limits, and Amazon SES identity-related settings are specific to a given AWS
