@@ -22,6 +22,8 @@ public class EnvironmentUtility {
     public int updatePlayersDelay;
     public int updatePlayersPeriod;
 
+    public int vultureExpirationMinutes;
+
     private static String BOXFUSE_DATABASE_URL = "BOXFUSE_DATABASE_URL";
     private static String BOXFUSE_DATABASE_USER = "BOXFUSE_DATABASE_USER";
     private static String BOXFUSE_DATABASE_PASSWORD = "BOXFUSE_DATABASE_PASSWORD";
@@ -56,6 +58,7 @@ public class EnvironmentUtility {
         setUpdate40ManRostersPeriod(config.getInt("update40ManRostersPeriod"));
         setUpdatePlayersDelay(config.getInt("updatePlayersDelay"));
         setUpdatePlayersPeriod(config.getInt("updatePlayersPeriod"));
+        setVultureExpirationMinutes(config.getInt("vultureExpirationMinutes"));
     }
 
     private static EnvironmentUtility instance;
@@ -157,5 +160,13 @@ public class EnvironmentUtility {
 
     public void setUpdatePlayersPeriod(int updatePlayersPeriod) {
         this.updatePlayersPeriod = updatePlayersPeriod;
+    }
+
+    public int getVultureExpirationMinutes() {
+        return vultureExpirationMinutes;
+    }
+
+    public void setVultureExpirationMinutes(int vultureExpirationMinutes) {
+        this.vultureExpirationMinutes = vultureExpirationMinutes;
     }
 }

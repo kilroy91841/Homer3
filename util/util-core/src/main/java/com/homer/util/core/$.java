@@ -63,7 +63,7 @@ public class $<T> {
         return backing.collect(Collectors.toList());
     }
 
-    public <T, K> List<K> toList(Function<T, K> func) {
+    public <K> List<K> toList(Function<T, K> func) {
         return backing.map(t -> func.apply((T) t)).collect(Collectors.toList());
     }
 
