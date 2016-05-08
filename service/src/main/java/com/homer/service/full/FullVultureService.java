@@ -1,6 +1,11 @@
 package com.homer.service.full;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.homer.email.EmailRequest;
+import com.homer.email.HtmlObject;
+import com.homer.email.HtmlTag;
+import com.homer.email.IEmailService;
 import com.homer.exception.ExistingVultureInProgressException;
 import com.homer.exception.IllegalVultureDropPlayerException;
 import com.homer.exception.NotVulturableException;
@@ -8,10 +13,13 @@ import com.homer.service.IPlayerSeasonService;
 import com.homer.service.IPlayerService;
 import com.homer.service.ITeamService;
 import com.homer.service.IVultureService;
+import com.homer.service.auth.IUserService;
+import com.homer.service.auth.User;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Vulture;
 import com.homer.type.VultureStatus;
 import com.homer.util.EnvironmentUtility;
+import com.homer.util.core.$;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -36,17 +44,22 @@ public class FullVultureService implements IFullVultureService {
     private IPlayerService playerService;
     private IVultureService vultureService;
     private IPlayerSeasonService playerSeasonService;
+    private IUserService userService;
+    private IEmailService emailService;
 
     private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private final static Map<Long, ScheduledFuture> inProgressVultureMap = Maps.newHashMap();
 
     public FullVultureService(IVultureService vultureService, IPlayerSeasonService playerSeasonService,
-                              ITeamService teamService, IPlayerService playerService) {
+                              ITeamService teamService, IPlayerService playerService,
+                              IUserService userService, IEmailService emailService) {
         this.vultureService = vultureService;
         this.playerSeasonService = playerSeasonService;
         this.teamService = teamService;
         this.playerService = playerService;
+        this.userService = userService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -87,6 +100,8 @@ public class FullVultureService implements IFullVultureService {
 
         scheduleVulture(createdVulture);
 
+        sendVultureEmail(createdVulture, playerSeason);
+
         return createdVulture;
     }
 
@@ -110,11 +125,15 @@ public class FullVultureService implements IFullVultureService {
             try {
                 movePlayersForSuccessfulVulture(vulture, playerSeason);
                 vulture.setVultureStatus(VultureStatus.SUCCESSFUL);
+
+                sendVultureSuccessfulEmail(vulture, playerSeason);
             } catch (IllegalVultureDropPlayerException e) {
                 vulture.setVultureStatus(VultureStatus.INVALID);
             }
         } else {
             vulture.setVultureStatus(VultureStatus.FIXED);
+
+            sendVultureFailureEmail(vulture, playerSeason);
         }
 
         inProgressVultureMap.remove(id);
@@ -157,11 +176,21 @@ public class FullVultureService implements IFullVultureService {
     public List<Vulture> getInProgressVultures() {
         List<Vulture> inProgressVultures = vultureService.getInProgressVultures();
         for(Vulture vulture : inProgressVultures) {
-            vulture.setPlayer(playerService.getById(vulture.getPlayerId()));
-            vulture.setDropPlayer(playerService.getById(vulture.getDropPlayerId()));
-            vulture.setVultureTeam(teamService.getTeamById(vulture.getTeamId()));
+            hydrateVulture(vulture);
         }
         return inProgressVultures;
+    }
+
+    @Override
+    public List<PlayerSeason> getVulturablePlayerSeasons() {
+        List<PlayerSeason> vulturablePlayerSeasons = playerSeasonService.getVulturablePlayerSeasons();
+        Map<Long, Vulture> inProgressVultures = $.of(getInProgressVultures()).toMap(Vulture::getPlayerId);
+        return $.of(vulturablePlayerSeasons).filterToList(ps -> !inProgressVultures.containsKey(ps.getPlayerId()));
+    }
+
+
+    public static Map<Long, ScheduledFuture> getInProgressVultureMap() {
+        return inProgressVultureMap;
     }
 
     private void movePlayersForSuccessfulVulture(Vulture vulture, PlayerSeason playerSeason) {
@@ -194,8 +223,10 @@ public class FullVultureService implements IFullVultureService {
         logErrorAndThrow(message);
     }
 
-    public static Map<Long, ScheduledFuture> getInProgressVultureMap() {
-        return inProgressVultureMap;
+    private void hydrateVulture(Vulture vulture) {
+        vulture.setPlayer(playerService.getById(vulture.getPlayerId()));
+        vulture.setDropPlayer(playerService.getById(vulture.getDropPlayerId()));
+        vulture.setVultureTeam(teamService.getTeamById(vulture.getTeamId()));
     }
 
     private void scheduleVulture(Vulture createdVulture) {
@@ -211,6 +242,60 @@ public class FullVultureService implements IFullVultureService {
         logger.info("Vulture " + createdVulture.getId() + " scheduled for " + future.getDelay(TimeUnit.MINUTES) + " minutes in future " +
                 "(1440 = 1 day )");
         inProgressVultureMap.put(createdVulture.getId(), future);
+    }
+
+    private void sendVultureEmail(Vulture vulture, PlayerSeason playerSeason) {
+        List<String> emails = getVultureEmails(vulture, playerSeason);
+
+        hydrateVulture(vulture);
+
+        String title = vulture.getPlayer().getName() + " has been vultured";
+
+        HtmlObject htmlObject = HtmlObject.of(HtmlTag.DIV)
+                .child(HtmlObject.of(HtmlTag.DIV).body(vulture.getPlayer().getName() + " has been vultured by " + vulture.getVultureTeam().getName() + ". "))
+                .child(HtmlObject.of(HtmlTag.A).withProperty("href", "http://www.homeratthebat.com/vulture").body("Click here to see it in the app"));
+
+        EmailRequest emailRequest = new EmailRequest(emails, title, htmlObject);
+        emailService.sendEmail(emailRequest);
+    }
+
+    private void sendVultureSuccessfulEmail(Vulture vulture, PlayerSeason playerSeason) {
+        List<String> emails = getVultureEmails(vulture, playerSeason);
+
+        hydrateVulture(vulture);
+
+        String title = "Vulture on " + vulture.getPlayer().getName() + " was successful!";
+
+        HtmlObject htmlObject = HtmlObject.of(HtmlTag.DIV)
+                .child(HtmlObject.of(HtmlTag.DIV).body("The vulture on " + vulture.getPlayer().getName() + " was successful. " +
+                        vulture.getVultureTeam().getName() + " can now add that player on ESPN. They also need to drop " +
+                        vulture.getDropPlayer().getName() + "."))
+                .child(HtmlObject.of(HtmlTag.A).withProperty("href", "http://www.homeratthebat.com/vulture").body("Click here to see it in the app"));
+
+        EmailRequest emailRequest = new EmailRequest(emails, title, htmlObject);
+        emailService.sendEmail(emailRequest);
+    }
+
+    private void sendVultureFailureEmail(Vulture vulture, PlayerSeason playerSeason) {
+        List<String> emails = getVultureEmails(vulture, playerSeason);
+
+        hydrateVulture(vulture);
+
+        String title = "Vulture on " + vulture.getPlayer().getName() + " has failed";
+
+        HtmlObject htmlObject = HtmlObject.of(HtmlTag.DIV)
+                .child(HtmlObject.of(HtmlTag.DIV).body("The vulture on " + vulture.getPlayer().getName() + " was not successful."))
+                .child(HtmlObject.of(HtmlTag.A).withProperty("href", "http://www.homeratthebat.com/vulture").body("Click here to see it in the app"));
+
+        EmailRequest emailRequest = new EmailRequest(emails, title, htmlObject);
+        emailService.sendEmail(emailRequest);
+    }
+
+    private List<String> getVultureEmails(Vulture vulture, PlayerSeason playerSeason) {
+        List<User> usersToEmail = Lists.newArrayList();
+        usersToEmail.addAll(userService.getUsersForTeam(vulture.getTeamId()));
+        usersToEmail.addAll(userService.getUsersForTeam(playerSeason.getTeamId()));
+        return $.of(usersToEmail).toList(User::getEmail);
     }
 
     private static void logErrorAndThrow(String message) {

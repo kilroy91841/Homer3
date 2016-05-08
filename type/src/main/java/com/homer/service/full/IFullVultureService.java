@@ -1,5 +1,6 @@
 package com.homer.service.full;
 
+import com.homer.type.PlayerSeason;
 import com.homer.type.Vulture;
 
 import javax.annotation.Nullable;
@@ -17,4 +18,6 @@ public interface IFullVultureService {
     boolean markInProgressVultureForPlayerAsFixed(long playerId);
 
     List<Vulture> getInProgressVultures();
+
+    List<PlayerSeason> getVulturablePlayerSeasons();
 }

@@ -8,6 +8,7 @@ public enum HtmlTag {
     DIV("div"),
     SPAN("span"),
     P("p"),
+    A("a"),
     ;
 
     private String tag;

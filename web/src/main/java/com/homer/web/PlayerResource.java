@@ -154,12 +154,4 @@ public class PlayerResource {
         return new ApiResponse(String.format("Moved %s from position %s to position %s", updated.getPlayerId(),
                 oldPosition.getName(), newPosition.getName()), updated);
     }
-
-    @Path("/vulturable")
-    @Produces(MediaType.APPLICATION_JSON)
-    @GET
-    public List<PlayerView> getVulturablePlayers() {
-        List<PlayerSeason> vulturablePlayers = playerSeasonService.getVulturablePlayerSeasons();
-        return gatherer.gatherPlayersByIds($.of(vulturablePlayers).toList(PlayerSeason::getPlayerId));
-    }
 }

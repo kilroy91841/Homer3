@@ -30,7 +30,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
 
     public BaseRepository(Class<T> clazz) {
         this.clazz = clazz;
-        dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.S");
+        dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.S").withZoneUTC();
     }
 
     @Override
@@ -260,9 +260,9 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
     private <K extends IDated> String buildUpsertSingle(Class<K> clazz, K object, String schema, String tableName) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         StringBuilder query = new StringBuilder("INSERT INTO ");
         if (object.getCreatedDateUTC() == null) {
-            object.setCreatedDateUTC(DateTime.now(DateTimeZone.UTC));
+            object.setCreatedDateUTC(DateTime.now());
         }
-        object.setUpdatedDateUTC(DateTime.now(DateTimeZone.UTC));
+        object.setUpdatedDateUTC(DateTime.now());
         query.append(schema).append(".").append(tableName).append(" (");
         List<String> columns = ColumnUtil.getColumns(clazz);
         List<Field> fields = ColumnUtil.getFields(clazz);
@@ -354,7 +354,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                     BeanUtils.setProperty(obj, fieldName, rs.getString(fieldName));
                 } else if (DateTime.class.equals(f.getType())) {
                     Timestamp timestamp = rs.getTimestamp(fieldName);
-                    BeanUtils.setProperty(obj, fieldName, new DateTime(timestamp).withMillisOfSecond(0));
+                    BeanUtils.setProperty(obj, fieldName, dateTimeFormatter.parseDateTime(timestamp.toString()).withZone(DateTimeZone.getDefault()));
                 } else if (IIntEnum.class.isAssignableFrom(f.getType())) {
                     Class<IIntEnum> clazz = (Class<IIntEnum>) f.getType();
                     BeanUtils.setProperty(obj, fieldName, EnumUtil.fromNotParameterized(clazz, rs.getInt(fieldName)));

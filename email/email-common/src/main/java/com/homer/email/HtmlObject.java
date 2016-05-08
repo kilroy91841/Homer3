@@ -2,8 +2,10 @@ package com.homer.email;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by arigolub on 5/3/16.
@@ -15,6 +17,7 @@ public final class HtmlObject {
     private List<HtmlObject> children = Lists.newArrayList();
     private List<String> classes = Lists.newArrayList();
     private List<String> styles = Lists.newArrayList();
+    private Map<String, String> properties = Maps.newHashMap();
     private String body;
 
     private HtmlObject(HtmlTag tag) {
@@ -41,6 +44,11 @@ public final class HtmlObject {
         return this;
     }
 
+    public HtmlObject withProperty(String key, String value) {
+        this.properties.put(key, value);
+        return this;
+    }
+
     public static HtmlObject of(HtmlTag tag) {
         return new HtmlObject(tag);
     }
@@ -58,12 +66,19 @@ public final class HtmlObject {
         if (classes.size() > 0) {
             sb.append("class=\"");
             sb.append(Joiner.on(" ").join(classes));
-            sb.append("\"");
+            sb.append("\" ");
         }
         if (styles.size() > 0) {
             sb.append("style=\"");
             sb.append(Joiner.on(";").join(styles));
-            sb.append("\"");
+            sb.append("\" ");
+        }
+        if (properties.size() > 0) {
+            properties.forEach((key, value) -> {
+                sb.append(key + "=\"");
+                sb.append(value);
+                sb.append("\" ");
+            });
         }
         sb.append(">");
         addBodyOrChildren(sb);

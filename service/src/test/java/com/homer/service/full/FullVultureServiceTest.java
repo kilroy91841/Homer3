@@ -1,12 +1,15 @@
 package com.homer.service.full;
 
+import com.google.common.collect.Lists;
+import com.homer.email.IEmailService;
 import com.homer.exception.ExistingVultureInProgressException;
 import com.homer.exception.NotVulturableException;
 import com.homer.service.IPlayerSeasonService;
+import com.homer.service.IPlayerService;
+import com.homer.service.ITeamService;
 import com.homer.service.IVultureService;
-import com.homer.type.PlayerSeason;
-import com.homer.type.Vulture;
-import com.homer.type.VultureStatus;
+import com.homer.service.auth.IUserService;
+import com.homer.type.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,6 +52,7 @@ public class FullVultureServiceTest {
             Long id = (Long)x.getArguments()[0];
             PlayerSeason ps = new PlayerSeason();
             ps.setPlayerId(id);
+            ps.setTeamId(TEAM);
             if (NOT_VULTURABLE_PLAYER.equals(id) || DROP_PLAYER.equals(id)) {
                 ps.setVulturable(false);
             } else {
@@ -92,7 +96,25 @@ public class FullVultureServiceTest {
         });
         when(vultureService.upsert(any(Vulture.class))).thenAnswer(x -> x.getArguments()[0]);
 
-        service = new FullVultureService(vultureService, playerSeasonService, null, null);
+        IUserService userService = mock(IUserService.class);
+        when(userService.getUsersForTeam(anyLong())).thenReturn(Lists.newArrayList());
+
+        IPlayerService playerService = mock(IPlayerService.class);
+        when(playerService.getById(anyLong())).thenAnswer(x -> {
+            Player p = new Player();
+            p.setName("");
+            return p;
+        });
+
+        ITeamService teamService = mock(ITeamService.class);
+        when(teamService.getTeamById(anyLong())).then(x -> {
+            Team t = new Team();
+            t.setName("");
+            return t;
+        });
+
+        service = new FullVultureService(vultureService, playerSeasonService, teamService, playerService,
+                userService, mock(IEmailService.class));
     }
 
     @Test(expected = NotVulturableException.class)
