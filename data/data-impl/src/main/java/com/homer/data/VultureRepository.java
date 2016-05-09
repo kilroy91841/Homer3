@@ -2,10 +2,8 @@ package com.homer.data;
 
 import com.google.common.collect.Maps;
 import com.homer.data.common.IVultureRepository;
-import com.homer.type.Player;
 import com.homer.type.Vulture;
-import com.homer.type.VultureStatus;
-import com.homer.type.history.HistoryPlayer;
+import com.homer.type.EventStatus;
 import com.homer.type.history.HistoryVulture;
 import com.homer.util.data.BaseVersionedRepository;
 
@@ -26,7 +24,7 @@ public class VultureRepository extends BaseVersionedRepository<Vulture, HistoryV
     public Vulture getInProgressVulturesForPlayer(long playerId) {
         Map<String, Object> filters = Maps.newHashMap();
         filters.put("playerId", playerId);
-        filters.put("vultureStatus", VultureStatus.IN_PROGRESS);
+        filters.put("vultureStatus", EventStatus.IN_PROGRESS);
         return get(filters);
     }
 }

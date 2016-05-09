@@ -7,6 +7,7 @@ import com.homer.util.core.IId;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by arigolub on 3/18/16.
@@ -20,4 +21,6 @@ public interface IIdService<T extends IId> {
     }
 
     T upsert(T obj);
+
+    List<T> getMany(Map<String, Object> filters);
 }

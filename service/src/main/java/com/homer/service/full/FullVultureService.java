@@ -17,7 +17,7 @@ import com.homer.service.auth.IUserService;
 import com.homer.service.auth.User;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Vulture;
-import com.homer.type.VultureStatus;
+import com.homer.type.EventStatus;
 import com.homer.util.EnvironmentUtility;
 import com.homer.util.core.$;
 import org.joda.time.DateTime;
@@ -91,7 +91,7 @@ public class FullVultureService implements IFullVultureService {
         vulture.setExpirationDateUTC(
                 DateTime.now(DateTimeZone.UTC).plusMinutes(
                         EnvironmentUtility.getInstance().getVultureExpirationMinutes()));
-        vulture.setVultureStatus(VultureStatus.IN_PROGRESS);
+        vulture.setVultureStatus(EventStatus.IN_PROGRESS);
         vulture.setIsCommisionerVulture(isCommissionerVulture);
 
         logger.info("Create vulture: " + vulture);
@@ -124,14 +124,14 @@ public class FullVultureService implements IFullVultureService {
             playerSeason.setVulturable(false);
             try {
                 movePlayersForSuccessfulVulture(vulture, playerSeason);
-                vulture.setVultureStatus(VultureStatus.SUCCESSFUL);
+                vulture.setVultureStatus(EventStatus.SUCCESSFUL);
 
                 sendVultureSuccessfulEmail(vulture, playerSeason);
             } catch (IllegalVultureDropPlayerException e) {
-                vulture.setVultureStatus(VultureStatus.INVALID);
+                vulture.setVultureStatus(EventStatus.INVALID);
             }
         } else {
-            vulture.setVultureStatus(VultureStatus.FIXED);
+            vulture.setVultureStatus(EventStatus.FIXED);
 
             sendVultureFailureEmail(vulture, playerSeason);
         }
@@ -147,7 +147,7 @@ public class FullVultureService implements IFullVultureService {
             return true;
         }
 
-        existingVulture.setVultureStatus(VultureStatus.FIXED);
+        existingVulture.setVultureStatus(EventStatus.FIXED);
         vultureService.upsert(existingVulture);
 
         ScheduledFuture future = inProgressVultureMap.get(existingVulture.getId());
@@ -218,7 +218,7 @@ public class FullVultureService implements IFullVultureService {
     }
 
     private void markVultureAsErrorAndThrow(Vulture vulture, String message) {
-        vulture.setVultureStatus(VultureStatus.ERROR);
+        vulture.setVultureStatus(EventStatus.ERROR);
         vultureService.upsert(vulture);
         logErrorAndThrow(message);
     }

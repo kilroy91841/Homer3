@@ -27,7 +27,7 @@ public class Vulture extends BaseObject {
     private DateTime expirationDateUTC;
 
     @Column
-    private VultureStatus vultureStatus;
+    private EventStatus vultureStatus;
 
     @Column(updatable = false)
     private boolean isCommisionerVulture;
@@ -101,11 +101,11 @@ public class Vulture extends BaseObject {
         this.expirationDateUTC = expirationDateUTC;
     }
 
-    public VultureStatus getVultureStatus() {
+    public EventStatus getVultureStatus() {
         return vultureStatus;
     }
 
-    public void setVultureStatus(VultureStatus vultureStatus) {
+    public void setVultureStatus(EventStatus vultureStatus) {
         this.vultureStatus = vultureStatus;
     }
 

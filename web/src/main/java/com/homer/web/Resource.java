@@ -27,9 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.ws.rs.*;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.*;
 import java.util.List;
 
 /**
@@ -38,6 +37,9 @@ import java.util.List;
 @Singleton
 @Path("/")
 public class Resource {
+
+    @Context
+    private ContainerRequestContext requestContext;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Resource.class);
 
