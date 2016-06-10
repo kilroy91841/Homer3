@@ -11,13 +11,17 @@ import java.util.List;
  */
 public interface IFullFreeAgentAuctionService {
 
-    FreeAgentAuction requestFreeAgentAuction(@Nullable Long playerId, @Nullable String playerName);
+    FreeAgentAuction requestFreeAgentAuction(long requestingTeamId, @Nullable Long playerId, @Nullable String playerName);
 
     FreeAgentAuction denyFreeAgentAuctionRequest(long freeAgentAuctionId);
+
+    FreeAgentAuction updateFreeAgentAuctionPlayerId(long freeAgentAuctionId, long playerId);
 
     FreeAgentAuction startFreeAgentAuction(long freeAgentAuctionId);
 
     FreeAgentAuction endFreeAgentAuction(long freeAgentAuctionId);
+
+    FreeAgentAuction resolveTiedFreeAgentAuction(long freeAgentAuctionId, long winningTeamId, int winningBid);
 
     List<FreeAgentAuction> getAllFreeAgentAuctions();
 

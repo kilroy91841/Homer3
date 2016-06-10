@@ -1,6 +1,7 @@
 package com.homer.service;
 
 import com.homer.type.FreeAgentAuction;
+import com.homer.type.FreeAgentAuctionBid;
 
 import java.util.List;
 

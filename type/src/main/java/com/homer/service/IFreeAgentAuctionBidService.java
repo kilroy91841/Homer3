@@ -1,5 +1,6 @@
 package com.homer.service;
 
+import com.google.common.collect.Lists;
 import com.homer.type.FreeAgentAuctionBid;
 import com.homer.type.history.HistoryFreeAgentAuctionBid;
 
@@ -13,6 +14,9 @@ import java.util.List;
 public interface IFreeAgentAuctionBidService extends IIdService<FreeAgentAuctionBid> {
 
     List<FreeAgentAuctionBid> getForFreeAgentAuctions(Collection<Long> freeAgentAuctionIds);
+    default List<FreeAgentAuctionBid> getForFreeAgentAuction(long freeAgentAuctionId) {
+        return getForFreeAgentAuctions(Lists.newArrayList(freeAgentAuctionId));
+    }
 
     List<HistoryFreeAgentAuctionBid> getHistoricalBidsForTeam(long teamId);
 }

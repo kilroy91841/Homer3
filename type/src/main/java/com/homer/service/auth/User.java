@@ -14,6 +14,7 @@ public class User {
     private String lastName;
     private long teamId;
     private boolean admin;
+    private boolean testUser;
 
     public User() {
     }
@@ -29,12 +30,13 @@ public class User {
                 Objects.equal(userName, user.userName) &&
                 Objects.equal(firstName, user.firstName) &&
                 Objects.equal(lastName, user.lastName) &&
-                Objects.equal(admin, user.admin);
+                Objects.equal(admin, user.admin) &&
+                Objects.equal(testUser, user.testUser);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(token, email, userName, firstName, lastName, teamId, admin);
+        return Objects.hashCode(token, email, userName, firstName, lastName, teamId, admin, testUser);
     }
 
     @Override
@@ -47,6 +49,7 @@ public class User {
                 ", lastName='" + lastName + '\'' +
                 ", admin='" + admin + '\'' +
                 ", teamId=" + teamId +
+                ", testUser=" + testUser +
                 '}';
     }
 
@@ -104,5 +107,13 @@ public class User {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public boolean isTestUser() {
+        return testUser;
+    }
+
+    public void setTestUser(boolean testUser) {
+        this.testUser = testUser;
     }
 }

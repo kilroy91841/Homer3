@@ -147,11 +147,11 @@ public class RepositoryTests {
     @Test
     public void testFreeAgentAuctionCRUD() throws Exception {
         FreeAgentAuction freeAgentAuction = new FreeAgentAuction();
-        freeAgentAuction.setPlayerId(1);
+        freeAgentAuction.setPlayerId(1L);
         freeAgentAuction.setExpirationDateUTC(DateTime.now().withMillisOfSecond(0));
         freeAgentAuction.setAuctionStatus(EventStatus.IN_PROGRESS);
         freeAgentAuction.setSeason(LeagueUtil.SEASON);
-        freeAgentAuction.setRequestingTeamid(1);
+        freeAgentAuction.setRequestingTeamId(1);
 
         List<Consumer<FreeAgentAuction>> funcs = Lists.newArrayList(faa -> {
             faa.setAuctionStatus(EventStatus.COMPLETE);

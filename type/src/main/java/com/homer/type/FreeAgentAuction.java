@@ -27,7 +27,7 @@ public class FreeAgentAuction extends BaseObject {
     private EventStatus auctionStatus;
 
     @Column
-    private long requestingTeamid;
+    private long requestingTeamId;
 
     @Column
     @Nullable
@@ -41,7 +41,11 @@ public class FreeAgentAuction extends BaseObject {
     @Nullable
     private Integer winningAmount;
 
+    @Nullable
     private Player player;
+    @Nullable
+    private PlayerSeason playerSeason;
+    @Nullable
     private Team winningTeam;
     private Team requestingTeam;
 
@@ -75,9 +79,10 @@ public class FreeAgentAuction extends BaseObject {
                 ", winningTeamId=" + winningTeamId +
                 ", winningAmount=" + winningAmount +
                 ", player=" + player +
+                ", playerSeason=" + playerSeason +
                 ", winningTeam=" + winningTeam +
                 ", season=" + season +
-                ", requestingTeamId=" + requestingTeamid +
+                ", requestingTeamId=" + requestingTeamId +
                 ", requestingTeam=" + requestingTeam +
                 ", requestedPlayerName=" + requestedPlayerName +
                 "} " + super.toString();
@@ -125,12 +130,12 @@ public class FreeAgentAuction extends BaseObject {
         this.winningTeamId = winningTeamId;
     }
 
-    public long getRequestingTeamid() {
-        return requestingTeamid;
+    public long getRequestingTeamId() {
+        return requestingTeamId;
     }
 
-    public void setRequestingTeamid(long requestingTeamid) {
-        this.requestingTeamid = requestingTeamid;
+    public void setRequestingTeamId(long requestingTeamId) {
+        this.requestingTeamId = requestingTeamId;
     }
 
     @Nullable
@@ -151,19 +156,30 @@ public class FreeAgentAuction extends BaseObject {
         this.winningAmount = winningAmount;
     }
 
+    @Nullable
     public Player getPlayer() {
         return player;
     }
 
-    public void setPlayer(Player player) {
+    public void setPlayer(@Nullable Player player) {
         this.player = player;
     }
 
+    @Nullable
+    public PlayerSeason getPlayerSeason() {
+        return playerSeason;
+    }
+
+    public void setPlayerSeason(@Nullable PlayerSeason playerSeason) {
+        this.playerSeason = playerSeason;
+    }
+
+    @Nullable
     public Team getWinningTeam() {
         return winningTeam;
     }
 
-    public void setWinningTeam(Team winningTeam) {
+    public void setWinningTeam(@Nullable Team winningTeam) {
         this.winningTeam = winningTeam;
     }
 

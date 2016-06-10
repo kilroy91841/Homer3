@@ -40,6 +40,8 @@ public class FullVultureService implements IFullVultureService {
 
     final static Logger logger = LoggerFactory.getLogger(FullVultureService.class);
 
+    private static final String COMMISSIONER_EMAIL = "arigolub@gmail.com";
+
     private ITeamService teamService;
     private IPlayerService playerService;
     private IVultureService vultureService;
@@ -123,10 +125,9 @@ public class FullVultureService implements IFullVultureService {
         if (playerSeason.getVulturable()) {
             playerSeason.setVulturable(false);
             try {
+                sendVultureSuccessfulEmail(vulture, playerSeason);
                 movePlayersForSuccessfulVulture(vulture, playerSeason);
                 vulture.setVultureStatus(EventStatus.SUCCESSFUL);
-
-                sendVultureSuccessfulEmail(vulture, playerSeason);
             } catch (IllegalVultureDropPlayerException e) {
                 vulture.setVultureStatus(EventStatus.INVALID);
             }
@@ -253,7 +254,7 @@ public class FullVultureService implements IFullVultureService {
 
         HtmlObject htmlObject = HtmlObject.of(HtmlTag.DIV)
                 .child(HtmlObject.of(HtmlTag.DIV).body(vulture.getPlayer().getName() + " has been vultured by " + vulture.getVultureTeam().getName() + ". "))
-                .child(HtmlObject.of(HtmlTag.A).withProperty("href", "http://www.homeratthebat.com/vulture").body("Click here to see it in the app"));
+                .child(HtmlObject.of(HtmlTag.A).withProperty("href", EnvironmentUtility.getInstance().getUrl() + "/vulture").body("Click here to see it in the app"));
 
         EmailRequest emailRequest = new EmailRequest(emails, title, htmlObject);
         emailService.sendEmail(emailRequest);
@@ -270,7 +271,7 @@ public class FullVultureService implements IFullVultureService {
                 .child(HtmlObject.of(HtmlTag.DIV).body("The vulture on " + vulture.getPlayer().getName() + " was successful. " +
                         vulture.getVultureTeam().getName() + " can now add that player on ESPN. They also need to drop " +
                         vulture.getDropPlayer().getName() + "."))
-                .child(HtmlObject.of(HtmlTag.A).withProperty("href", "http://www.homeratthebat.com/vulture").body("Click here to see it in the app"));
+                .child(HtmlObject.of(HtmlTag.A).withProperty("href", EnvironmentUtility.getInstance().getUrl() + "/vulture").body("Click here to see it in the app"));
 
         EmailRequest emailRequest = new EmailRequest(emails, title, htmlObject);
         emailService.sendEmail(emailRequest);
@@ -285,7 +286,7 @@ public class FullVultureService implements IFullVultureService {
 
         HtmlObject htmlObject = HtmlObject.of(HtmlTag.DIV)
                 .child(HtmlObject.of(HtmlTag.DIV).body("The vulture on " + vulture.getPlayer().getName() + " was not successful."))
-                .child(HtmlObject.of(HtmlTag.A).withProperty("href", "http://www.homeratthebat.com/vulture").body("Click here to see it in the app"));
+                .child(HtmlObject.of(HtmlTag.A).withProperty("href", EnvironmentUtility.getInstance().getUrl() + "/vulture").body("Click here to see it in the app"));
 
         EmailRequest emailRequest = new EmailRequest(emails, title, htmlObject);
         emailService.sendEmail(emailRequest);
@@ -295,7 +296,9 @@ public class FullVultureService implements IFullVultureService {
         List<User> usersToEmail = Lists.newArrayList();
         usersToEmail.addAll(userService.getUsersForTeam(vulture.getTeamId()));
         usersToEmail.addAll(userService.getUsersForTeam(playerSeason.getTeamId()));
-        return $.of(usersToEmail).toList(User::getEmail);
+        List<String> emails = $.of(usersToEmail).toList(User::getEmail);
+        emails.add(COMMISSIONER_EMAIL);
+        return emails;
     }
 
     private static void logErrorAndThrow(String message) {

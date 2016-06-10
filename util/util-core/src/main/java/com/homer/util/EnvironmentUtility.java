@@ -14,6 +14,8 @@ public class EnvironmentUtility {
     private String instanceIP;
     private String instancePort;
     private String databaseSchema;
+    private String stormpathApplication;
+    private String url;
 
     private boolean doMigrate;
 
@@ -24,12 +26,15 @@ public class EnvironmentUtility {
 
     public int vultureExpirationMinutes;
 
+    public boolean isTestEnv;
+
     private static String BOXFUSE_DATABASE_URL = "BOXFUSE_DATABASE_URL";
     private static String BOXFUSE_DATABASE_USER = "BOXFUSE_DATABASE_USER";
     private static String BOXFUSE_DATABASE_PASSWORD = "BOXFUSE_DATABASE_PASSWORD";
     private static String BOXFUSE_ENV = "BOXFUSE_ENV";
     private static String BOXFUSE_INSTANCE_IP = "BOXFUSE_INSTANCE_IP";
     private static String BOXFUSE_PORTS_HTTP = "BOXFUSE_PORTS_HTTP";
+    private static String BOXFUSE_ENV_DEV = "dev";
 
     private EnvironmentUtility() throws ConfigurationException {
         String boxfuseEnv = System.getProperty(BOXFUSE_ENV);
@@ -42,6 +47,10 @@ public class EnvironmentUtility {
             setDatabasePassword(System.getProperty(BOXFUSE_DATABASE_PASSWORD));
             setInstanceIP(System.getProperty(BOXFUSE_INSTANCE_IP));
             setInstancePort(System.getProperty(BOXFUSE_PORTS_HTTP));
+
+            if (boxfuseEnv == BOXFUSE_ENV_DEV) {
+                isTestEnv = true;
+            }
         } else {
             config = new PropertiesConfiguration("prop_local.properties");
 
@@ -50,6 +59,8 @@ public class EnvironmentUtility {
             setDatabasePassword(config.getString("databasePassword"));
             setInstanceIP(config.getString("instanceIp"));
             setInstancePort(config.getString("instancePort"));
+
+            isTestEnv = true;
         }
 
         setShouldMigrate(config.getBoolean("migrate"));
@@ -59,6 +70,8 @@ public class EnvironmentUtility {
         setUpdatePlayersDelay(config.getInt("updatePlayersDelay"));
         setUpdatePlayersPeriod(config.getInt("updatePlayersPeriod"));
         setVultureExpirationMinutes(config.getInt("vultureExpirationMinutes"));
+        setStormpathApplication(config.getString("stormpathApplication"));
+        setUrl(config.getString("url"));
     }
 
     private static EnvironmentUtility instance;
@@ -168,5 +181,29 @@ public class EnvironmentUtility {
 
     public void setVultureExpirationMinutes(int vultureExpirationMinutes) {
         this.vultureExpirationMinutes = vultureExpirationMinutes;
+    }
+
+    public boolean isTestEnv() {
+        return isTestEnv;
+    }
+
+    public void setTestEnv(boolean testEnv) {
+        isTestEnv = testEnv;
+    }
+
+    public String getStormpathApplication() {
+        return stormpathApplication;
+    }
+
+    public void setStormpathApplication(String stormpathApplication) {
+        this.stormpathApplication = stormpathApplication;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

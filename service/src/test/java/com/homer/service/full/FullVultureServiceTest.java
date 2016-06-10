@@ -85,6 +85,7 @@ public class FullVultureServiceTest {
                 vulture = new Vulture();
                 vulture.setId(VULTURE_NOT_VULTURABLE_PLAYER);
                 vulture.setPlayerId(NOT_VULTURABLE_PLAYER);
+                vulture.setDropPlayerId(DROP_PLAYER);
             } else if (VULTURE_VULTURABLE_PLAYER.equals(id)) {
                 vulture = new Vulture();
                 vulture.setId(VULTURE_VULTURABLE_PLAYER);
