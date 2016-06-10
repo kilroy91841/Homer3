@@ -4,8 +4,7 @@ import com.homer.service.auth.User;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * Created by arigolub on 5/1/16.
@@ -14,13 +13,14 @@ public class StormpathAuthServiceTest {
 
     private StormpathAuthService service = StormpathAuthService.FACTORY.getInstance();
 
-    private static final String USER_NAME = "Test User";
-    private static final String EMAIL = "testuser@gmail.com";
-    private static final long TEAM_ID = 15;
-    private static final String FIRST_NAME = "Test";
-    private static final String LAST_NAME = "User";
+    private static final String USER_NAME = "arigolub";
+    private static final String EMAIL = "arigolub+1@gmail.com";
+    private static final long TEAM_ID = 1;
+    private static final String FIRST_NAME = "Ari";
+    private static final String LAST_NAME = "Golub";
 
-    private static final String PASSWORD = "passwerd";
+    private static final String PASSWORD = "Passwerd1";
+    private static final String PASSWORD_2 = "Passwerd2";
 
     private User user;
 
@@ -32,6 +32,7 @@ public class StormpathAuthServiceTest {
         user.setFirstName(FIRST_NAME);
         user.setLastName(LAST_NAME);
         user.setTeamId(TEAM_ID);
+        user.setAdmin(true);
     }
 
     @Test
@@ -44,5 +45,20 @@ public class StormpathAuthServiceTest {
     public void testFailure() {
         User failedUser = service.authenticate(EMAIL, PASSWORD + "1");
         assertNull(failedUser);
+    }
+
+    @Test
+    public void testChangePassword() {
+        assertTrue(service.changePassword(EMAIL, PASSWORD, PASSWORD_2));
+
+        assertFalse(service.changePassword(EMAIL, PASSWORD, PASSWORD_2));
+
+        User authenticatedUser = service.authenticate(EMAIL, PASSWORD_2);
+        assertEquals(user, authenticatedUser);
+
+        assertTrue(service.changePassword(EMAIL, PASSWORD_2, PASSWORD));
+
+        authenticatedUser = service.authenticate(EMAIL, PASSWORD);
+        assertEquals(user, authenticatedUser);
     }
 }

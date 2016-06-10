@@ -8,19 +8,22 @@ import com.homer.util.core.IIntEnum;
  */
 @SuppressWarnings("SpellCheckingInspection")
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum VultureStatus implements IIntEnum<VultureStatus> {
+public enum EventStatus implements IIntEnum<EventStatus> {
 
     IN_PROGRESS(1, "In Progress"),
     FIXED(2, "Fixed"),
     SUCCESSFUL(3, "Successful"),
     INVALID(4, "Invalid"),
     ERROR(5, "Error"),
+    COMPLETE(6, "Complete"),
+    REQUESTED(7, "Requested"),
+    DENIED(8, "Denied"),
     ;
 
     private final int id;
     private final String name;
 
-    VultureStatus(int id, String name) {
+    EventStatus(int id, String name) {
         this.id = id;
         this.name = name;
     }

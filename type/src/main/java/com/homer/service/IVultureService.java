@@ -1,7 +1,6 @@
 package com.homer.service;
 
 import com.homer.type.Vulture;
-import com.homer.type.VultureStatus;
 
 import javax.annotation.Nullable;
 import java.util.List;

@@ -11,5 +11,7 @@ public interface IAuthService {
     @Nullable
     User authenticate(String userName, String password);
 
+    boolean changePassword(String userName, String oldPassword, String newPassword);
+
     List<User> getUsers();
 }

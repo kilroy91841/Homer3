@@ -1,19 +1,22 @@
 USE homer;
 
-DROP TABLE IF EXISTS ref_vulture_status;
-CREATE TABLE IF NOT EXISTS ref_vulture_status (
+DROP TABLE IF EXISTS ref_event_status;
+CREATE TABLE IF NOT EXISTS ref_event_status (
     id INT NOT NULL,
     name VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
 
-INSERT INTO ref_vulture_status (id, name)
+INSERT INTO ref_event_status (id, name)
 VALUES
 (1, "In Progress"),
 (2, "Fixed"),
 (3, "Successful"),
 (4, "Invalid"),
-(5, "Error");
+(5, "Error"),
+(6, "Complete"),
+(7, "Requested"),
+(8, "Denied");
 
 DROP TABLE IF EXISTS vultures;
 CREATE TABLE IF NOT EXISTS vultures (
@@ -30,7 +33,7 @@ CREATE TABLE IF NOT EXISTS vultures (
     FOREIGN KEY (playerId) REFERENCES players (id),
     FOREIGN KEY (dropPlayerId) REFERENCES players (id),
     FOREIGN KEY (teamId) REFERENCES teams (id),
-    FOREIGN KEY (vultureStatus) REFERENCES ref_vulture_status (id)
+    FOREIGN KEY (vultureStatus) REFERENCES ref_event_status (id)
 );
 
 ALTER TABLE vultures AUTO_INCREMENT = 1;

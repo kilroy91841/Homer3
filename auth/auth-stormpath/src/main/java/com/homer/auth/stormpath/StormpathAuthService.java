@@ -1,8 +1,11 @@
 package com.homer.auth.stormpath;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.homer.service.auth.IAuthService;
 import com.homer.service.auth.User;
+import com.homer.util.EnvironmentUtility;
+import com.homer.util.core.$;
 import com.stormpath.sdk.account.Account;
 import com.stormpath.sdk.account.AccountCriteria;
 import com.stormpath.sdk.account.AccountList;
@@ -14,6 +17,7 @@ import com.stormpath.sdk.client.Client;
 import com.stormpath.sdk.client.ClientBuilder;
 import com.stormpath.sdk.client.Clients;
 import com.stormpath.sdk.application.*;
+import com.stormpath.sdk.provider.ProviderAccountRequest;
 import com.stormpath.sdk.resource.ResourceException;
 import com.stormpath.sdk.tenant.*;
 import org.apache.commons.configuration.ConfigurationException;
@@ -24,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by arigolub on 5/1/16.
@@ -34,17 +40,21 @@ public class StormpathAuthService implements IAuthService {
 
     private static Client client;
 
-    private static final String APPLICATION = "HomerAtTheBat";
     private static final String TEAM_ID = "teamId";
     private static final String FILE_NAME = "apiKey.properties";
+    private static final String APIKEY_ID = "apiKey.id";
+    private static final String APIKEY_SECRET = "apiKey.secret";
 
     private static List<User> users = null;
 
     private StormpathAuthService() throws ConfigurationException {
         PropertiesConfiguration config = new PropertiesConfiguration(FILE_NAME);
-        String path = config.getPath();
 
-        ApiKey apiKey = ApiKeys.builder().setFileLocation(path).build();
+        Properties properties = new Properties();
+        properties.setProperty(APIKEY_ID, config.getString(APIKEY_ID));
+        properties.setProperty(APIKEY_SECRET, config.getString(APIKEY_SECRET));
+
+        ApiKey apiKey = ApiKeys.builder().setProperties(properties).build();
         ClientBuilder builder = Clients.builder().setApiKey(apiKey);
         client = builder.build();
     }
@@ -111,9 +121,44 @@ public class StormpathAuthService implements IAuthService {
         return null;
     }
 
+    @Override
+    public boolean changePassword(String email, String oldPassword, String newPassword) {
+        LOGGER.info("Changing password for " + email);
+        try {
+            //Verify old password is correct.
+            User user = authenticate(email, oldPassword);
+            if (user == null) {
+                LOGGER.info("Authentication failed, cannot change password for " + email);
+                return false;
+            }
+
+            //Set new password
+            Application application = getApplication();
+            Map<String, Object> map = Maps.newHashMap();
+            map.put("email", email);
+            Account account = $.of(application.getAccounts(map)).first();
+            if (account == null) {
+                throw new IllegalArgumentException("No account for email " + email);
+            }
+            account.setPassword(newPassword);
+            account.save();
+
+            return true;
+        } catch (ResourceException ex) {
+            LOGGER.error(
+                    String.format("Unable to save new password. Code: %s\nMessage: %s\nDeveloperMessage: %s",
+                            ex.getCode(), ex.getMessage(), ex.getDeveloperMessage())
+            );
+        } catch (Exception e) {
+            LOGGER.error("Unexpected error while authenticating: " + e.getMessage());
+            LOGGER.error(ExceptionUtils.getStackTrace(e));
+        }
+        return false;
+    }
+
     private Application getApplication() {
         Tenant tenant = client.getCurrentTenant();
-        ApplicationList applications = tenant.getApplications(Applications.where(Applications.name().eqIgnoreCase(APPLICATION)));
+        ApplicationList applications = tenant.getApplications(Applications.where(Applications.name().eqIgnoreCase(EnvironmentUtility.getInstance().getStormpathApplication())));
         return applications.iterator().next();
     }
 
@@ -129,6 +174,9 @@ public class StormpathAuthService implements IAuthService {
         }
         if (account.getCustomData().containsKey("admin")) {
             user.setAdmin(true);
+        }
+        if (account.getCustomData().containsKey("testUser")) {
+            user.setTestUser(true);
         }
         return user;
     }

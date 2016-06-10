@@ -85,6 +85,7 @@ public class FullVultureServiceTest {
                 vulture = new Vulture();
                 vulture.setId(VULTURE_NOT_VULTURABLE_PLAYER);
                 vulture.setPlayerId(NOT_VULTURABLE_PLAYER);
+                vulture.setDropPlayerId(DROP_PLAYER);
             } else if (VULTURE_VULTURABLE_PLAYER.equals(id)) {
                 vulture = new Vulture();
                 vulture.setId(VULTURE_VULTURABLE_PLAYER);
@@ -136,7 +137,7 @@ public class FullVultureServiceTest {
         assertEquals(dropPlayerId, vulture.getDropPlayerId());
         assertEquals(teamId, (Long)vulture.getTeamId());
         assertTrue(vulture.getIsCommisionerVulture());
-        assertEquals(VultureStatus.IN_PROGRESS, vulture.getVultureStatus());
+        assertEquals(EventStatus.IN_PROGRESS, vulture.getVultureStatus());
         assertNotNull(vulture.getExpirationDateUTC());
 
         assertTrue(FullVultureService.getInProgressVultureMap().size() == 1);
@@ -148,7 +149,7 @@ public class FullVultureServiceTest {
 
         Vulture resolvedVulture = service.resolveVulture(VULTURE_NOT_VULTURABLE_PLAYER);
         assertEquals(VULTURE_NOT_VULTURABLE_PLAYER, (Long)resolvedVulture.getId());
-        assertEquals(VultureStatus.FIXED, resolvedVulture.getVultureStatus());
+        assertEquals(EventStatus.FIXED, resolvedVulture.getVultureStatus());
 
         verify(playerSeasonService, never()).switchTeam(anyLong(), anyInt(), any(), any());
 
@@ -161,7 +162,7 @@ public class FullVultureServiceTest {
 
         Vulture resolvedVulture = service.resolveVulture(VULTURE_VULTURABLE_PLAYER);
         assertEquals(VULTURE_VULTURABLE_PLAYER, (Long)resolvedVulture.getId());
-        assertEquals(VultureStatus.SUCCESSFUL, resolvedVulture.getVultureStatus());
+        assertEquals(EventStatus.SUCCESSFUL, resolvedVulture.getVultureStatus());
 
         PlayerSeason playerSeason = new PlayerSeason();
         playerSeason.setPlayerId(PLAYER);

@@ -39,11 +39,13 @@ public class AuthFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext context) throws IOException {
         Method method = getMethod((ExtendedUriInfo)context.getUriInfo());
 
+        String token = getToken(context.getHeaderString(HttpHeaders.AUTHORIZATION));
+        context.setProperty("token", token);
         if (method.isAnnotationPresent(AuthRequired.class)) {
-            String token = getToken(context.getHeaderString(HttpHeaders.AUTHORIZATION));
             if (token == null || !userService.hasAccess(token)) {
                 throw new NotAuthorizedException("Failed to authorize user");
             }
+
         }
     }
 

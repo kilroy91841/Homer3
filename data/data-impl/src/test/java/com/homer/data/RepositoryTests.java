@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.homer.type.*;
 import com.homer.util.HomerBeanUtil;
+import com.homer.util.LeagueUtil;
 import com.homer.util.core.IBaseObject;
 import com.homer.util.core.data.IRepository;
 import org.joda.time.DateTime;
@@ -128,6 +129,45 @@ public class RepositoryTests {
         TradeElementRepository tradeElementRepository = new TradeElementRepository();
         testCRU(tradeElement, tradeElementRepository, Lists.newArrayList());
         testCRU(tradeElement2, tradeElementRepository, Lists.newArrayList());
+    }
+
+    @Test
+    public void testVultureCRUD() throws Exception {
+        Vulture vulture = new Vulture();
+        vulture.setTeamId(1);
+        vulture.setPlayerId(1);
+        vulture.setDropPlayerId(2L);
+        vulture.setExpirationDateUTC(DateTime.now().withMillisOfSecond(0));
+        vulture.setVultureStatus(EventStatus.IN_PROGRESS);
+
+        List<Consumer<Vulture>> funcs = Lists.newArrayList(v -> v.setVultureStatus(EventStatus.COMPLETE));
+        testCRUD(vulture, new VultureRepository(), funcs);
+    }
+
+    @Test
+    public void testFreeAgentAuctionCRUD() throws Exception {
+        FreeAgentAuction freeAgentAuction = new FreeAgentAuction();
+        freeAgentAuction.setPlayerId(1L);
+        freeAgentAuction.setExpirationDateUTC(DateTime.now().withMillisOfSecond(0));
+        freeAgentAuction.setAuctionStatus(EventStatus.IN_PROGRESS);
+        freeAgentAuction.setSeason(LeagueUtil.SEASON);
+        freeAgentAuction.setRequestingTeamId(1);
+
+        List<Consumer<FreeAgentAuction>> funcs = Lists.newArrayList(faa -> {
+            faa.setAuctionStatus(EventStatus.COMPLETE);
+            faa.setWinningTeamId(1L);
+            faa.setWinningAmount(100);
+        });
+
+        freeAgentAuction = testCRU(freeAgentAuction, new FreeAgentAuctionRepository(), funcs);
+
+        FreeAgentAuctionBid freeAgentAuctionBid = new FreeAgentAuctionBid();
+        freeAgentAuctionBid.setFreeAgentAuctionId(freeAgentAuction.getId());
+        freeAgentAuctionBid.setTeamId(1);
+
+        List<Consumer<FreeAgentAuctionBid>> funcs2 = Lists.newArrayList(faab -> faab.setAmount(100));
+
+        testCRUD(freeAgentAuctionBid, new FreeAgentAuctionBidRepository(), funcs2);
     }
 
     private <T extends IBaseObject> void testCRUD(T obj, IRepository<T> repo,

@@ -5,6 +5,7 @@ import com.homer.util.core.data.IRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by arigolub on 3/18/16.
@@ -25,5 +26,10 @@ public class BaseIdService<T extends IBaseObject> implements IIdService<T> {
     @Override
     public T upsert(T obj) {
         return repo.upsert(obj);
+    }
+
+    @Override
+    public List<T> getMany(Map<String, Object> filters) {
+        return repo.getMany(filters);
     }
 }

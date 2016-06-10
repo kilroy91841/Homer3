@@ -5,6 +5,11 @@ import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import com.homer.auth.stormpath.StormpathAuthService;
 import com.homer.data.*;
+import com.homer.email.EmailRequest;
+import com.homer.email.HtmlObject;
+import com.homer.email.HtmlTag;
+import com.homer.email.IEmailService;
+import com.homer.email.aws.AWSEmailService;
 import com.homer.exception.LoginFailedException;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
@@ -19,6 +24,7 @@ import com.homer.service.importer.PlayerImporter;
 import com.homer.type.*;
 import com.homer.type.view.PlayerView;
 import com.homer.type.view.TeamView;
+import com.homer.util.EnvironmentUtility;
 import com.homer.web.model.ApiResponse;
 import com.homer.web.model.AuthenticationRequest;
 import com.homer.web.model.MetadataView;
@@ -27,9 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.ws.rs.*;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.*;
 import java.util.List;
 
 /**
@@ -38,6 +43,9 @@ import java.util.List;
 @Singleton
 @Path("/")
 public class Resource {
+
+    @Context
+    private ContainerRequestContext requestContext;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Resource.class);
 
@@ -54,6 +62,7 @@ public class Resource {
     private IPlayerImporter playerImporter;
     private IFullTeamService fullTeamService;
     private IUserService userService;
+    private IEmailService emailService;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -65,6 +74,7 @@ public class Resource {
         this.tradeElementService = new TradeElementService(new TradeElementRepository());
         this.fullTeamService = new FullTeamService(playerSeasonService, teamService);
         this.userService = new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository());
+        this.emailService = new AWSEmailService();
 
         gatherer = new Gatherer(
                 playerService,
@@ -185,5 +195,15 @@ public class Resource {
         boolean hasAccess = userService.hasAccess(token);
         String message = hasAccess ? "User authenticated" : "User authentication failed";
         return new ApiResponse(message, hasAccess);
+    }
+
+    @Path("testEmail")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse sendTestEmail()
+    {
+        EmailRequest emailRequest = new EmailRequest(Lists.newArrayList("arigolub@gmail.com"), "Test Email",
+                HtmlObject.of(HtmlTag.P).body("This is a test e-mail"));
+        return new ApiResponse(emailService.sendEmail(emailRequest), "");
     }
 }
