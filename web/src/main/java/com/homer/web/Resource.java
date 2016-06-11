@@ -10,7 +10,9 @@ import com.homer.email.HtmlObject;
 import com.homer.email.HtmlTag;
 import com.homer.email.IEmailService;
 import com.homer.email.aws.AWSEmailService;
+import com.homer.exception.IllegalMinorLeagueDraftPickException;
 import com.homer.exception.LoginFailedException;
+import com.homer.external.common.IMLBClient;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.auth.IUserService;
@@ -22,15 +24,16 @@ import com.homer.service.gather.IGatherer;
 import com.homer.service.importer.IPlayerImporter;
 import com.homer.service.importer.PlayerImporter;
 import com.homer.type.*;
-import com.homer.type.view.PlayerView;
-import com.homer.type.view.TeamView;
+import com.homer.type.view.*;
 import com.homer.util.EnvironmentUtility;
+import com.homer.util.LeagueUtil;
 import com.homer.web.model.ApiResponse;
 import com.homer.web.model.AuthenticationRequest;
 import com.homer.web.model.MetadataView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -63,6 +66,7 @@ public class Resource {
     private IFullTeamService fullTeamService;
     private IUserService userService;
     private IEmailService emailService;
+    private IFullMinorLeagueDraftService minorLeagueDraftService;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -89,11 +93,15 @@ public class Resource {
         fullTradeService = new FullTradeService(tradeService, minorLeaguePickService, draftDollarService,
                 playerSeasonService, tradeElementService);
 
+        IMLBClient mlbClient = new MLBRestClient();
         playerImporter = new PlayerImporter(
                 playerService,
                 playerSeasonService,
-                new MLBRestClient()
+                mlbClient
         );
+
+        minorLeagueDraftService = new FullMinorLeagueDraftService(gatherer, minorLeaguePickService, playerService, playerSeasonService,
+                new FullPlayerService(playerService, playerSeasonService), mlbClient, emailService, userService);
     }
 
     @GET
@@ -200,10 +208,69 @@ public class Resource {
     @Path("testEmail")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public ApiResponse sendTestEmail()
-    {
+    public ApiResponse sendTestEmail() {
         EmailRequest emailRequest = new EmailRequest(Lists.newArrayList("arigolub@gmail.com"), "Test Email",
                 HtmlObject.of(HtmlTag.P).body("This is a test e-mail"));
         return new ApiResponse(emailService.sendEmail(emailRequest), "");
     }
+
+    @Path("minorLeagueDraft/order")
+    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    public ApiResponse orderDraft(List<Long> teamIds) {
+        try {
+            return new ApiResponse("success", minorLeaguePickService.orderMinorLeaguePicksForDraft(teamIds, LeagueUtil.SEASON));
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @Path("minorLeagueDraft")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse getDraft(@QueryParam(value = "season") @Nullable Integer season) {
+        try {
+            MinorLeagueDraftView minorLeagueDraftView = minorLeagueDraftService.getMinorLeagueDraft(season);
+            return new ApiResponse(null, minorLeagueDraftView);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @Path("minorLeagueDraft/pick")
+    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    public ApiResponse draftPlayer(MinorLeaguePickView minorLeaguePick) {
+        try {
+            MinorLeaguePickView pick = minorLeagueDraftService.draftPlayer(minorLeaguePick);
+            return new ApiResponse("Congratulations, you have drafted " + pick.getPlayerView().getName() + "!", pick);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @Path("minorLeagueDraft/skip/{pickId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    public ApiResponse skipPick(@PathParam(value = "pickId") long pickId) {
+        try {
+            MinorLeaguePickView pick = minorLeagueDraftService.skipPick(pickId);
+            return new ApiResponse("You have skipped your pick. E-mail Ari to reclaim your pick during this round", pick);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @Path("minorLeagueDraft/admin")
+    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    public ApiResponse adminDraft(MinorLeagueDraftAdminView view) {
+        try {
+            MinorLeagueDraftView draftView = minorLeagueDraftService.adminDraft(view);
+            return new ApiResponse("Admin successful", draftView);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
 }

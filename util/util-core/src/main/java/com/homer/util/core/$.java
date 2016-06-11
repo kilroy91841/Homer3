@@ -91,5 +91,14 @@ public class $<T> {
         return backing.map(mapper).reduce(Integer::sum).orElse(null);
     }
 
+    public <K, T> Map<K, List<T>> groupBy(Function<T, K> mapperFunction) {
+        return backing.map(t -> (T) t).collect(Collectors.groupingBy(mapperFunction));
+    }
+
+    public boolean allMatch(Predicate<T> predicate)
+    {
+        return backing.allMatch(predicate);
+    }
+
     // endregion
 }

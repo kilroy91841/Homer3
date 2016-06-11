@@ -44,6 +44,11 @@ public class Gatherer implements IGatherer {
     }
 
     @Override
+    public Map<Long, Team> getFantasyTeamMap() {
+        return FANTASY_TEAM_MAP;
+    }
+
+    @Override
     public List<PlayerView> gatherPlayers() {
         List<Player> players = playerService.getPlayers();
         return gatherPlayers(players);
@@ -142,7 +147,7 @@ public class Gatherer implements IGatherer {
 
     private List<MinorLeaguePickView> hydrateMinorLeaguePickViews(Collection<MinorLeaguePick> minorLeaguePicks) {
         List<MinorLeaguePickView> minorLeaguePickViews = Lists.newArrayList();
-        List<Player> minorLeaguePickPlayers = playerService.getByIds($.of(minorLeaguePicks).filter(mlp -> mlp.getPlayerId() != null).toIdList());
+        List<Player> minorLeaguePickPlayers = playerService.getByIds($.of(minorLeaguePicks).filter(mlp -> mlp.getPlayerId() != null).toList(MinorLeaguePick::getPlayerId));
         Map<Long, Player> minorLeaguePickPlayerMap = $.of(minorLeaguePickPlayers).toIdMap();
         minorLeaguePicks.forEach(mlp -> {
             MinorLeaguePickView mlpv = MinorLeaguePickView.from(mlp);
@@ -152,7 +157,7 @@ public class Gatherer implements IGatherer {
                 mlpv.setSwapTeam(FANTASY_TEAM_MAP.get(mlpv.getSwapTeamId()));
             }
             if(mlpv.getPlayerId() != null) {
-                mlpv.setPlayer(minorLeaguePickPlayerMap.get(mlpv.getPlayerId()));
+                mlpv.setPlayerView(PlayerView.from(minorLeaguePickPlayerMap.get(mlpv.getPlayerId())));
             }
             minorLeaguePickViews.add(mlpv);
         });

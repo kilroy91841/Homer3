@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.homer.data.common.IMinorLeaguePickRepository;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.type.MinorLeaguePick;
+import com.homer.util.core.$;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -21,6 +22,8 @@ public class MinorLeaguePickService extends BaseIdService<MinorLeaguePick> imple
         super(repo);
         this.repo = repo;
     }
+
+    // region get
 
     @Override
     public List<MinorLeaguePick> getMinorLeaguePicks() {
@@ -47,6 +50,19 @@ public class MinorLeaguePickService extends BaseIdService<MinorLeaguePick> imple
         return picks;
     }
 
+    @Nullable
+    @Override
+    public MinorLeaguePick getMinorLeaguePickByOverallAndSeason(int overallPick, int season) {
+        Map<String, Object> filters = Maps.newHashMap();
+        filters.put("season", season);
+        filters.put("overallPick", overallPick);
+        return repo.get(filters);
+    }
+
+    // endregion
+
+    // region update
+
     @Override
     public MinorLeaguePick modifyPick(long fromTeamId, long toTeamId, long originalTeamId, int round, int season,
                                       boolean onlySwapRightTransfer) {
@@ -70,6 +86,43 @@ public class MinorLeaguePickService extends BaseIdService<MinorLeaguePick> imple
         return pickToTransfer;
     }
 
+    // endregion
+
+    // region draft setup
+
+    @Override
+    public List<MinorLeaguePick> orderMinorLeaguePicksForDraft(List<Long> teamIdsInOrder, int season) {
+        List<MinorLeaguePick> minorLeaguePicks = getMinorLeaguePicksBySeason(season);
+        Map<Long, List<MinorLeaguePick>> minorLeaguePicksByTeam = $.of(minorLeaguePicks).groupBy(MinorLeaguePick::getOriginalTeamId);
+        for (List<MinorLeaguePick> pickList : minorLeaguePicksByTeam.values()) {
+            sort(pickList);
+        }
+
+        boolean isReverse = false;
+        int overallPick = 1;
+        while ($.of(minorLeaguePicksByTeam.values()).first().size() > 0) {
+            if (isReverse) {
+                for (int i = teamIdsInOrder.size() - 1; i >= 0; i--) {
+                    Long teamId = teamIdsInOrder.get(i);
+                    MinorLeaguePick pick = minorLeaguePicksByTeam.get(teamId).remove(0);
+                    pick.setOverallPick(overallPick++);
+                }
+            } else {
+                for (int i = 0; i < teamIdsInOrder.size(); i++) {
+                    Long teamId = teamIdsInOrder.get(i);
+                    MinorLeaguePick pick = minorLeaguePicksByTeam.get(teamId).remove(0);
+                    pick.setOverallPick(overallPick++);
+                }
+            }
+            isReverse = !isReverse;
+        }
+        for (MinorLeaguePick pick : minorLeaguePicks) {
+            repo.upsert(pick);
+        }
+        minorLeaguePicks.sort((p1, p2) -> p1.getOverallPick() < p2.getOverallPick() ? -1 : 1);
+        return minorLeaguePicks;
+    }
+
     @Nullable
     private MinorLeaguePick getPick(long originalTeamId, int round, int season) {
         Map<String, Object> filters = Maps.newHashMap();
@@ -80,11 +133,15 @@ public class MinorLeaguePickService extends BaseIdService<MinorLeaguePick> imple
     }
 
     private static void sort(List<MinorLeaguePick> picks) {
-        picks.sort((p1, p2) ->
-                p1.getSeason() < p2.getSeason() ? -1 :
-                p1.getSeason() > p2.getSeason() ? 1 :
-                        p1.getRound() < p2.getRound() ? -1 : 1
+        if ($.of(picks).allMatch(mlp -> mlp.getOverallPick() != null)) {
+            picks.sort((p1, p2) -> p1.getOverallPick() < p2.getOverallPick() ? -1 : 1);
+        } else {
+            picks.sort((p1, p2) ->
+                    p1.getSeason() < p2.getSeason() ? -1 :
+                            p1.getSeason() > p2.getSeason() ? 1 :
+                                    p1.getRound() < p2.getRound() ? -1 : 1
 
-        );
+            );
+        }
     }
 }

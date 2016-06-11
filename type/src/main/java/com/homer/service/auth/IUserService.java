@@ -11,5 +11,6 @@ public interface IUserService {
 
     User login(String userName, String password) throws LoginFailedException;
     boolean hasAccess(String token);
+    List<User> getAllUsers();
     List<User> getUsersForTeam(long teamId);
 }

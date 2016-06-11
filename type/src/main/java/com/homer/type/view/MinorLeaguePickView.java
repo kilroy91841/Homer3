@@ -2,7 +2,6 @@ package com.homer.type.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.homer.type.MinorLeaguePick;
-import com.homer.type.Player;
 import com.homer.type.Team;
 import com.homer.util.HomerBeanUtil;
 
@@ -18,7 +17,9 @@ public class MinorLeaguePickView extends MinorLeaguePick {
     @Nullable
     private Team swapTeam;
     @Nullable
-    private Player player;
+    private PlayerView playerView;
+    @Nullable
+    private MinorLeaguePickView nextPick;
 
     public MinorLeaguePickView() { }
 
@@ -54,12 +55,21 @@ public class MinorLeaguePickView extends MinorLeaguePick {
     }
 
     @Nullable
-    public Player getPlayer() {
-        return player;
+    public PlayerView getPlayerView() {
+        return playerView;
     }
 
-    public void setPlayer(@Nullable Player player) {
-        this.player = player;
+    public void setPlayerView(@Nullable PlayerView player) {
+        this.playerView = player;
+    }
+
+    @Nullable
+    public MinorLeaguePickView getNextPick() {
+        return nextPick;
+    }
+
+    public void setNextPick(@Nullable MinorLeaguePickView nextPick) {
+        this.nextPick = nextPick;
     }
 
     @JsonProperty

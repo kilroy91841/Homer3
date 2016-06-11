@@ -25,8 +25,11 @@ public class EnvironmentUtility {
     public int updatePlayersPeriod;
 
     public int vultureExpirationMinutes;
+    public int draftPickExpirationMinutes;
 
     public boolean isTestEnv;
+
+    public int maxMinorLeagueRosterSize;
 
     private static String BOXFUSE_DATABASE_URL = "BOXFUSE_DATABASE_URL";
     private static String BOXFUSE_DATABASE_USER = "BOXFUSE_DATABASE_USER";
@@ -70,8 +73,10 @@ public class EnvironmentUtility {
         setUpdatePlayersDelay(config.getInt("updatePlayersDelay"));
         setUpdatePlayersPeriod(config.getInt("updatePlayersPeriod"));
         setVultureExpirationMinutes(config.getInt("vultureExpirationMinutes"));
+        setDraftPickExpirationMinutes(config.getInt("draftPickExpirationMinutes"));
         setStormpathApplication(config.getString("stormpathApplication"));
         setUrl(config.getString("url"));
+        setMaxMinorLeagueRosterSize(config.getInt("maxMinorLeagueRosterSize"));
     }
 
     private static EnvironmentUtility instance;
@@ -181,6 +186,22 @@ public class EnvironmentUtility {
 
     public void setVultureExpirationMinutes(int vultureExpirationMinutes) {
         this.vultureExpirationMinutes = vultureExpirationMinutes;
+    }
+
+    public int getDraftPickExpirationMinutes() {
+        return draftPickExpirationMinutes;
+    }
+
+    public void setDraftPickExpirationMinutes(int draftPickExpirationMinutes) {
+        this.draftPickExpirationMinutes = draftPickExpirationMinutes;
+    }
+
+    public int getMaxMinorLeagueRosterSize() {
+        return maxMinorLeagueRosterSize;
+    }
+
+    public void setMaxMinorLeagueRosterSize(int maxMinorLeagueRosterSize) {
+        this.maxMinorLeagueRosterSize = maxMinorLeagueRosterSize;
     }
 
     public boolean isTestEnv() {

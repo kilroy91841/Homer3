@@ -22,7 +22,10 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
 
     @Nullable
     default PlayerSeason getCurrentPlayerSeason(long playerId) {
-        return $.of(this.getPlayerSeasons(playerId)).filter(ps -> LeagueUtil.SEASON == ps.getSeason()).first();
+        return getCurrentPlayerSeason(this.getPlayerSeasons(playerId));
+    }
+    default PlayerSeason getCurrentPlayerSeason(Collection<? extends PlayerSeason> playerSeasons) {
+        return $.of(playerSeasons).filter(ps -> LeagueUtil.SEASON == ps.getSeason()).first();
     }
 
     List<PlayerSeason> getPlayerSeasonsByTeamIds(Collection<Long> teamIds, int season);
@@ -40,8 +43,8 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
     PlayerSeason switchTeam(long playerId, int season, @Nullable Long oldTeamId, @Nullable Long newTeamId);
     PlayerSeason switchTeam(PlayerSeason existing, @Nullable Long oldTeamId, @Nullable Long newTeamId);
 
-    PlayerSeason switchFantasyPosition(long playerId, int season, @Nullable Position oldFantasyPosition,
-                                       @Nullable Position newFantasyPosition);
+    PlayerSeason switchFantasyPosition(long playerId, int season, @Nullable Position oldFantasyPosition, @Nullable Position newFantasyPosition);
+    PlayerSeason switchFantasyPosition(PlayerSeason existing, @Nullable Position oldFantasyPosition, @Nullable Position newFantasyPosition);
 
     //region Vulture
 
@@ -50,4 +53,10 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
     List<PlayerSeason> getVulturablePlayerSeasons();
 
     //endregion
+
+    // region minor leaguers
+
+    List<PlayerSeason> getMinorLeaguers(long teamId, int season);
+
+    // endregion
 }

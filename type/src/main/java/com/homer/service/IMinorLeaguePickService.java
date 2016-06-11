@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.type.MinorLeaguePick;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,6 +21,9 @@ public interface IMinorLeaguePickService extends IIdService<MinorLeaguePick> {
     default List<MinorLeaguePick> getMinorLeaguePicksByTeam(long teamId) {
         return this.getMinorLeaguePicksByTeams(Lists.newArrayList(teamId));
     }
+
+    @Nullable
+    MinorLeaguePick getMinorLeaguePickByOverallAndSeason(int overallPick, int season);
 
     MinorLeaguePick modifyPick(long fromTeamId, long toTeamId, long originalTeamId, int round, int season,
                                           boolean onlySwapRightTransfer);
@@ -42,4 +46,6 @@ public interface IMinorLeaguePickService extends IIdService<MinorLeaguePick> {
     default MinorLeaguePick transferSwapRights(long fromTeamId, long toTeamId, long pickId) {
         return modifyPick(fromTeamId, toTeamId, pickId, true);
     }
+
+    List<MinorLeaguePick> orderMinorLeaguePicksForDraft(List<Long> teamIdsInOrder, int season);
 }
