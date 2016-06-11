@@ -226,7 +226,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
     @Override
     public MinorLeagueDraftView adminDraft(MinorLeagueDraftAdminView view) throws Exception {
         if (!view.getAssignPlayerToPick() && !view.getUndoPick() && !view.getReschedulePick() && !view.getSkipPick() &&
-                !view.getStopSkipper()) {
+                !view.getStopSkipper() && !view.getSwapPicks()) {
             throw new Exception("No admin flags were set");
         }
         MinorLeaguePick minorLeaguePick = minorLeaguePickService.getById(view.getPickId());
@@ -279,6 +279,23 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
             skipPickImpl(minorLeaguePick);
         } else if (view.getStopSkipper()) {
             cancelAndEmptyAllFutures();
+        } else if (view.getSwapPicks()) {
+            if (view.getPickId1() == null || view.getPickId2() == null) {
+                throw new Exception("One of pick ids to swap was missing");
+            }
+            MinorLeaguePick pick1 = minorLeaguePickService.getById(view.getPickId1());
+            MinorLeaguePick pick2 = minorLeaguePickService.getById(view.getPickId2());
+
+            if (pick1 == null || pick2 == null) {
+                throw new Exception("Could not find pick to swap for one or both of supplied ids");
+            }
+
+            int overall = pick1.getOverallPick();
+            pick1.setOverallPick(pick2.getOverallPick());
+            pick2.setOverallPick(overall);
+
+            minorLeaguePickService.upsert(pick1);
+            minorLeaguePickService.upsert(pick2);
         }
 
         return getMinorLeagueDraft(LeagueUtil.SEASON);

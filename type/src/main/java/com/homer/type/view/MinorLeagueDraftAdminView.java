@@ -20,6 +20,7 @@ public class MinorLeagueDraftAdminView {
     private boolean assignPlayerToPick;
     private boolean skipPick;
     private boolean stopSkipper;
+    private boolean swapPicks;
 
     //for "reschedulePick"
     @Nullable
@@ -27,6 +28,11 @@ public class MinorLeagueDraftAdminView {
     //for "assignPlayerToPick"
     @Nullable
     private Long playerId;
+    //for "swapPicks"
+    @Nullable
+    private Long pickId1;
+    @Nullable
+    private Long pickId2;
 
     public long getPickId() {
         return pickId;
@@ -92,5 +98,31 @@ public class MinorLeagueDraftAdminView {
 
     public void setStopSkipper(boolean stopSkipper) {
         this.stopSkipper = stopSkipper;
+    }
+
+    public boolean getSwapPicks() {
+        return swapPicks;
+    }
+
+    public void setSwapPicks(boolean swapPicks) {
+        this.swapPicks = swapPicks;
+    }
+
+    @Nullable
+    public Long getPickId2() {
+        return pickId2;
+    }
+
+    public void setPickId2(@Nullable Long pickId2) {
+        this.pickId2 = pickId2;
+    }
+
+    @Nullable
+    public Long getPickId1() {
+        return pickId1;
+    }
+
+    public void setPickId1(@Nullable Long pickId1) {
+        this.pickId1 = pickId1;
     }
 }
