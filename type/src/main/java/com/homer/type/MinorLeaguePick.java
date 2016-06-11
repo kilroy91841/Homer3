@@ -3,7 +3,9 @@ package com.homer.type;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 import com.homer.util.HomerBeanUtil;
+import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -50,39 +52,47 @@ public class MinorLeaguePick extends BaseObject {
     @Column
     private String note;
 
+    @Nullable
+    @Column
+    private DateTime deadlineUtc;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         MinorLeaguePick that = (MinorLeaguePick) o;
-
-        if (season != that.season) return false;
-        if (originalTeamId != that.originalTeamId) return false;
-        if (owningTeamId != that.owningTeamId) return false;
-        if (round != that.round) return false;
-        if (swapTeamId != null ? !swapTeamId.equals(that.swapTeamId) : that.swapTeamId != null) return false;
-        if (overallPick != null ? !overallPick.equals(that.overallPick) : that.overallPick != null) return false;
-        if (playerId != null ? !playerId.equals(that.playerId) : that.playerId != null) return false;
-        if (isSkipped != null ? !isSkipped.equals(that.isSkipped) : that.isSkipped != null) return false;
-        return note != null ? note.equals(that.note) : that.note == null;
-
+        return season == that.season &&
+                originalTeamId == that.originalTeamId &&
+                owningTeamId == that.owningTeamId &&
+                round == that.round &&
+                Objects.equal(swapTeamId, that.swapTeamId) &&
+                Objects.equal(overallPick, that.overallPick) &&
+                Objects.equal(playerId, that.playerId) &&
+                Objects.equal(isSkipped, that.isSkipped) &&
+                Objects.equal(note, that.note) &&
+                Objects.equal(deadlineUtc, that.deadlineUtc);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + season;
-        result = 31 * result + (int) (originalTeamId ^ (originalTeamId >>> 32));
-        result = 31 * result + (int) (owningTeamId ^ (owningTeamId >>> 32));
-        result = 31 * result + (swapTeamId != null ? swapTeamId.hashCode() : 0);
-        result = 31 * result + round;
-        result = 31 * result + (overallPick != null ? overallPick.hashCode() : 0);
-        result = 31 * result + (playerId != null ? playerId.hashCode() : 0);
-        result = 31 * result + (isSkipped != null ? isSkipped.hashCode() : 0);
-        result = 31 * result + (note != null ? note.hashCode() : 0);
-        return result;
+        return Objects.hashCode(super.hashCode(), season, originalTeamId, owningTeamId, swapTeamId, round, overallPick, playerId, isSkipped, note, deadlineUtc);
+    }
+
+    @Override
+    public String toString() {
+        return "MinorLeaguePick{" +
+                "season=" + season +
+                ", originalTeamId=" + originalTeamId +
+                ", owningTeamId=" + owningTeamId +
+                ", swapTeamId=" + swapTeamId +
+                ", round=" + round +
+                ", overallPick=" + overallPick +
+                ", playerId=" + playerId +
+                ", isSkipped=" + isSkipped +
+                ", note='" + note + '\'' +
+                ", deadlineUtc=" + deadlineUtc +
+                "} " + super.toString();
     }
 
     public int getSeason() {
@@ -151,6 +161,15 @@ public class MinorLeaguePick extends BaseObject {
 
     public void setIsSkipped(@Nullable Boolean skipped) {
         isSkipped = skipped;
+    }
+
+    @Nullable
+    public DateTime getDeadlineUtc() {
+        return deadlineUtc;
+    }
+
+    public void setDeadlineUtc(@Nullable  DateTime deadlineUtc) {
+        this.deadlineUtc = deadlineUtc;
     }
 
     @Nullable

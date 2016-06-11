@@ -106,6 +106,12 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         if (newFantasyPosition == existing.getFantasyPosition()) {
             return existing;
         }
+
+        return switchFantasyPosition(existing, oldFantasyPosition, newFantasyPosition);
+    }
+
+    @Override
+    public PlayerSeason switchFantasyPosition(PlayerSeason existing, @Nullable Position oldFantasyPosition, @Nullable Position newFantasyPosition) {
         if (oldFantasyPosition != existing.getFantasyPosition()) {
             throw new IllegalArgumentException("Supplied old position does not match existing position");
         }
@@ -140,6 +146,15 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         filters.put("season", LeagueUtil.SEASON);
         filters.put("vulturable", true);
         return $.of(repo.getMany(filters)).filterToList(ps -> ps.getTeamId() != null);
+    }
+
+    @Override
+    public List<PlayerSeason> getMinorLeaguers(long teamId, int season) {
+        Map<String, Object> filters = Maps.newHashMap();
+        filters.put("season", season);
+        filters.put("teamId", teamId);
+        filters.put("fantasyPosition", Position.MINORLEAGUES);
+        return repo.getMany(filters);
     }
 
     private PlayerSeason getPlayerSeasonOrThrow(long playerId, int season) {

@@ -354,10 +354,18 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                     BeanUtils.setProperty(obj, fieldName, rs.getString(fieldName));
                 } else if (DateTime.class.equals(f.getType())) {
                     Timestamp timestamp = rs.getTimestamp(fieldName);
-                    BeanUtils.setProperty(obj, fieldName, dateTimeFormatter.parseDateTime(timestamp.toString()).withZone(DateTimeZone.getDefault()));
+                    if (timestamp != null) {
+                        BeanUtils.setProperty(obj, fieldName, dateTimeFormatter.parseDateTime(timestamp.toString()).withZone(DateTimeZone.getDefault()));
+                    }
                 } else if (IIntEnum.class.isAssignableFrom(f.getType())) {
                     Class<IIntEnum> clazz = (Class<IIntEnum>) f.getType();
                     BeanUtils.setProperty(obj, fieldName, EnumUtil.fromNotParameterized(clazz, rs.getInt(fieldName)));
+                } else if (Boolean.class.isAssignableFrom(f.getType())) {
+                    Boolean bool = rs.getBoolean(fieldName);
+                    if (rs.wasNull()) {
+                        bool = null;
+                    }
+                    PropertyUtils.setProperty(obj, fieldName, bool);
                 }
             }
             results.add(obj);

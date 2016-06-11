@@ -92,6 +92,7 @@ public class RepositoryTests {
         minorLeaguePick.setOwningTeamId(1);
         minorLeaguePick.setSeason(2020);
         minorLeaguePick.setRound(1);
+        minorLeaguePick.setIsSkipped(false);
 
         List<Consumer<MinorLeaguePick>> funcs = Lists.newArrayList();
         funcs.add(mlp -> mlp.setOwningTeamId(2));

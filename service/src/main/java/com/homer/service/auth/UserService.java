@@ -49,8 +49,13 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return authService.getUsers();
+    }
+
+    @Override
     public List<User> getUsersForTeam(long teamId) {
-        List<User> allUsers = authService.getUsers();
+        List<User> allUsers = getAllUsers();
         return $.of(allUsers).filterToList(user -> user.getTeamId() == teamId);
     }
 }
