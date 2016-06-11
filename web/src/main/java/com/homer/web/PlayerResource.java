@@ -152,6 +152,6 @@ public class PlayerResource {
         }
         updated = playerSeasonService.upsert(updated);
         return new ApiResponse(String.format("Moved %s from position %s to position %s", updated.getPlayerId(),
-                oldPosition.getName(), newPosition.getName()), updated);
+                oldPosition != null ? oldPosition.getName() : "none", newPosition.getName()), updated);
     }
 }
