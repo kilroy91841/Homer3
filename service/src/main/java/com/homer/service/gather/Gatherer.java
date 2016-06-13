@@ -68,6 +68,18 @@ public class Gatherer implements IGatherer {
     }
 
     @Override
+    public List<PlayerView> gatherPlayersByTeamId(long teamId, boolean onlyMinorLeaguers) {
+        List<PlayerSeason> playerSeasons;
+        if (onlyMinorLeaguers) {
+            playerSeasons = playerSeasonService.getMinorLeaguers(teamId, LeagueUtil.SEASON);
+        } else {
+            playerSeasons = playerSeasonService.getPlayerSeasonsByTeamId(teamId, LeagueUtil.SEASON);
+        }
+        List<Long> playerIds = $.of(playerSeasons).toList(PlayerSeason::getPlayerId);
+        return gatherPlayersByIds(playerIds);
+    }
+
+    @Override
     public List<TeamView> gatherTeamsByIds(Collection<Long> teamIds) {
         List<TeamView> teamViews = Lists.newArrayList();
 

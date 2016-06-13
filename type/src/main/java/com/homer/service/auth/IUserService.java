@@ -13,4 +13,5 @@ public interface IUserService {
     boolean hasAccess(String token);
     List<User> getAllUsers();
     List<User> getUsersForTeam(long teamId);
+    boolean sendPasswordResetEmail(String email);
 }

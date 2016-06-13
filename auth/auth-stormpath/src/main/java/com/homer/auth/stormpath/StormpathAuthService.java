@@ -6,10 +6,7 @@ import com.homer.service.auth.IAuthService;
 import com.homer.service.auth.User;
 import com.homer.util.EnvironmentUtility;
 import com.homer.util.core.$;
-import com.stormpath.sdk.account.Account;
-import com.stormpath.sdk.account.AccountCriteria;
-import com.stormpath.sdk.account.AccountList;
-import com.stormpath.sdk.account.Accounts;
+import com.stormpath.sdk.account.*;
 import com.stormpath.sdk.api.ApiKey;
 import com.stormpath.sdk.api.ApiKeys;
 import com.stormpath.sdk.authc.*;
@@ -154,6 +151,17 @@ public class StormpathAuthService implements IAuthService {
             LOGGER.error(ExceptionUtils.getStackTrace(e));
         }
         return false;
+    }
+
+    @Override
+    public boolean sendPasswordResetEmail(String email) {
+        Application application = getApplication();
+        PasswordResetToken resetToken = application.sendPasswordResetEmail(email);
+        if (resetToken != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private Application getApplication() {

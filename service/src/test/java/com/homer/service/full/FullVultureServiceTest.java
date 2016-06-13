@@ -108,7 +108,7 @@ public class FullVultureServiceTest {
         });
 
         ITeamService teamService = mock(ITeamService.class);
-        when(teamService.getTeamById(anyLong())).then(x -> {
+        when(teamService.getById(anyLong())).then(x -> {
             Team t = new Team();
             t.setName("");
             return t;

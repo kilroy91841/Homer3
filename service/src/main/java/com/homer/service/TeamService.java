@@ -5,25 +5,22 @@ import com.homer.type.Team;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by arigolub on 3/6/16.
  */
-public class TeamService implements ITeamService {
+public class TeamService extends BaseIdService<Team> implements ITeamService {
 
     private ITeamRepository repo;
 
     public TeamService(ITeamRepository repo) {
+        super(repo);
         this.repo = repo;
     }
 
     @Override
     public List<Team> getTeams() {
         return repo.getAll();
-    }
-
-    @Override
-    public List<Team> getTeamsByIds(Collection<Long> ids) {
-        return repo.getByIds(ids);
     }
 }
