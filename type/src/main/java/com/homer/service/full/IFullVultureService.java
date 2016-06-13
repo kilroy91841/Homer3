@@ -20,4 +20,6 @@ public interface IFullVultureService {
     List<Vulture> getInProgressVultures();
 
     List<PlayerSeason> getVulturablePlayerSeasons();
+
+    void scheduleVulture(Vulture vulture);
 }

@@ -230,7 +230,8 @@ public class FullVultureService implements IFullVultureService {
         vulture.setVultureTeam(teamService.getById(vulture.getTeamId()));
     }
 
-    private void scheduleVulture(Vulture createdVulture) {
+    @Override
+    public void scheduleVulture(Vulture createdVulture) {
         Runnable runnable = () -> {
             try {
                 resolveVulture(createdVulture.getId());
