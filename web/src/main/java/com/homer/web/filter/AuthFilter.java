@@ -1,7 +1,5 @@
 package com.homer.web.filter;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
 import com.homer.auth.stormpath.StormpathAuthService;
 import com.homer.data.SessionTokenRepository;
 import com.homer.service.auth.IUserService;
@@ -39,7 +37,7 @@ public class AuthFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext context) throws IOException {
         Method method = getMethod((ExtendedUriInfo)context.getUriInfo());
 
-        String token = getToken(context.getHeaderString(HttpHeaders.AUTHORIZATION));
+        String token = context.getHeaderString(HttpHeaders.AUTHORIZATION);
         context.setProperty("token", token);
         if (method.isAnnotationPresent(AuthRequired.class)) {
             if (token == null || !userService.hasAccess(token)) {
@@ -66,13 +64,5 @@ public class AuthFilter implements ContainerRequestFilter {
             throw new NotFoundException(message);
         }
         return m;
-    }
-
-    @Nullable
-    private static String getToken(String header) {
-        if (header == null) {
-            return null;
-        }
-        return new String(BaseEncoding.base64().decode(header), Charsets.US_ASCII);
     }
 }

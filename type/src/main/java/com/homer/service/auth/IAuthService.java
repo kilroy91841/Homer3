@@ -13,5 +13,7 @@ public interface IAuthService {
 
     boolean changePassword(String userName, String oldPassword, String newPassword);
 
+    boolean sendPasswordResetEmail(String email);
+
     List<User> getUsers();
 }

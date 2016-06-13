@@ -11,13 +11,7 @@ import java.util.List;
 /**
  * Created by arigolub on 3/15/16.
  */
-public interface ITeamService {
+public interface ITeamService extends IIdService<Team> {
 
     List<Team> getTeams();
-
-    List<Team> getTeamsByIds(Collection<Long> ids);
-    @Nullable
-    default Team getTeamById(long id) {
-        return $.of(getTeamsByIds(Lists.newArrayList(id))).first();
-    }
 }

@@ -40,7 +40,8 @@ public class UserService implements IUserService {
 
     @Override
     public boolean hasAccess(String token) {
-        SessionToken sessionToken = sessionTokenRepo.getByToken(token);
+        String decodedToken = new String(BaseEncoding.base64().decode(token), Charsets.US_ASCII);
+        SessionToken sessionToken = sessionTokenRepo.getByToken(decodedToken);
         if (sessionToken == null || DateTime.now().isAfter(sessionToken.getExpirationDateUTC())) {
             return false;
         }
@@ -57,5 +58,10 @@ public class UserService implements IUserService {
     public List<User> getUsersForTeam(long teamId) {
         List<User> allUsers = getAllUsers();
         return $.of(allUsers).filterToList(user -> user.getTeamId() == teamId);
+    }
+
+    @Override
+    public boolean sendPasswordResetEmail(String email) {
+        return authService.sendPasswordResetEmail(email);
     }
 }

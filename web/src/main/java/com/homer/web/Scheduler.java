@@ -1,17 +1,19 @@
 package com.homer.web;
 
-import com.homer.data.PlayerRepository;
-import com.homer.data.PlayerSeasonRepository;
+import com.homer.auth.stormpath.StormpathAuthService;
+import com.homer.data.*;
+import com.homer.email.aws.AWSEmailService;
 import com.homer.external.rest.mlb.MLBRestClient;
-import com.homer.service.IPlayerSeasonService;
-import com.homer.service.IPlayerService;
-import com.homer.service.PlayerSeasonService;
-import com.homer.service.PlayerService;
+import com.homer.service.*;
+import com.homer.service.auth.UserService;
+import com.homer.service.full.FullVultureService;
+import com.homer.service.full.IFullVultureService;
 import com.homer.service.importer.IPlayerImporter;
 import com.homer.service.importer.PlayerImporter;
 import com.homer.type.MLBTeam;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
+import com.homer.type.Vulture;
 import com.homer.type.view.PlayerView;
 import com.homer.util.EnvironmentUtility;
 import com.homer.util.core.$;
@@ -37,6 +39,7 @@ public class Scheduler {
     private IPlayerImporter playerImporter;
     private IPlayerSeasonService playerSeasonService;
     private IPlayerService playerService;
+    private IFullVultureService fullVultureService;
     private EnvironmentUtility envUtil;
 
     public Scheduler() {
@@ -48,11 +51,26 @@ public class Scheduler {
                 playerSeasonService,
                 new MLBRestClient()
         );
+
+        fullVultureService = new FullVultureService(
+                new VultureService(new VultureRepository()),
+                playerSeasonService,
+                new TeamService(new TeamRepository()),
+                playerService,
+                new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository()),
+                new AWSEmailService());
     }
 
     public void run() {
         update40ManRosters();
         updatePlayers();
+
+        rescheduleVultures();
+    }
+
+    private void rescheduleVultures() {
+        List<Vulture> vultures = fullVultureService.getInProgressVultures();
+        vultures.forEach(v -> fullVultureService.scheduleVulture(v));
     }
 
     public ScheduledFuture update40ManRosters() {

@@ -25,7 +25,6 @@ import com.homer.service.importer.IPlayerImporter;
 import com.homer.service.importer.PlayerImporter;
 import com.homer.type.*;
 import com.homer.type.view.*;
-import com.homer.util.EnvironmentUtility;
 import com.homer.util.LeagueUtil;
 import com.homer.web.model.ApiResponse;
 import com.homer.web.model.AuthenticationRequest;
@@ -132,6 +131,18 @@ public class Resource {
         return teamService.getTeams();
     }
 
+    @GET
+    @Path("team/{id}/players")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse getPlayers(@PathParam(value = "id") long id, @QueryParam(value = "onlyMinorLeaguers") boolean onlyMinorLeaguers) {
+        try {
+            List<PlayerView> players = gatherer.gatherPlayersByTeamId(id, onlyMinorLeaguers);
+            return new ApiResponse(null, players);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
     @AuthRequired
     @Path("trade")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -185,7 +196,6 @@ public class Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @POST
     public Response login(AuthenticationRequest authRequest) {
-        ApiResponse response;
         try {
             String decodedPassword = new String(BaseEncoding.base64().decode(authRequest.getEncodedPassword()), Charsets.US_ASCII);
             User user = userService.login(authRequest.getUserName(), decodedPassword);
@@ -193,6 +203,18 @@ public class Resource {
         } catch (LoginFailedException e) {
             LOGGER.error(e.getMessage());
             return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+    }
+
+    @Path("passwordReset")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse sendPasswordResetEmail(@QueryParam(value = "email") String email) {
+        try {
+            boolean success = userService.sendPasswordResetEmail(email);
+            return new ApiResponse(null, success);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
         }
     }
 
@@ -268,6 +290,20 @@ public class Resource {
         try {
             MinorLeagueDraftView draftView = minorLeagueDraftService.adminDraft(view);
             return new ApiResponse("Admin successful", draftView);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @AuthRequired
+    @Path("team")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    public ApiResponse updateTeam(Team team) {
+        try {
+            Team updatedTeam = teamService.upsert(team);
+            return new ApiResponse("Team updated! Refresh to see the change", updatedTeam);
         } catch (Exception e) {
             return new ApiResponse(e.getMessage(), null);
         }

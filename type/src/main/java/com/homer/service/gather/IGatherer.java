@@ -34,6 +34,8 @@ public interface IGatherer {
         return $.of(this.gatherPlayersByIds(Lists.newArrayList(id))).first();
     }
 
+    List<PlayerView> gatherPlayersByTeamId(long teamId, boolean onlyMinorLeaguers);
+
     //endregion
 
     //region teams

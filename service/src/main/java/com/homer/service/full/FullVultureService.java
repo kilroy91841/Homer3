@@ -227,10 +227,11 @@ public class FullVultureService implements IFullVultureService {
     private void hydrateVulture(Vulture vulture) {
         vulture.setPlayer(playerService.getById(vulture.getPlayerId()));
         vulture.setDropPlayer(playerService.getById(vulture.getDropPlayerId()));
-        vulture.setVultureTeam(teamService.getTeamById(vulture.getTeamId()));
+        vulture.setVultureTeam(teamService.getById(vulture.getTeamId()));
     }
 
-    private void scheduleVulture(Vulture createdVulture) {
+    @Override
+    public void scheduleVulture(Vulture createdVulture) {
         Runnable runnable = () -> {
             try {
                 resolveVulture(createdVulture.getId());
