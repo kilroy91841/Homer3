@@ -32,7 +32,7 @@ public class FullPlayerServiceTest {
         playerSeasonService = mock(IPlayerSeasonService.class);
 
         when(playerService.createPlayer(any())).thenAnswer(x -> x.getArguments()[0]);
-        when(playerSeasonService.createPlayerSeason(1, LeagueUtil.SEASON)).thenReturn(new PlayerSeason());
+        when(playerSeasonService.createPlayerSeason(1, LeagueUtil.SEASON, false)).thenReturn(new PlayerSeason());
 
         service = new FullPlayerService(playerService, playerSeasonService);
     }
