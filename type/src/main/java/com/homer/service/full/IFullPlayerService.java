@@ -8,5 +8,8 @@ import com.homer.type.view.PlayerView;
  */
 public interface IFullPlayerService {
 
-    PlayerView createPlayer(Player player);
+    default PlayerView createPlayer(Player player) {
+        return createPlayer(player, false);
+    }
+    PlayerView createPlayer(Player player, boolean isMinorLeaguer);
 }

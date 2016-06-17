@@ -154,6 +154,12 @@ public class Vulture extends BaseObject {
         }
 
         Position position = playerSeason.getFantasyPosition();
+
+        //TODO when integration sets ab/ips, change this
+        if (playerSeason.getIsMinorLeaguer()) {
+            return false;
+        }
+
         if (
                 (position != Position.DISABLEDLIST && playerSeason.getMlbStatus() == Status.DISABLEDLIST) ||
                         (position != Position.MINORLEAGUES && playerSeason.getMlbStatus() == Status.MINORS) ||

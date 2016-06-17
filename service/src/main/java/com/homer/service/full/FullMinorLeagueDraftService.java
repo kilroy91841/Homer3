@@ -142,7 +142,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
             throw new IllegalMinorLeagueDraftPickException("Players can only be drafted via mlbPlayerId or name");
         }
         if (existingPlayer == null) {
-            existingPlayer = fullPlayerService.createPlayer(player);
+            existingPlayer = fullPlayerService.createPlayer(player, true);
         }
 
         return draftPlayerImpl(existingPlayer, minorLeaguePick, true);
