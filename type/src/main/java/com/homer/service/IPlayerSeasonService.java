@@ -38,7 +38,10 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
         return this.getActivePlayers(LeagueUtil.SEASON);
     }
 
-    PlayerSeason createPlayerSeason(long playerId, int season);
+    default PlayerSeason createPlayerSeason(long playerId, int season) {
+        return createPlayerSeason(playerId, season, false);
+    }
+    PlayerSeason createPlayerSeason(long playerId, int season, boolean isMinorLeaguer);
 
     PlayerSeason switchTeam(long playerId, int season, @Nullable Long oldTeamId, @Nullable Long newTeamId);
     PlayerSeason switchTeam(PlayerSeason existing, @Nullable Long oldTeamId, @Nullable Long newTeamId);

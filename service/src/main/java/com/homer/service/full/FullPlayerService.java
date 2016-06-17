@@ -28,9 +28,9 @@ public class FullPlayerService implements IFullPlayerService {
     }
 
     @Override
-    public PlayerView createPlayer(Player player) {
+    public PlayerView createPlayer(Player player, boolean isMinorLeaguer) {
         Player createdPlayer = playerService.createPlayer(player);
-        PlayerSeason playerSeason = playerSeasonService.createPlayerSeason(createdPlayer.getId(), LeagueUtil.SEASON);
+        PlayerSeason playerSeason = playerSeasonService.createPlayerSeason(createdPlayer.getId(), LeagueUtil.SEASON, isMinorLeaguer);
         PlayerView view = PlayerView.from(createdPlayer);
         PlayerSeasonView playerSeasonView = PlayerSeasonView.from(playerSeason);
         List<PlayerSeasonView> playerSeasons = Lists.newArrayList(playerSeasonView);

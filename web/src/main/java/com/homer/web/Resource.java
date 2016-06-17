@@ -303,6 +303,7 @@ public class Resource {
     public ApiResponse updateTeam(Team team) {
         try {
             Team updatedTeam = teamService.upsert(team);
+            gatherer.getFantasyTeamMap().put(updatedTeam.getId(), updatedTeam);
             return new ApiResponse("Team updated! Refresh to see the change", updatedTeam);
         } catch (Exception e) {
             return new ApiResponse(e.getMessage(), null);

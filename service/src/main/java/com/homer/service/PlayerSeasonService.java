@@ -28,7 +28,7 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
     }
 
     @Override
-    public PlayerSeason createPlayerSeason(long playerId, int season) {
+    public PlayerSeason createPlayerSeason(long playerId, int season, boolean isMinorLeaguer) {
         if (playerId == 0) {
             throw new IllegalArgumentException("Cannot create a player season for id 0");
         }
@@ -42,7 +42,7 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         playerSeason.setSeason(season);
         playerSeason.setKeeperSeason(0);
         playerSeason.setSalary(0);
-        playerSeason.setIsMinorLeaguer(false);
+        playerSeason.setIsMinorLeaguer(isMinorLeaguer);
         playerSeason.setMlbStatus(Status.UNKNOWN);
         playerSeason.setVulturable(false);
         return super.upsert(playerSeason);
