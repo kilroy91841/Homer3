@@ -1,6 +1,7 @@
 package com.homer.type;
 
 import com.google.common.base.Objects;
+import com.homer.util.core.ISchedulable;
 import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
@@ -11,7 +12,7 @@ import javax.persistence.Table;
  * Created by arigolub on 5/4/16.
  */
 @Table(name = "vultures", schema="homer")
-public class Vulture extends BaseObject {
+public class Vulture extends BaseObject implements ISchedulable {
 
     @Column(updatable = false)
     private long playerId;
@@ -24,7 +25,7 @@ public class Vulture extends BaseObject {
     private long teamId;
 
     @Column(updatable = false)
-    private DateTime expirationDateUTC;
+    private DateTime deadlineUTC;
 
     @Column
     private EventStatus vultureStatus;
@@ -47,13 +48,13 @@ public class Vulture extends BaseObject {
                 teamId == vulture.teamId &&
                 isCommisionerVulture == vulture.isCommisionerVulture &&
                 Objects.equal(dropPlayerId, vulture.dropPlayerId) &&
-                Objects.equal(expirationDateUTC, vulture.expirationDateUTC) &&
+                Objects.equal(deadlineUTC, vulture.deadlineUTC) &&
                 vultureStatus == vulture.vultureStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), playerId, dropPlayerId, teamId, expirationDateUTC, vultureStatus, isCommisionerVulture);
+        return Objects.hashCode(super.hashCode(), playerId, dropPlayerId, teamId, deadlineUTC, vultureStatus, isCommisionerVulture);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class Vulture extends BaseObject {
                 "playerId=" + playerId +
                 ", dropPlayerId=" + dropPlayerId +
                 ", teamId=" + teamId +
-                ", expirationDateUTC=" + expirationDateUTC +
+                ", expirationDateUTC=" + deadlineUTC +
                 ", vultureStatus=" + vultureStatus +
                 ", isCommisionerVulture=" + isCommisionerVulture +
                 "} " + super.toString();
@@ -93,12 +94,12 @@ public class Vulture extends BaseObject {
         this.teamId = teamId;
     }
 
-    public DateTime getExpirationDateUTC() {
-        return expirationDateUTC;
+    public DateTime getDeadlineUTC() {
+        return deadlineUTC;
     }
 
-    public void setExpirationDateUTC(DateTime expirationDateUTC) {
-        this.expirationDateUTC = expirationDateUTC;
+    public void setDeadlineUTC(DateTime deadlineUTC) {
+        this.deadlineUTC = deadlineUTC;
     }
 
     public EventStatus getVultureStatus() {

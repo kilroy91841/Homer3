@@ -10,6 +10,7 @@ import com.homer.service.full.FullVultureService;
 import com.homer.service.full.IFullVultureService;
 import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
+import com.homer.service.schedule.Scheduler;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Vulture;
 import com.homer.type.view.PlayerView;
@@ -42,7 +43,8 @@ public class VultureResource {
                 teamService,
                 playerService,
                 new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository()),
-                new AWSEmailService());
+                new AWSEmailService(),
+                new Scheduler());
 
         gatherer = new Gatherer(
                 playerService,

@@ -10,7 +10,6 @@ import com.homer.email.HtmlObject;
 import com.homer.email.HtmlTag;
 import com.homer.email.IEmailService;
 import com.homer.email.aws.AWSEmailService;
-import com.homer.exception.IllegalMinorLeagueDraftPickException;
 import com.homer.exception.LoginFailedException;
 import com.homer.external.common.IMLBClient;
 import com.homer.external.rest.mlb.MLBRestClient;
@@ -23,6 +22,8 @@ import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
 import com.homer.service.importer.IPlayerImporter;
 import com.homer.service.importer.PlayerImporter;
+import com.homer.service.schedule.IScheduler;
+import com.homer.service.schedule.Scheduler;
 import com.homer.type.*;
 import com.homer.type.view.*;
 import com.homer.util.LeagueUtil;
@@ -66,6 +67,7 @@ public class Resource {
     private IUserService userService;
     private IEmailService emailService;
     private IFullMinorLeagueDraftService minorLeagueDraftService;
+    private IScheduler scheduler;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -78,6 +80,7 @@ public class Resource {
         this.fullTeamService = new FullTeamService(playerSeasonService, teamService);
         this.userService = new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository());
         this.emailService = new AWSEmailService();
+        this.scheduler = new Scheduler();
 
         gatherer = new Gatherer(
                 playerService,
@@ -100,7 +103,7 @@ public class Resource {
         );
 
         minorLeagueDraftService = new FullMinorLeagueDraftService(gatherer, minorLeaguePickService, playerService, playerSeasonService,
-                new FullPlayerService(playerService, playerSeasonService), mlbClient, emailService, userService);
+                new FullPlayerService(playerService, playerSeasonService), mlbClient, emailService, userService, scheduler);
     }
 
     @GET
@@ -174,7 +177,7 @@ public class Resource {
     @GET
     public List<PlayerView> update40Man() {
         List<PlayerView> updatedPlayers = Lists.newArrayList();
-        Runnable runnable = Scheduler.update40ManRostersRunnable(playerImporter, x -> updatedPlayers.addAll(x));
+        Runnable runnable = SchedulingManager.update40ManRostersRunnable(playerImporter, x -> updatedPlayers.addAll(x));
         runnable.run();
         return updatedPlayers;
     }
@@ -184,7 +187,7 @@ public class Resource {
     @GET
     public List<PlayerView> updatePlayers() {
         List<PlayerView> updatedPlayers = Lists.newArrayList();
-        Runnable runnable = Scheduler.updatePlayersRunnable(playerImporter,
+        Runnable runnable = SchedulingManager.updatePlayersRunnable(playerImporter,
                 playerSeasonService, playerService,
                 x -> updatedPlayers.add(x));
         runnable.run();
@@ -310,4 +313,10 @@ public class Resource {
         }
     }
 
+    @Path("scheduled")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse getScheduled() {
+        return new ApiResponse("", scheduler.getAll());
+    }
 }

@@ -1,7 +1,6 @@
 package com.homer.service.full;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.homer.email.EmailRequest;
 import com.homer.email.HtmlObject;
 import com.homer.email.HtmlTag;
@@ -15,6 +14,7 @@ import com.homer.service.IPlayerService;
 import com.homer.service.auth.IUserService;
 import com.homer.service.auth.User;
 import com.homer.service.gather.IGatherer;
+import com.homer.service.schedule.IScheduler;
 import com.homer.type.MinorLeaguePick;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
@@ -34,10 +34,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by arigolub on 6/10/16.
@@ -50,9 +46,6 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
 
     private static final int MAX_MINOR_LEAGUERS = EnvironmentUtility.getInstance().getMaxMinorLeagueRosterSize();
 
-    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final static Map<Long, ScheduledFuture> inProgressPickMap = Maps.newHashMap();
-
     private IGatherer gatherer;
     private IMinorLeaguePickService minorLeaguePickService;
     private IFullPlayerService fullPlayerService;
@@ -61,11 +54,13 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
     private IMLBClient mlbClient;
     private IEmailService emailService;
     private IUserService userService;
+    private IScheduler scheduler;
 
     public FullMinorLeagueDraftService(IGatherer gatherer, IMinorLeaguePickService minorLeaguePickService,
                                        IPlayerService playerService, IPlayerSeasonService playerSeasonService,
                                        IFullPlayerService fullPlayerService, IMLBClient mlbClient,
-                                       IEmailService emailService, IUserService userService) {
+                                       IEmailService emailService, IUserService userService,
+                                       IScheduler scheduler) {
         this.gatherer = gatherer;
         this.minorLeaguePickService = minorLeaguePickService;
         this.playerService = playerService;
@@ -74,6 +69,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         this.mlbClient = mlbClient;
         this.emailService = emailService;
         this.userService = userService;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -177,7 +173,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
 
         sendEmail(composePlayerDraftedEmail(minorLeaguePick));
 
-        cancelAndRemoveFuture(minorLeaguePick);
+        scheduler.cancel(MinorLeaguePick.class, minorLeaguePick.getId());
 
         return minorLeaguePick;
     }
@@ -192,7 +188,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         if (pick.getPlayerId() == null) {
             pick.setIsSkipped(true);
         }
-        pick.setDeadlineUtc(null);
+        pick.setDeadlineUTC(null);
         MinorLeaguePickView view = MinorLeaguePickView.from(minorLeaguePickService.upsert(pick));
         view.setOriginalTeam(gatherer.getFantasyTeamMap().get(view.getOriginalTeamId()));
         view.setOwningTeam(gatherer.getFantasyTeamMap().get(view.getOwningTeamId()));
@@ -209,12 +205,10 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         if (nextPick == null) {
             return null;
         }
-        nextPick.setDeadlineUtc(DateTime.now(DateTimeZone.UTC).plusMinutes(EnvironmentUtility.getInstance().getDraftPickExpirationMinutes()));
+        nextPick.setDeadlineUTC(DateTime.now(DateTimeZone.UTC).plusMinutes(EnvironmentUtility.getInstance().getDraftPickExpirationMinutes()));
         nextPick = minorLeaguePickService.upsert(nextPick);
 
-        ScheduledFuture future = scheduler.schedule(getRunnable(nextPick),
-                nextPick.getDeadlineUtc().getMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-        inProgressPickMap.put(nextPick.getId(), future);
+        scheduler.schedule(nextPick, getRunnable(nextPick));
 
         MinorLeaguePickView nextPickView = MinorLeaguePickView.from(nextPick);
         nextPickView.setOwningTeam(gatherer.getFantasyTeamMap().get(nextPick.getOwningTeamId()));
@@ -252,25 +246,23 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
 
             minorLeaguePick.setIsSkipped(null);
             minorLeaguePick.setPlayerId(null);
-            minorLeaguePick.setDeadlineUtc(null);
+            minorLeaguePick.setDeadlineUTC(null);
 
             minorLeaguePickService.upsert(minorLeaguePick);
 
-            cancelAndEmptyAllFutures();
+            scheduler.cancelAll(MinorLeaguePick.class);
 
             MinorLeaguePickView pickView = MinorLeaguePickView.from(minorLeaguePick);
             pickView.setOwningTeam(gatherer.getFantasyTeamMap().get(minorLeaguePick.getOwningTeamId()));
             sendEmail(composePickUndoneEmail(pickView));
         } else if (view.getReschedulePick()) {
-            minorLeaguePick.setDeadlineUtc(view.getDeadlineUtc());
+            minorLeaguePick.setDeadlineUTC(view.getDeadlineUTC());
 
-            cancelAndEmptyAllFutures();
+            scheduler.cancelAll(MinorLeaguePick.class);
 
             minorLeaguePickService.upsert(minorLeaguePick);
 
-            ScheduledFuture future = scheduler.schedule(getRunnable(minorLeaguePick),
-                    minorLeaguePick.getDeadlineUtc().getMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-            inProgressPickMap.put(minorLeaguePick.getId(), future);
+            scheduler.schedule(minorLeaguePick, getRunnable(minorLeaguePick));
 
             MinorLeaguePickView pickView = MinorLeaguePickView.from(minorLeaguePick);
             pickView.setOwningTeam(gatherer.getFantasyTeamMap().get(minorLeaguePick.getOwningTeamId()));
@@ -278,7 +270,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         } else if (view.getSkipPick()) {
             skipPickImpl(minorLeaguePick);
         } else if (view.getStopSkipper()) {
-            cancelAndEmptyAllFutures();
+            scheduler.cancelAll(MinorLeaguePick.class);
         } else if (view.getSwapPicks()) {
             if (view.getPickId1() == null || view.getPickId2() == null) {
                 throw new Exception("One of pick ids to swap was missing");
@@ -299,21 +291,6 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         }
 
         return getMinorLeagueDraft(LeagueUtil.SEASON);
-    }
-
-    private static void cancelAndRemoveFuture(MinorLeaguePick minorLeaguePick) {
-        ScheduledFuture future = inProgressPickMap.get(minorLeaguePick.getId());
-        if (future != null) {
-            future.cancel(false);
-            inProgressPickMap.remove(minorLeaguePick.getId());
-        }
-    }
-
-    private static void cancelAndEmptyAllFutures() {
-        for (ScheduledFuture future : inProgressPickMap.values()) {
-            future.cancel(false);
-        }
-        inProgressPickMap.clear();
     }
 
     private Runnable getRunnable(MinorLeaguePick nextPick) {
@@ -353,7 +330,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
                 .child(
                         HtmlObject.of(HtmlTag.DIV).body(subject));
         htmlObject.child(
-                HtmlObject.of(HtmlTag.DIV).body("The new deadline for this pick is " + pick.getDeadlineUtc().withZone(DateTimeZone.getDefault()).toString(dateTimeFormatter))
+                HtmlObject.of(HtmlTag.DIV).body("The new deadline for this pick is " + pick.getDeadlineUTC().withZone(DateTimeZone.getDefault()).toString(dateTimeFormatter))
         );
         htmlObject.child(linkObject());
         return new EmailRequest(null, subject, htmlObject);
@@ -374,8 +351,8 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
     private static void addNextPickObject(HtmlObject htmlObject, MinorLeaguePickView pick) {
         if (pick.getNextPick() != null) {
             String nextPickMessage = pick.getNextPick().getOwningTeam().getName() + " is up next. ";
-            if (pick.getNextPick().getDeadlineUtc() != null) {
-                nextPickMessage += "The deadline for their pick is " + pick.getNextPick().getDeadlineUtc().withZone(DateTimeZone.getDefault()).toString(dateTimeFormatter);
+            if (pick.getNextPick().getDeadlineUTC() != null) {
+                nextPickMessage += "The deadline for their pick is " + pick.getNextPick().getDeadlineUTC().withZone(DateTimeZone.getDefault()).toString(dateTimeFormatter);
             }
             htmlObject.child(
                     HtmlObject.of(HtmlTag.DIV).body(nextPickMessage)
