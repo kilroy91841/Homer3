@@ -9,7 +9,10 @@ import com.homer.service.IPlayerService;
 import com.homer.service.ITeamService;
 import com.homer.service.IVultureService;
 import com.homer.service.auth.IUserService;
+import com.homer.service.schedule.IScheduler;
+import com.homer.service.schedule.Scheduler;
 import com.homer.type.*;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,6 +31,7 @@ import static org.mockito.Mockito.*;
  */
 public class FullVultureServiceTest {
 
+    private IScheduler scheduler;
     private FullVultureService service;
     private IVultureService vultureService;
     private IPlayerSeasonService playerSeasonService;
@@ -45,7 +49,7 @@ public class FullVultureServiceTest {
 
     @Before
     public void setup() {
-        FullVultureService.getInProgressVultureMap().clear();
+        scheduler = mock(Scheduler.class);
 
         playerSeasonService = mock(IPlayerSeasonService.class);
         when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> {
@@ -115,7 +119,7 @@ public class FullVultureServiceTest {
         });
 
         service = new FullVultureService(vultureService, playerSeasonService, teamService, playerService,
-                userService, mock(IEmailService.class));
+                userService, mock(IEmailService.class), scheduler);
     }
 
     @Test(expected = NotVulturableException.class)
@@ -138,28 +142,23 @@ public class FullVultureServiceTest {
         assertEquals(teamId, (Long)vulture.getTeamId());
         assertTrue(vulture.getIsCommisionerVulture());
         assertEquals(EventStatus.IN_PROGRESS, vulture.getVultureStatus());
-        assertNotNull(vulture.getExpirationDateUTC());
+        assertNotNull(vulture.getDeadlineUTC());
 
-        assertTrue(FullVultureService.getInProgressVultureMap().size() == 1);
+        verify(scheduler, times(1)).schedule(eq(vulture), any(Runnable.class));
     }
 
     @Test
     public void test_ResolveForPlayerNotVulturable() {
-        FullVultureService.getInProgressVultureMap().put(VULTURE_NOT_VULTURABLE_PLAYER, null);
-
         Vulture resolvedVulture = service.resolveVulture(VULTURE_NOT_VULTURABLE_PLAYER);
         assertEquals(VULTURE_NOT_VULTURABLE_PLAYER, (Long)resolvedVulture.getId());
         assertEquals(EventStatus.FIXED, resolvedVulture.getVultureStatus());
 
         verify(playerSeasonService, never()).switchTeam(anyLong(), anyInt(), any(), any());
-
-        assertTrue(FullVultureService.getInProgressVultureMap().size() == 0);
+        verify(scheduler, times(1)).cancel(Vulture.class, VULTURE_NOT_VULTURABLE_PLAYER);
     }
 
     @Test
     public void test_ResolvePlayerVulturable() {
-        FullVultureService.getInProgressVultureMap().put(VULTURE_VULTURABLE_PLAYER, null);
-
         Vulture resolvedVulture = service.resolveVulture(VULTURE_VULTURABLE_PLAYER);
         assertEquals(VULTURE_VULTURABLE_PLAYER, (Long)resolvedVulture.getId());
         assertEquals(EventStatus.SUCCESSFUL, resolvedVulture.getVultureStatus());
@@ -175,8 +174,7 @@ public class FullVultureServiceTest {
 
         verify(playerSeasonService, times(1)).upsert(playerSeason);
         verify(playerSeasonService, times(1)).upsert(dropPlayerSeason);
-
-        assertTrue(FullVultureService.getInProgressVultureMap().size() == 0);
+        verify(scheduler, times(1)).cancel(Vulture.class, VULTURE_VULTURABLE_PLAYER);
     }
 
     @Test
@@ -186,14 +184,10 @@ public class FullVultureServiceTest {
 
     @Test
     public void test_MarkInProgressVultureAsFixed_VultureExists() {
-        ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
-        when(scheduledFuture.isDone()).thenReturn(false);
-        when(scheduledFuture.isCancelled()).thenReturn(false);
-        when(scheduledFuture.cancel(false)).thenReturn(true);
-        FullVultureService.getInProgressVultureMap().put(VULTURE_VULTURABLE_PLAYER, scheduledFuture);
+        when(scheduler.cancel(Vulture.class, VULTURE_VULTURABLE_PLAYER)).thenReturn(true);
 
         assertTrue(service.markInProgressVultureForPlayerAsFixed(EXISTING_VULTURE_PLAYER));
 
-        assertTrue(FullVultureService.getInProgressVultureMap().size() == 0);
+        verify(scheduler, times(1)).cancel(Vulture.class, VULTURE_VULTURABLE_PLAYER);
     }
 }

@@ -1,15 +1,5 @@
 package com.homer.web;
 
-import com.homer.data.PlayerRepository;
-import com.homer.data.PlayerSeasonRepository;
-import com.homer.external.rest.mlb.MLBRestClient;
-import com.homer.service.PlayerSeasonService;
-import com.homer.service.PlayerService;
-import com.homer.service.importer.IPlayerImporter;
-import com.homer.service.importer.PlayerImporter;
-import com.homer.type.MLBTeam;
-import com.homer.type.Player;
-import com.homer.type.Team;
 import com.homer.util.EnvironmentUtility;
 import com.homer.web.filter.AuthFilter;
 import com.homer.web.flyway.Migrate;
@@ -31,8 +21,8 @@ public class MyApp  {
             Migrate.doWork();
         }
 
-        Scheduler scheduler = new Scheduler();
-        scheduler.run();
+        SchedulingManager schedulingManager = new SchedulingManager();
+        schedulingManager.run();
 
         String port = envUtil.getInstancePort();
         String uri = "http://0.0.0.0:" + port;

@@ -15,6 +15,7 @@ import com.homer.service.ITeamService;
 import com.homer.service.IVultureService;
 import com.homer.service.auth.IUserService;
 import com.homer.service.auth.User;
+import com.homer.service.schedule.IScheduler;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Vulture;
 import com.homer.type.EventStatus;
@@ -48,20 +49,19 @@ public class FullVultureService implements IFullVultureService {
     private IPlayerSeasonService playerSeasonService;
     private IUserService userService;
     private IEmailService emailService;
-
-    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-    private final static Map<Long, ScheduledFuture> inProgressVultureMap = Maps.newHashMap();
+    private IScheduler scheduler;
 
     public FullVultureService(IVultureService vultureService, IPlayerSeasonService playerSeasonService,
                               ITeamService teamService, IPlayerService playerService,
-                              IUserService userService, IEmailService emailService) {
+                              IUserService userService, IEmailService emailService,
+                              IScheduler scheduler) {
         this.vultureService = vultureService;
         this.playerSeasonService = playerSeasonService;
         this.teamService = teamService;
         this.playerService = playerService;
         this.userService = userService;
         this.emailService = emailService;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class FullVultureService implements IFullVultureService {
         vulture.setPlayerId(playerId);
         vulture.setDropPlayerId(dropPlayerId);
         vulture.setTeamId(vultureTeamId);
-        vulture.setExpirationDateUTC(
+        vulture.setDeadlineUTC(
                 DateTime.now(DateTimeZone.UTC).plusMinutes(
                         EnvironmentUtility.getInstance().getVultureExpirationMinutes()));
         vulture.setVultureStatus(EventStatus.IN_PROGRESS);
@@ -111,14 +111,14 @@ public class FullVultureService implements IFullVultureService {
     public Vulture resolveVulture(long id) {
         Vulture vulture = vultureService.getById(id);
         if (vulture == null) {
-            inProgressVultureMap.remove(id);
+            scheduler.cancel(Vulture.class, id);
             throw new IllegalArgumentException("Could not find vulture for id " + id);
         }
 
         long playerId = vulture.getPlayerId();
         PlayerSeason playerSeason = playerSeasonService.getCurrentPlayerSeason(playerId);
         if (playerSeason == null) {
-            inProgressVultureMap.remove(id);
+            scheduler.cancel(Vulture.class, id);
             markVultureAsErrorAndThrow(vulture, "Could not find player season for " + playerId);
         }
 
@@ -137,7 +137,7 @@ public class FullVultureService implements IFullVultureService {
             sendVultureFailureEmail(vulture, playerSeason);
         }
 
-        inProgressVultureMap.remove(id);
+        scheduler.cancel(Vulture.class, id);
         return vultureService.upsert(vulture);
     }
 
@@ -151,21 +151,11 @@ public class FullVultureService implements IFullVultureService {
         existingVulture.setVultureStatus(EventStatus.FIXED);
         vultureService.upsert(existingVulture);
 
-        ScheduledFuture future = inProgressVultureMap.get(existingVulture.getId());
-        if (future == null) {
-            logErrorAndThrow("Future not found for vulture " + existingVulture.getId());
-        }
-
-        if (future.isDone()) {
-            logger.info("Vulture " + existingVulture.getId() + " is finished, removing from map");
-            inProgressVultureMap.remove(existingVulture.getId());
-            return true;
-        }
-
-        boolean cancelled = future.cancel(false);
+        boolean cancelled = scheduler.cancel(Vulture.class, existingVulture.getId());
         if (cancelled) {
             logger.info("Vulture " + existingVulture.getId() + " is cancelled, removing from map");
-            inProgressVultureMap.remove(existingVulture.getId());
+        } else {
+            logger.info("Vulture " + existingVulture.getId() + " attempt to cancel failed");
         }
 
         logger.info("Attempted to cancel vulture " + existingVulture.getId() + ", successful? " + cancelled);
@@ -187,11 +177,6 @@ public class FullVultureService implements IFullVultureService {
         List<PlayerSeason> vulturablePlayerSeasons = playerSeasonService.getVulturablePlayerSeasons();
         Map<Long, Vulture> inProgressVultures = $.of(getInProgressVultures()).toMap(Vulture::getPlayerId);
         return $.of(vulturablePlayerSeasons).filterToList(ps -> !inProgressVultures.containsKey(ps.getPlayerId()));
-    }
-
-
-    public static Map<Long, ScheduledFuture> getInProgressVultureMap() {
-        return inProgressVultureMap;
     }
 
     private void movePlayersForSuccessfulVulture(Vulture vulture, PlayerSeason playerSeason) {
@@ -239,11 +224,7 @@ public class FullVultureService implements IFullVultureService {
                 logger.error("Error resolving vulture: " + e.getMessage());
             }
         };
-        ScheduledFuture future = scheduler.schedule(runnable,
-                createdVulture.getExpirationDateUTC().getMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-        logger.info("Vulture " + createdVulture.getId() + " scheduled for " + future.getDelay(TimeUnit.MINUTES) + " minutes in future " +
-                "(1440 = 1 day )");
-        inProgressVultureMap.put(createdVulture.getId(), future);
+        scheduler.schedule(createdVulture, runnable);
     }
 
     private void sendVultureEmail(Vulture vulture, PlayerSeason playerSeason) {

@@ -1,23 +1,20 @@
 package com.homer.type;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
-import com.homer.util.HomerBeanUtil;
+import com.homer.util.core.ISchedulable;
 import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 /**
  * Created by arigolub on 2/14/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "minor_league_picks", schema = "homer")
-public class MinorLeaguePick extends BaseObject {
+public class MinorLeaguePick extends BaseObject implements ISchedulable {
 
     @Column(updatable = false)
     private int season;
@@ -54,7 +51,7 @@ public class MinorLeaguePick extends BaseObject {
 
     @Nullable
     @Column
-    private DateTime deadlineUtc;
+    private DateTime deadlineUTC;
 
     @Override
     public boolean equals(Object o) {
@@ -71,12 +68,12 @@ public class MinorLeaguePick extends BaseObject {
                 Objects.equal(playerId, that.playerId) &&
                 Objects.equal(isSkipped, that.isSkipped) &&
                 Objects.equal(note, that.note) &&
-                Objects.equal(deadlineUtc, that.deadlineUtc);
+                Objects.equal(deadlineUTC, that.deadlineUTC);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), season, originalTeamId, owningTeamId, swapTeamId, round, overallPick, playerId, isSkipped, note, deadlineUtc);
+        return Objects.hashCode(super.hashCode(), season, originalTeamId, owningTeamId, swapTeamId, round, overallPick, playerId, isSkipped, note, deadlineUTC);
     }
 
     @Override
@@ -91,7 +88,7 @@ public class MinorLeaguePick extends BaseObject {
                 ", playerId=" + playerId +
                 ", isSkipped=" + isSkipped +
                 ", note='" + note + '\'' +
-                ", deadlineUtc=" + deadlineUtc +
+                ", deadlineUtc=" + deadlineUTC +
                 "} " + super.toString();
     }
 
@@ -164,12 +161,12 @@ public class MinorLeaguePick extends BaseObject {
     }
 
     @Nullable
-    public DateTime getDeadlineUtc() {
-        return deadlineUtc;
+    public DateTime getDeadlineUTC() {
+        return deadlineUTC;
     }
 
-    public void setDeadlineUtc(@Nullable  DateTime deadlineUtc) {
-        this.deadlineUtc = deadlineUtc;
+    public void setDeadlineUTC(@Nullable  DateTime deadlineUTC) {
+        this.deadlineUTC = deadlineUTC;
     }
 
     @Nullable

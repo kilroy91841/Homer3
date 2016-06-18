@@ -1,6 +1,7 @@
 package com.homer.type;
 
 import com.google.common.base.Objects;
+import com.homer.util.core.ISchedulable;
 import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
@@ -11,14 +12,14 @@ import javax.persistence.Table;
  * Created by arigolub on 5/7/16.
  */
 @Table(name = "free_agent_auctions", schema = "homer")
-public class FreeAgentAuction extends BaseObject {
+public class FreeAgentAuction extends BaseObject implements ISchedulable {
 
     @Column
     @Nullable
     private Long playerId;
 
     @Column(updatable = false)
-    private DateTime expirationDateUTC;
+    private DateTime deadlineUTC;
 
     @Column(updatable = false)
     private int season;
@@ -56,7 +57,7 @@ public class FreeAgentAuction extends BaseObject {
         if (!super.equals(o)) return false;
         FreeAgentAuction that = (FreeAgentAuction) o;
         return Objects.equal(playerId, that.playerId) &&
-                Objects.equal(expirationDateUTC, that.expirationDateUTC) &&
+                Objects.equal(deadlineUTC, that.deadlineUTC) &&
                 auctionStatus == that.auctionStatus &&
                 Objects.equal(winningTeamId, that.winningTeamId) &&
                 Objects.equal(winningAmount, that.winningAmount) &&
@@ -67,14 +68,14 @@ public class FreeAgentAuction extends BaseObject {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), playerId, expirationDateUTC, auctionStatus, winningTeamId, winningAmount, season, requestingTeam, requestedPlayerName);
+        return Objects.hashCode(super.hashCode(), playerId, deadlineUTC, auctionStatus, winningTeamId, winningAmount, season, requestingTeam, requestedPlayerName);
     }
 
     @Override
     public String toString() {
         return "FreeAgentAuction{" +
                 "playerId=" + playerId +
-                ", expirationDateUTC=" + expirationDateUTC +
+                ", expirationDateUTC=" + deadlineUTC +
                 ", auctionStatus=" + auctionStatus +
                 ", winningTeamId=" + winningTeamId +
                 ", winningAmount=" + winningAmount +
@@ -97,12 +98,12 @@ public class FreeAgentAuction extends BaseObject {
         this.playerId = playerId;
     }
 
-    public DateTime getExpirationDateUTC() {
-        return expirationDateUTC;
+    public DateTime getDeadlineUTC() {
+        return deadlineUTC;
     }
 
-    public void setExpirationDateUTC(DateTime expirationDateUTC) {
-        this.expirationDateUTC = expirationDateUTC;
+    public void setDeadlineUTC(DateTime deadlineUTC) {
+        this.deadlineUTC = deadlineUTC;
     }
 
     public int getSeason() {

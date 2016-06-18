@@ -10,6 +10,7 @@ import com.homer.service.full.FullVultureService;
 import com.homer.service.full.IFullVultureService;
 import com.homer.service.importer.IPlayerImporter;
 import com.homer.service.importer.PlayerImporter;
+import com.homer.service.schedule.Scheduler;
 import com.homer.type.MLBTeam;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
@@ -30,11 +31,11 @@ import org.slf4j.*;
 /**
  * Created by arigolub on 4/28/16.
  */
-public class Scheduler {
+public class SchedulingManager {
 
-    final static Logger logger = LoggerFactory.getLogger(Scheduler.class);
+    final static Logger logger = LoggerFactory.getLogger(SchedulingManager.class);
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
     private IPlayerImporter playerImporter;
     private IPlayerSeasonService playerSeasonService;
@@ -42,7 +43,7 @@ public class Scheduler {
     private IFullVultureService fullVultureService;
     private EnvironmentUtility envUtil;
 
-    public Scheduler() {
+    public SchedulingManager() {
         envUtil = EnvironmentUtility.getInstance();
         playerService = new PlayerService(new PlayerRepository());
         playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
@@ -58,7 +59,8 @@ public class Scheduler {
                 new TeamService(new TeamRepository()),
                 playerService,
                 new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository()),
-                new AWSEmailService());
+                new AWSEmailService(),
+                new Scheduler());
     }
 
     public void run() {
