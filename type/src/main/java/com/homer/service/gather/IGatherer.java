@@ -17,8 +17,6 @@ import java.util.Map;
  */
 public interface IGatherer {
 
-    Map<Long, Team> getFantasyTeamMap();
-
     //region players
 
     List<PlayerView> gatherPlayers();

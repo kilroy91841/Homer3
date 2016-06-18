@@ -19,8 +19,6 @@ import java.util.Map;
  */
 public class Gatherer implements IGatherer {
 
-    private static Map<Long, Team> FANTASY_TEAM_MAP;
-
     private final IPlayerService playerService;
     private final ITeamService teamService;
     private final IPlayerSeasonService playerSeasonService;
@@ -39,13 +37,6 @@ public class Gatherer implements IGatherer {
         this.minorLeaguePickService = minorLeaguePickService;
         this.tradeService = tradeService;
         this.tradeElementService = tradeElementService;
-
-        FANTASY_TEAM_MAP = $.of(teamService.getTeams()).toIdMap();
-    }
-
-    @Override
-    public Map<Long, Team> getFantasyTeamMap() {
-        return FANTASY_TEAM_MAP;
     }
 
     @Override
@@ -83,11 +74,11 @@ public class Gatherer implements IGatherer {
     public List<TeamView> gatherTeamsByIds(Collection<Long> teamIds) {
         List<TeamView> teamViews = Lists.newArrayList();
 
-        List<Team> teams = $.of(FANTASY_TEAM_MAP.values()).filterToList(t -> teamIds.contains(t.getId()));
+        List<Team> teams = $.of(teamService.getFantasyTeamMap().values()).filterToList(t -> teamIds.contains(t.getId()));
         List<PlayerSeason> playerSeasons = playerSeasonService.getPlayerSeasonsByTeamIds(teamIds, LeagueUtil.SEASON);
         List<Player> players = playerService.getByIds($.of(playerSeasons).toList(PlayerSeason::getPlayerId));
         List<DraftDollar> draftDollars = draftDollarService.getDraftDollarsByTeams(teamIds);
-        List<MinorLeaguePick> minorLeaguePicks = minorLeaguePickService.getMinorLeaguePicksByTeams(teamIds);
+        List<MinorLeaguePick> minorLeaguePicks = minorLeaguePickService.getMinorLeaguePicksByTeams(teamIds, false);
         List<Trade> trades = tradeService.getTradesByTeamIds(teamIds);
 
         List<PlayerView> playerViews = hydratePlayerViews(players, playerSeasons);
@@ -106,7 +97,7 @@ public class Gatherer implements IGatherer {
             tv.setMajorLeaguers($.of(playersForTeam).filterToList(p -> p.getCurrentSeason().getFantasyPosition() != Position.MINORLEAGUES));
             tv.setMinorLeaguers($.of(playersForTeam).filterToList(p -> p.getCurrentSeason().getFantasyPosition() == Position.MINORLEAGUES));
             int salary = $.of(tv.getMajorLeaguers())
-                    .filter(pv -> pv.getPosition() != Position.DISABLEDLIST)
+                    .filter(pv -> pv.getCurrentSeason().getFantasyPosition() != Position.DISABLEDLIST)
                     .reduceToInt(pv -> pv.getCurrentSeason().getSalary());
             tv.setSalary(salary);
             tv.setDraftDollars($.of(teamToDraftDollars.get(t.getId())).toList());
@@ -140,8 +131,8 @@ public class Gatherer implements IGatherer {
         playerSeasons.forEach(ps -> {
             PlayerSeasonView psv = PlayerSeasonView.from(ps);
             psv.setPlayer(player);
-            psv.setTeam(FANTASY_TEAM_MAP.get(psv.getTeamId()));
-            psv.setKeeperTeam(FANTASY_TEAM_MAP.get(psv.getKeeperTeamId()));
+            psv.setTeam(teamService.getFantasyTeamMap().get(psv.getTeamId()));
+            psv.setKeeperTeam(teamService.getFantasyTeamMap().get(psv.getKeeperTeamId()));
             playerSeasonViews.add(psv);
         });
         return playerSeasonViews;
@@ -151,7 +142,7 @@ public class Gatherer implements IGatherer {
         List<DraftDollarView> draftDollarViews = Lists.newArrayList();
         draftDollars.forEach(dd -> {
             DraftDollarView ddv = DraftDollarView.from(dd);
-            ddv.setTeam(FANTASY_TEAM_MAP.get(dd.getTeamId()));
+            ddv.setTeam(teamService.getFantasyTeamMap().get(dd.getTeamId()));
             draftDollarViews.add(ddv);
         });
         return draftDollarViews;
@@ -163,10 +154,10 @@ public class Gatherer implements IGatherer {
         Map<Long, Player> minorLeaguePickPlayerMap = $.of(minorLeaguePickPlayers).toIdMap();
         minorLeaguePicks.forEach(mlp -> {
             MinorLeaguePickView mlpv = MinorLeaguePickView.from(mlp);
-            mlpv.setOriginalTeam(FANTASY_TEAM_MAP.get(mlpv.getOriginalTeamId()));
-            mlpv.setOwningTeam(FANTASY_TEAM_MAP.get(mlpv.getOwningTeamId()));
+            mlpv.setOriginalTeam(teamService.getFantasyTeamMap().get(mlpv.getOriginalTeamId()));
+            mlpv.setOwningTeam(teamService.getFantasyTeamMap().get(mlpv.getOwningTeamId()));
             if(mlpv.getSwapTeamId() != null) {
-                mlpv.setSwapTeam(FANTASY_TEAM_MAP.get(mlpv.getSwapTeamId()));
+                mlpv.setSwapTeam(teamService.getFantasyTeamMap().get(mlpv.getSwapTeamId()));
             }
             if(mlpv.getPlayerId() != null) {
                 mlpv.setPlayerView(PlayerView.from(minorLeaguePickPlayerMap.get(mlpv.getPlayerId())));
@@ -192,8 +183,8 @@ public class Gatherer implements IGatherer {
         Map<Long, DraftDollar> draftDollarMap = $.of(draftDollars).toIdMap();
 
         trades.forEach(t -> {
-            t.setTeam1(FANTASY_TEAM_MAP.get(t.getTeam1Id()));
-            t.setTeam2(FANTASY_TEAM_MAP.get(t.getTeam2Id()));
+            t.setTeam1(teamService.getFantasyTeamMap().get(t.getTeam1Id()));
+            t.setTeam2(teamService.getFantasyTeamMap().get(t.getTeam2Id()));
 
             List<TradeElement> tradeElements = $.of(tradeElementMap.get(t.getId())).toList();
             tradeElements.forEach(te -> {

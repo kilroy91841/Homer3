@@ -18,8 +18,6 @@ public class FreeAgentAuctionBid extends BaseObject {
     @Column
     private int amount;
 
-    private Team team;
-
     public long getFreeAgentAuctionId() {
         return freeAgentAuctionId;
     }
@@ -42,13 +40,5 @@ public class FreeAgentAuctionBid extends BaseObject {
 
     public void setAmount(int amount) {
         this.amount = amount;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
     }
 }

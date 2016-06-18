@@ -18,6 +18,7 @@ public enum EventStatus implements IIntEnum<EventStatus> {
     COMPLETE(6, "Complete"),
     REQUESTED(7, "Requested"),
     DENIED(8, "Denied"),
+    CANCELLED(9, "Cancelled"),
     ;
 
     private final int id;

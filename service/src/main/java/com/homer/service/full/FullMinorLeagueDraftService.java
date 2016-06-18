@@ -11,6 +11,7 @@ import com.homer.external.common.mlb.MLBPlayer;
 import com.homer.service.IMinorLeaguePickService;
 import com.homer.service.IPlayerSeasonService;
 import com.homer.service.IPlayerService;
+import com.homer.service.ITeamService;
 import com.homer.service.auth.IUserService;
 import com.homer.service.auth.User;
 import com.homer.service.gather.IGatherer;
@@ -55,12 +56,13 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
     private IEmailService emailService;
     private IUserService userService;
     private IScheduler scheduler;
+    private ITeamService teamService;
 
     public FullMinorLeagueDraftService(IGatherer gatherer, IMinorLeaguePickService minorLeaguePickService,
                                        IPlayerService playerService, IPlayerSeasonService playerSeasonService,
                                        IFullPlayerService fullPlayerService, IMLBClient mlbClient,
                                        IEmailService emailService, IUserService userService,
-                                       IScheduler scheduler) {
+                                       ITeamService teamService, IScheduler scheduler) {
         this.gatherer = gatherer;
         this.minorLeaguePickService = minorLeaguePickService;
         this.playerService = playerService;
@@ -70,6 +72,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         this.emailService = emailService;
         this.userService = userService;
         this.scheduler = scheduler;
+        this.teamService = teamService;
     }
 
     @Override
@@ -84,9 +87,9 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         for (MinorLeaguePick pick : minorLeaguePicks) {
             MinorLeaguePickView view = MinorLeaguePickView.from(pick);
             view.setPlayerView(playerViews.get(view.getPlayerId()));
-            view.setOwningTeam(gatherer.getFantasyTeamMap().get(pick.getOwningTeamId()));
-            view.setOriginalTeam(gatherer.getFantasyTeamMap().get(pick.getOriginalTeamId()));
-            view.setSwapTeam(gatherer.getFantasyTeamMap().get(pick.getSwapTeamId()));
+            view.setOwningTeam(teamService.getFantasyTeamMap().get(pick.getOwningTeamId()));
+            view.setOriginalTeam(teamService.getFantasyTeamMap().get(pick.getOriginalTeamId()));
+            view.setSwapTeam(teamService.getFantasyTeamMap().get(pick.getSwapTeamId()));
             minorLeaguePickViews.add(view);
         }
 
@@ -190,9 +193,9 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         }
         pick.setDeadlineUTC(null);
         MinorLeaguePickView view = MinorLeaguePickView.from(minorLeaguePickService.upsert(pick));
-        view.setOriginalTeam(gatherer.getFantasyTeamMap().get(view.getOriginalTeamId()));
-        view.setOwningTeam(gatherer.getFantasyTeamMap().get(view.getOwningTeamId()));
-        view.setSwapTeam(gatherer.getFantasyTeamMap().get(view.getSwapTeamId()));
+        view.setOriginalTeam(teamService.getFantasyTeamMap().get(view.getOriginalTeamId()));
+        view.setOwningTeam(teamService.getFantasyTeamMap().get(view.getOwningTeamId()));
+        view.setSwapTeam(teamService.getFantasyTeamMap().get(view.getSwapTeamId()));
         view.setNextPick(setupNextPick(view));
 
         sendEmail(composePickSkippedEmail(view));
@@ -211,9 +214,9 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         scheduler.schedule(nextPick, getRunnable(nextPick));
 
         MinorLeaguePickView nextPickView = MinorLeaguePickView.from(nextPick);
-        nextPickView.setOwningTeam(gatherer.getFantasyTeamMap().get(nextPick.getOwningTeamId()));
-        nextPickView.setOriginalTeam(gatherer.getFantasyTeamMap().get(nextPick.getOriginalTeamId()));
-        nextPickView.setSwapTeam(gatherer.getFantasyTeamMap().get(nextPick.getSwapTeamId()));
+        nextPickView.setOwningTeam(teamService.getFantasyTeamMap().get(nextPick.getOwningTeamId()));
+        nextPickView.setOriginalTeam(teamService.getFantasyTeamMap().get(nextPick.getOriginalTeamId()));
+        nextPickView.setSwapTeam(teamService.getFantasyTeamMap().get(nextPick.getSwapTeamId()));
         return nextPickView;
     }
 
@@ -253,7 +256,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
             scheduler.cancelAll(MinorLeaguePick.class);
 
             MinorLeaguePickView pickView = MinorLeaguePickView.from(minorLeaguePick);
-            pickView.setOwningTeam(gatherer.getFantasyTeamMap().get(minorLeaguePick.getOwningTeamId()));
+            pickView.setOwningTeam(teamService.getFantasyTeamMap().get(minorLeaguePick.getOwningTeamId()));
             sendEmail(composePickUndoneEmail(pickView));
         } else if (view.getReschedulePick()) {
             minorLeaguePick.setDeadlineUTC(view.getDeadlineUTC());
@@ -265,7 +268,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
             scheduler.schedule(minorLeaguePick, getRunnable(minorLeaguePick));
 
             MinorLeaguePickView pickView = MinorLeaguePickView.from(minorLeaguePick);
-            pickView.setOwningTeam(gatherer.getFantasyTeamMap().get(minorLeaguePick.getOwningTeamId()));
+            pickView.setOwningTeam(teamService.getFantasyTeamMap().get(minorLeaguePick.getOwningTeamId()));
             sendEmail(composePickRescheduledEmail(pickView));
         } else if (view.getSkipPick()) {
             skipPickImpl(minorLeaguePick);

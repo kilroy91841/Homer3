@@ -15,10 +15,9 @@ import javax.persistence.Table;
 public class FreeAgentAuction extends BaseObject implements ISchedulable {
 
     @Column
-    @Nullable
-    private Long playerId;
+    private long playerId;
 
-    @Column(updatable = false)
+    @Column
     private DateTime deadlineUTC;
 
     @Column(updatable = false)
@@ -32,23 +31,15 @@ public class FreeAgentAuction extends BaseObject implements ISchedulable {
 
     @Column
     @Nullable
-    private String requestedPlayerName;
-
-    @Column
-    @Nullable
     private Long winningTeamId;
 
     @Column
     @Nullable
     private Integer winningAmount;
 
+    @Column
     @Nullable
-    private Player player;
-    @Nullable
-    private PlayerSeason playerSeason;
-    @Nullable
-    private Team winningTeam;
-    private Team requestingTeam;
+    private String denyReason;
 
     @Override
     public boolean equals(Object o) {
@@ -62,39 +53,32 @@ public class FreeAgentAuction extends BaseObject implements ISchedulable {
                 Objects.equal(winningTeamId, that.winningTeamId) &&
                 Objects.equal(winningAmount, that.winningAmount) &&
                 season == that.season &&
-                Objects.equal(requestedPlayerName, that.requestedPlayerName) &&
-                requestingTeam == that.requestingTeam;
+                Objects.equal(denyReason, that.denyReason);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), playerId, deadlineUTC, auctionStatus, winningTeamId, winningAmount, season, requestingTeam, requestedPlayerName);
+        return Objects.hashCode(super.hashCode(), playerId, deadlineUTC, auctionStatus, winningTeamId, winningAmount, season, denyReason);
     }
 
     @Override
     public String toString() {
         return "FreeAgentAuction{" +
                 "playerId=" + playerId +
-                ", expirationDateUTC=" + deadlineUTC +
+                ", deadlineUTC=" + deadlineUTC +
                 ", auctionStatus=" + auctionStatus +
                 ", winningTeamId=" + winningTeamId +
                 ", winningAmount=" + winningAmount +
-                ", player=" + player +
-                ", playerSeason=" + playerSeason +
-                ", winningTeam=" + winningTeam +
                 ", season=" + season +
                 ", requestingTeamId=" + requestingTeamId +
-                ", requestingTeam=" + requestingTeam +
-                ", requestedPlayerName=" + requestedPlayerName +
                 "} " + super.toString();
     }
 
-    @Nullable
-    public Long getPlayerId() {
+    public long getPlayerId() {
         return playerId;
     }
 
-    public void setPlayerId(@Nullable  Long playerId) {
+    public void setPlayerId(long playerId) {
         this.playerId = playerId;
     }
 
@@ -140,15 +124,6 @@ public class FreeAgentAuction extends BaseObject implements ISchedulable {
     }
 
     @Nullable
-    public String getRequestedPlayerName() {
-        return requestedPlayerName;
-    }
-
-    public void setRequestedPlayerName(@Nullable String requestedPlayerName) {
-        this.requestedPlayerName = requestedPlayerName;
-    }
-
-    @Nullable
     public Integer getWinningAmount() {
         return winningAmount;
     }
@@ -158,37 +133,11 @@ public class FreeAgentAuction extends BaseObject implements ISchedulable {
     }
 
     @Nullable
-    public Player getPlayer() {
-        return player;
+    public String getDenyReason() {
+        return denyReason;
     }
 
-    public void setPlayer(@Nullable Player player) {
-        this.player = player;
-    }
-
-    @Nullable
-    public PlayerSeason getPlayerSeason() {
-        return playerSeason;
-    }
-
-    public void setPlayerSeason(@Nullable PlayerSeason playerSeason) {
-        this.playerSeason = playerSeason;
-    }
-
-    @Nullable
-    public Team getWinningTeam() {
-        return winningTeam;
-    }
-
-    public void setWinningTeam(@Nullable Team winningTeam) {
-        this.winningTeam = winningTeam;
-    }
-
-    public Team getRequestingTeam() {
-        return requestingTeam;
-    }
-
-    public void setRequestingTeam(Team requestingTeam) {
-        this.requestingTeam = requestingTeam;
+    public void setDenyReason(@Nullable String denyReason) {
+        this.denyReason = denyReason;
     }
 }
