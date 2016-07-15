@@ -17,9 +17,9 @@ public interface IMinorLeaguePickService extends IIdService<MinorLeaguePick> {
 
     List<MinorLeaguePick> getMinorLeaguePicksBySeason(int season);
 
-    List<MinorLeaguePick> getMinorLeaguePicksByTeams(Collection<Long> teamIds);
-    default List<MinorLeaguePick> getMinorLeaguePicksByTeam(long teamId) {
-        return this.getMinorLeaguePicksByTeams(Lists.newArrayList(teamId));
+    List<MinorLeaguePick> getMinorLeaguePicksByTeams(Collection<Long> teamIds, boolean includeUsedPicks);
+    default List<MinorLeaguePick> getMinorLeaguePicksByTeam(long teamId, boolean includeUsedPicks) {
+        return this.getMinorLeaguePicksByTeams(Lists.newArrayList(teamId), includeUsedPicks);
     }
 
     @Nullable

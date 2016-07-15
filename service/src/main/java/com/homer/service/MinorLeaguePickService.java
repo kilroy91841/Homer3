@@ -42,10 +42,14 @@ public class MinorLeaguePickService extends BaseIdService<MinorLeaguePick> imple
     }
 
     @Override
-    public List<MinorLeaguePick> getMinorLeaguePicksByTeams(Collection<Long> teamIds) {
+    public List<MinorLeaguePick> getMinorLeaguePicksByTeams(Collection<Long> teamIds, boolean includeUsedPicks) {
         Map<String, Object> filters = Maps.newHashMap();
         filters.put("owningTeamId", teamIds);
-        List<MinorLeaguePick> picks = repo.getMany(filters);
+        List<MinorLeaguePick> picks = $.of(repo.getMany(filters))
+                .filterToList(mlp ->
+                        includeUsedPicks ||
+                                (mlp.getPlayerId() == null &&
+                                (mlp.getIsSkipped() == null || Boolean.FALSE.equals(mlp.getIsSkipped()))));
         sort(picks);
         return picks;
     }

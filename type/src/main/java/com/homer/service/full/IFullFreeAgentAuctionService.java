@@ -1,9 +1,12 @@
 package com.homer.service.full;
 
+import com.homer.exception.FreeAgentAuctionBidException;
 import com.homer.type.FreeAgentAuction;
 import com.homer.type.FreeAgentAuctionBid;
+import com.homer.type.Player;
+import com.homer.type.view.FreeAgentAuctionAdminView;
+import com.homer.type.view.FreeAgentAuctionView;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -11,20 +14,22 @@ import java.util.List;
  */
 public interface IFullFreeAgentAuctionService {
 
-    FreeAgentAuction requestFreeAgentAuction(long requestingTeamId, @Nullable Long playerId, @Nullable String playerName);
+    List<FreeAgentAuctionView> getFreeAgentAuctions();
 
-    FreeAgentAuction denyFreeAgentAuctionRequest(long freeAgentAuctionId);
+    FreeAgentAuctionView requestFreeAgentAuction(FreeAgentAuctionView view) throws FreeAgentAuctionBidException;
 
-    FreeAgentAuction updateFreeAgentAuctionPlayerId(long freeAgentAuctionId, long playerId);
+    FreeAgentAuction denyFreeAgentAuctionRequest(long freeAgentAuctionId, String reason);
 
     FreeAgentAuction startFreeAgentAuction(long freeAgentAuctionId);
 
-    FreeAgentAuction endFreeAgentAuction(long freeAgentAuctionId);
+    FreeAgentAuction endFreeAgentAuction(long freeAgentAuctionId) throws FreeAgentAuctionBidException;
 
-    FreeAgentAuction resolveTiedFreeAgentAuction(long freeAgentAuctionId, long winningTeamId, int winningBid);
+    FreeAgentAuction setWinningBid(long freeAgentAuctionId, long teamId);
 
-    List<FreeAgentAuction> getAllFreeAgentAuctions();
+    FreeAgentAuctionBid bidOnFreeAgentAuction(long freeAgentAuctionId, long teamId, int amount) throws FreeAgentAuctionBidException;
 
-    FreeAgentAuctionBid bidOnFreeAgentAuction(long freeAgentAuctionId, long teamId, int amount);
+    List<FreeAgentAuctionView> adminFreeAgentAuction(FreeAgentAuctionAdminView adminView);
+
+    FreeAgentAuction cancelAuction(long freeAgentAuctionId);
 
 }

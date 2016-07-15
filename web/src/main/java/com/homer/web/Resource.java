@@ -27,6 +27,7 @@ import com.homer.service.schedule.Scheduler;
 import com.homer.type.*;
 import com.homer.type.view.*;
 import com.homer.util.LeagueUtil;
+import com.homer.util.core.$;
 import com.homer.web.model.ApiResponse;
 import com.homer.web.model.AuthenticationRequest;
 import com.homer.web.model.MetadataView;
@@ -103,7 +104,7 @@ public class Resource {
         );
 
         minorLeagueDraftService = new FullMinorLeagueDraftService(gatherer, minorLeaguePickService, playerService, playerSeasonService,
-                new FullPlayerService(playerService, playerSeasonService), mlbClient, emailService, userService, scheduler);
+                new FullPlayerService(playerService, playerSeasonService), mlbClient, emailService, userService, teamService, scheduler);
     }
 
     @GET
@@ -305,8 +306,11 @@ public class Resource {
     @POST
     public ApiResponse updateTeam(Team team) {
         try {
+            if (team.getName().length() <= 3) {
+                return new ApiResponse("Team name must be longer than 3 characters", null);
+            }
             Team updatedTeam = teamService.upsert(team);
-            gatherer.getFantasyTeamMap().put(updatedTeam.getId(), updatedTeam);
+            teamService.getFantasyTeamMap().put(updatedTeam.getId(), updatedTeam);
             return new ApiResponse("Team updated! Refresh to see the change", updatedTeam);
         } catch (Exception e) {
             return new ApiResponse(e.getMessage(), null);
@@ -318,5 +322,18 @@ public class Resource {
     @GET
     public ApiResponse getScheduled() {
         return new ApiResponse("", scheduler.getAll());
+    }
+
+    @GET
+    @Path("draftDollar/{teamId}")
+    public ApiResponse getFreeAgentAuctionDollars(@PathParam(value = "teamId") long teamId) {
+        try {
+            DraftDollar draftDollar = $.of(draftDollarService.getDraftDollarsByTeam(teamId))
+                    .filter(dd -> dd.getSeason() == LeagueUtil.SEASON && DraftDollarType.FREEAGENTAUCTION.equals(dd.getDraftDollarType()))
+                    .first();
+            return new ApiResponse("success", draftDollar);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
     }
 }

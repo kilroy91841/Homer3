@@ -26,6 +26,7 @@ public class EnvironmentUtility {
 
     public int vultureExpirationMinutes;
     public int draftPickExpirationMinutes;
+    public int freeAgentAuctionExpirationMinutes;
 
     public boolean isTestEnv;
 
@@ -74,6 +75,7 @@ public class EnvironmentUtility {
         setUpdatePlayersPeriod(config.getInt("updatePlayersPeriod"));
         setVultureExpirationMinutes(config.getInt("vultureExpirationMinutes"));
         setDraftPickExpirationMinutes(config.getInt("draftPickExpirationMinutes"));
+        setFreeAgentAuctionExpirationMinutes(config.getInt("freeAgentAuctionExpirationMinutes"));
         setStormpathApplication(config.getString("stormpathApplication"));
         setUrl(config.getString("url"));
         setMaxMinorLeagueRosterSize(config.getInt("maxMinorLeagueRosterSize"));
@@ -226,5 +228,13 @@ public class EnvironmentUtility {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public int getFreeAgentAuctionExpirationMinutes() {
+        return freeAgentAuctionExpirationMinutes;
+    }
+
+    public void setFreeAgentAuctionExpirationMinutes(int freeAgentAuctionExpirationMinutes) {
+        this.freeAgentAuctionExpirationMinutes = freeAgentAuctionExpirationMinutes;
     }
 }

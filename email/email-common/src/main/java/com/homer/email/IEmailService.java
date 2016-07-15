@@ -7,6 +7,8 @@ import javax.annotation.Nullable;
  */
 public interface IEmailService {
 
+    static final String COMMISSIONER_EMAIL = "arigolub@gmail.com";
+
     @Nullable
     String sendEmail(EmailRequest emailRequest);
 }

@@ -41,8 +41,6 @@ public class FullVultureService implements IFullVultureService {
 
     final static Logger logger = LoggerFactory.getLogger(FullVultureService.class);
 
-    private static final String COMMISSIONER_EMAIL = "arigolub@gmail.com";
-
     private ITeamService teamService;
     private IPlayerService playerService;
     private IVultureService vultureService;
@@ -279,7 +277,7 @@ public class FullVultureService implements IFullVultureService {
         usersToEmail.addAll(userService.getUsersForTeam(vulture.getTeamId()));
         usersToEmail.addAll(userService.getUsersForTeam(playerSeason.getTeamId()));
         List<String> emails = $.of(usersToEmail).toList(User::getEmail);
-        emails.add(COMMISSIONER_EMAIL);
+        emails.add(IEmailService.COMMISSIONER_EMAIL);
         return emails;
     }
 
