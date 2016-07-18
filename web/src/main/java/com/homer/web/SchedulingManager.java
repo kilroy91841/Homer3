@@ -2,12 +2,15 @@ package com.homer.web;
 
 import com.homer.auth.stormpath.StormpathAuthService;
 import com.homer.data.*;
+import com.homer.email.IEmailService;
 import com.homer.email.aws.AWSEmailService;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.auth.UserService;
 import com.homer.service.full.FullVultureService;
 import com.homer.service.full.IFullVultureService;
+import com.homer.service.gather.Gatherer;
+import com.homer.service.gather.IGatherer;
 import com.homer.service.importer.IPlayerImporter;
 import com.homer.service.importer.PlayerImporter;
 import com.homer.service.schedule.Scheduler;
@@ -41,6 +44,7 @@ public class SchedulingManager {
     private IPlayerSeasonService playerSeasonService;
     private IPlayerService playerService;
     private IFullVultureService fullVultureService;
+    private Validator validator;
     private EnvironmentUtility envUtil;
 
     public SchedulingManager() {
@@ -53,14 +57,22 @@ public class SchedulingManager {
                 new MLBRestClient()
         );
 
+        ITeamService teamService = new TeamService(new TeamRepository());
+        IEmailService emailService = new AWSEmailService();
         fullVultureService = new FullVultureService(
                 new VultureService(new VultureRepository()),
                 playerSeasonService,
-                new TeamService(new TeamRepository()),
+                teamService,
                 playerService,
                 new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository()),
-                new AWSEmailService(),
+                emailService,
                 new Scheduler());
+
+        IGatherer gatherer = new Gatherer(playerService, teamService, playerSeasonService,
+                new DraftDollarService(new DraftDollarRepository()), new MinorLeaguePickService(new MinorLeaguePickRepository()),
+                new TradeService(new TradeRepository()), new TradeElementService(new TradeElementRepository()));
+
+        validator = new Validator(teamService, gatherer, emailService);
     }
 
     public void run() {
@@ -68,6 +80,16 @@ public class SchedulingManager {
         updatePlayers();
 
         rescheduleVultures();
+
+        validateRosters();
+    }
+
+    private ScheduledFuture validateRosters() {
+        Runnable runnable = validateRostersRunnable(validator);
+        return scheduler.scheduleAtFixedRate(runnable,
+                1,
+                1440,
+                TimeUnit.MINUTES);
     }
 
     private void rescheduleVultures() {
@@ -138,6 +160,16 @@ public class SchedulingManager {
                 logger.info("END: updatePlayersRunnable");
             } catch (Exception e) {
                 logger.error(String.format("ERROR: updatePlayersRunnable, %s %s", e.getMessage(), e.getStackTrace().toString()));
+            }
+        };
+    }
+
+    public static Runnable validateRostersRunnable(Validator validator) {
+        return () -> {
+            try {
+                validator.validateTeams();
+            } catch (Exception e) {
+                logger.error(String.format("ERROR: validateTeams, %s %s", e.getMessage(), e.getStackTrace().toString()));
             }
         };
     }
