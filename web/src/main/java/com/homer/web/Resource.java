@@ -69,6 +69,7 @@ public class Resource {
     private IEmailService emailService;
     private IFullMinorLeagueDraftService minorLeagueDraftService;
     private IScheduler scheduler;
+    private Validator validator;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -92,6 +93,8 @@ public class Resource {
                 tradeService,
                 tradeElementService
         );
+
+        this.validator = new Validator(teamService, gatherer, emailService);
 
         fullTradeService = new FullTradeService(tradeService, minorLeaguePickService, draftDollarService,
                 playerSeasonService, tradeElementService);
@@ -332,6 +335,17 @@ public class Resource {
                     .filter(dd -> dd.getSeason() == LeagueUtil.SEASON && DraftDollarType.FREEAGENTAUCTION.equals(dd.getDraftDollarType()))
                     .first();
             return new ApiResponse("success", draftDollar);
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("validate/team")
+    public ApiResponse validateTeams() {
+        try {
+            return new ApiResponse("success", validator.validateTeams());
         } catch (Exception e) {
             return new ApiResponse(e.getMessage(), null);
         }
