@@ -16,7 +16,9 @@ public abstract class JSONParser {
         for(Field f : newObj.getClass().getDeclaredFields()) {
             if (f.isAnnotationPresent(JsonProperty.class)) {
                 JsonProperty ann = f.getAnnotation(JsonProperty.class);
-                BeanUtils.setProperty(newObj, f.getName(), json.getString(ann.value()));
+                if (json.has(ann.value())) {
+                    BeanUtils.setProperty(newObj, f.getName(), json.getString(ann.value()));
+                }
             }
         }
     }

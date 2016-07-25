@@ -13,8 +13,8 @@ public interface IMLBClient {
     @Nullable
     MLBPlayer getPlayer(long playerId);
 
-//    List<Stats> getStats(long playerId, boolean isBatter);
-//
+    Stats getStats(long playerId, boolean isBatter);
+
     List<MLBPlayer> get40ManRoster(long teamId);
 //
 //    List<Game> getSchedule(LocalDate date);

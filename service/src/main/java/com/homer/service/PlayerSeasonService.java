@@ -137,7 +137,6 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         } else {
             playerSeason.setVulturable(false);
         }
-        return;
     }
 
     @Override
@@ -155,6 +154,14 @@ public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements 
         filters.put("teamId", teamId);
         filters.put("fantasyPosition", Position.MINORLEAGUES);
         return repo.getMany(filters);
+    }
+
+    @Override
+    public PlayerSeason updateMinorLeaguerStatus(long playerId, boolean newMinorLeagueStatus) {
+        PlayerSeason playerSeason = getCurrentPlayerSeason(playerId);
+        playerSeason.setIsMinorLeaguer(newMinorLeagueStatus);
+        updateVulturable(playerSeason);
+        return repo.upsert(playerSeason);
     }
 
     private PlayerSeason getPlayerSeasonOrThrow(long playerId, int season) {

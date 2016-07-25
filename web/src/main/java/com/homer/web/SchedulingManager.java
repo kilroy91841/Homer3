@@ -4,10 +4,13 @@ import com.homer.auth.stormpath.StormpathAuthService;
 import com.homer.data.*;
 import com.homer.email.IEmailService;
 import com.homer.email.aws.AWSEmailService;
+import com.homer.external.common.IMLBClient;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.auth.UserService;
+import com.homer.service.full.FullPlayerService;
 import com.homer.service.full.FullVultureService;
+import com.homer.service.full.IFullPlayerService;
 import com.homer.service.full.IFullVultureService;
 import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
@@ -46,15 +49,18 @@ public class SchedulingManager {
     private IFullVultureService fullVultureService;
     private Validator validator;
     private EnvironmentUtility envUtil;
+    private IFullPlayerService fullPlayerService;
 
     public SchedulingManager() {
         envUtil = EnvironmentUtility.getInstance();
         playerService = new PlayerService(new PlayerRepository());
         playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
+
+        IMLBClient mlbClient = new MLBRestClient();
         playerImporter = new PlayerImporter(
                 new PlayerService(new PlayerRepository()),
                 playerSeasonService,
-                new MLBRestClient()
+                mlbClient
         );
 
         ITeamService teamService = new TeamService(new TeamRepository());
@@ -73,6 +79,8 @@ public class SchedulingManager {
                 new TradeService(new TradeRepository()), new TradeElementService(new TradeElementRepository()));
 
         validator = new Validator(teamService, gatherer, emailService);
+
+        fullPlayerService = new FullPlayerService(playerService, playerSeasonService, mlbClient);
     }
 
     public void run() {
@@ -82,12 +90,22 @@ public class SchedulingManager {
         rescheduleVultures();
 
         validateRosters();
+
+        updateMinorLeaguerStatusForPlayers();
     }
 
     private ScheduledFuture validateRosters() {
         Runnable runnable = validateRostersRunnable(validator);
         return scheduler.scheduleAtFixedRate(runnable,
                 1,
+                1440,
+                TimeUnit.MINUTES);
+    }
+
+    private ScheduledFuture updateMinorLeaguerStatusForPlayers() {
+        Runnable runnable = updateMinorLeaguerStatusForPlayersRunnable(fullPlayerService);
+        return scheduler.scheduleAtFixedRate(runnable,
+                5,
                 1440,
                 TimeUnit.MINUTES);
     }
@@ -170,6 +188,16 @@ public class SchedulingManager {
                 validator.validateTeams();
             } catch (Exception e) {
                 logger.error(String.format("ERROR: validateTeams, %s %s", e.getMessage(), e.getStackTrace().toString()));
+            }
+        };
+    }
+
+    public static Runnable updateMinorLeaguerStatusForPlayersRunnable(IFullPlayerService fullPlayerService) {
+        return () -> {
+            try {
+                fullPlayerService.updateMinorLeaguerStatusForPlayers();
+            } catch (Exception e) {
+                logger.error(String.format("ERROR: updateMinorLeaguerStatusForPlayers, %s %s", e.getMessage(), e.getStackTrace().toString()));
             }
         };
     }

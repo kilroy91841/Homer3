@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -107,7 +108,7 @@ public class Resource {
         );
 
         minorLeagueDraftService = new FullMinorLeagueDraftService(gatherer, minorLeaguePickService, playerService, playerSeasonService,
-                new FullPlayerService(playerService, playerSeasonService), mlbClient, emailService, userService, teamService, scheduler);
+                new FullPlayerService(playerService, playerSeasonService, mlbClient), mlbClient, emailService, userService, teamService, scheduler);
     }
 
     @GET

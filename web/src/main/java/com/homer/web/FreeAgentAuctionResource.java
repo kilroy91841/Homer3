@@ -39,7 +39,7 @@ public class FreeAgentAuctionResource {
         IFreeAgentAuctionBidService freeAgentAuctionBidService = new FreeAgentAuctionBidService(new FreeAgentAuctionBidRepository());
         IPlayerSeasonService playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
         IPlayerService playerService = new PlayerService(new PlayerRepository());
-        IFullPlayerService fullPlayerService = new FullPlayerService(playerService, playerSeasonService);
+        IFullPlayerService fullPlayerService = new FullPlayerService(playerService, playerSeasonService, new MLBRestClient());
         IEmailService emailService = new AWSEmailService();
         IDraftDollarService draftDollarService = new DraftDollarService(new DraftDollarRepository());
         IMLBClient mlbClient = new MLBRestClient();

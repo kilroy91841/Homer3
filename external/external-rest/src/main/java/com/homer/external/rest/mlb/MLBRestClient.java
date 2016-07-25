@@ -4,6 +4,7 @@ import com.homer.external.common.IMLBClient;
 import com.homer.external.common.mlb.*;
 import com.homer.external.rest.mlb.parser.JSONPlayerParser;
 import com.homer.external.rest.mlb.parser.JSONRosterParser;
+import com.homer.external.rest.mlb.parser.JSONStatParser;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -37,7 +38,7 @@ public class MLBRestClient implements IMLBClient {
     private static final String VALUE_SPORTCODE     = "'mlb'";
     private static final int    VALUE_GAMECOUNT     = 200;
     private static final String VALUE_GAMETYPE      = "'R'";
-    private static final int    VALUE_SEASON        = 2014;
+    private static final int    VALUE_SEASON        = 2016;
 
     /**
      * Get MLB Player created from JSON retrieved from MLB using Unirest client
@@ -77,46 +78,47 @@ public class MLBRestClient implements IMLBClient {
         return parameters;
     }
 
-//    /**
-//     * Get MLB Player Stats created from JSON retrieved from MLB using Unirest client
-//     * Example Batting URL: http://mlb.mlb.com/lookup/json/named.mlb_bio_hitting_last_10.bam?results=200&game_type=%27R%27&season=2014&player_id=545361
-//     * Example Pitching URL: http://mlb.mlb.com/lookup/json/named.mlb_bio_pitching_last_10.bam?results=200&game_type=%27R%27&season=2014&player_id=433587
-//     *
-//     * @param playerId The MLBPlayerId
-//     * @param isBatter Whether the playerId corresponds to a hitter or a pitcher. True for hitter, false for pitcher.
-//     * @return {@link List <com.homer.mlb.Stats>}
-//     */
-//    @Override
-//    public List<Stats> getStats(long playerId, boolean isBatter) {
-//        List<Stats> stats = null;
-//
-//        Map<String, Object> parameters = getStatsParameters(playerId);
-//        try {
-//            String url = isBatter ? URL_BATTERSTATS : URL_PITCHERSTATS;
-//
-//            HttpResponse<JsonNode> response = Unirest.get(url)
-//                    .queryString(parameters)
-//                    .asJson();
-//
-//            stats = JSONStatsParser.parseStats(playerId, response.getBody(), isBatter);
-//
-//        } catch (UnirestException e) {
-//            LOG.error("Http Client Exception [playerId:" + playerId + "]", e);
-//        } catch (Exception e) {
-//            LOG.error("Runtime Exception [playerId:" + playerId + "]", e);
-//        }
-//        return stats;
-//    }
-//
-//    private Map<String, Object> getStatsParameters(long playerId) {
-//        Map<String, Object> parameters = new HashMap<String, Object>();
-//        parameters.put(PARAM_GAMECOUNT, VALUE_GAMECOUNT);
-//        parameters.put(PARAM_GAMETYPE, VALUE_GAMETYPE);
-//        parameters.put(PARAM_SEASON, VALUE_SEASON);
-//        parameters.put(PARAM_PLAYERID, playerId);
-//        return parameters;
-//    }
-//
+    /**
+     * Get MLB Player Stats created from JSON retrieved from MLB using Unirest client
+     * Example Batting URL: http://mlb.mlb.com/lookup/json/named.mlb_bio_hitting_last_10.bam?results=200&game_type=%27R%27&season=2014&player_id=545361
+     * Example Pitching URL: http://mlb.mlb.com/lookup/json/named.mlb_bio_pitching_last_10.bam?results=200&game_type=%27R%27&season=2014&player_id=433587
+     *
+     * @param playerId The MLBPlayerId
+     * @param isBatter Whether the playerId corresponds to a hitter or a pitcher. True for hitter, false for pitcher.
+     * @return {@link List <com.homer.mlb.Stats>}
+     */
+    @Override
+    public Stats getStats(long playerId, boolean isBatter) {
+        Stats stats = null;
+        Map<String, Object> parameters = getStatsParameters(playerId);
+        try {
+            String url = isBatter ? URL_BATTERSTATS : URL_PITCHERSTATS;
+
+            HttpResponse<JsonNode> response = Unirest.get(url)
+                    .queryString(parameters)
+                    .asJson();
+
+            stats = JSONStatParser.parseStats(response.getBody(), isBatter);
+
+        } catch (UnirestException e) {
+            System.out.println(String.format("Http Client Exception [playerId:" + playerId + "]", e));
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println(String.format("Runtime Exception [playerId:" + playerId + "]", e));
+            e.printStackTrace();
+        }
+        return stats;
+    }
+
+    private Map<String, Object> getStatsParameters(long playerId) {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(PARAM_GAMECOUNT, VALUE_GAMECOUNT);
+        parameters.put(PARAM_GAMETYPE, VALUE_GAMETYPE);
+        parameters.put(PARAM_SEASON, VALUE_SEASON);
+        parameters.put(PARAM_PLAYERID, playerId);
+        return parameters;
+    }
+
     /**
      * Get List of MLB Players on a specified team created from JSON retrieved from MLB using Unirest client
      * Example URL: http://mlb.mlb.com/lookup/json/named.roster_40.bam?team_id=147
