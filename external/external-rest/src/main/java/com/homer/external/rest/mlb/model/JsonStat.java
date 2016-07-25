@@ -85,6 +85,16 @@ public class JsonStat {
     private String homeAway;
     @JsonProperty(value = "go")
     private String go;
+    @JsonProperty(value = "whip")
+    private String whip;
+    @JsonProperty(value = "era")
+    private String era;
+    @JsonProperty(value = "sv")
+    private String sv;
+    @JsonProperty(value = "w")
+    private String w;
+    @JsonProperty(value = "ip")
+    private String ip;
 
     // region getters + setters
 
@@ -398,6 +408,46 @@ public class JsonStat {
 
     public void setGo(String go) {
         this.go = go;
+    }
+
+    public String getWhip() {
+        return whip;
+    }
+
+    public void setWhip(String whip) {
+        this.whip = whip;
+    }
+
+    public String getEra() {
+        return era;
+    }
+
+    public void setEra(String era) {
+        this.era = era;
+    }
+
+    public String getSv() {
+        return sv;
+    }
+
+    public void setSv(String sv) {
+        this.sv = sv;
+    }
+
+    public String getW() {
+        return w;
+    }
+
+    public void setW(String w) {
+        this.w = w;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     // endregion

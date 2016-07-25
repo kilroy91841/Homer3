@@ -28,6 +28,10 @@ public class Player extends BaseObject {
     @Nullable
     private Long mlbPlayerId;
 
+    public boolean isBatter() {
+        return !(position.equals(Position.PITCHER) || position.equals(Position.RELIEFPITCHER));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

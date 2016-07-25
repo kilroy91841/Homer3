@@ -1,5 +1,6 @@
 package com.homer.service.full;
 
+import com.homer.external.common.IMLBClient;
 import com.homer.service.IPlayerSeasonService;
 import com.homer.service.IPlayerService;
 import com.homer.type.Player;
@@ -34,7 +35,7 @@ public class FullPlayerServiceTest {
         when(playerService.createPlayer(any())).thenAnswer(x -> x.getArguments()[0]);
         when(playerSeasonService.createPlayerSeason(1, LeagueUtil.SEASON, false)).thenReturn(new PlayerSeason());
 
-        service = new FullPlayerService(playerService, playerSeasonService);
+        service = new FullPlayerService(playerService, playerSeasonService, mock(IMLBClient.class));
     }
 
     @Test

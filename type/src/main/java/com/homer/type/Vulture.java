@@ -154,18 +154,17 @@ public class Vulture extends BaseObject implements ISchedulable {
             return null;
         }
 
-        Position position = playerSeason.getFantasyPosition();
+        Position fantasyPosition = playerSeason.getFantasyPosition();
 
-        //TODO when integration sets ab/ips, change this
         if (playerSeason.getIsMinorLeaguer()) {
             return false;
         }
 
         if (
-                (position != Position.DISABLEDLIST && playerSeason.getMlbStatus() == Status.DISABLEDLIST) ||
-                        (position != Position.MINORLEAGUES && playerSeason.getMlbStatus() == Status.MINORS) ||
-                        (position == Position.DISABLEDLIST && playerSeason.getMlbStatus() != Status.DISABLEDLIST) ||
-                        (position == Position.MINORLEAGUES && playerSeason.getMlbStatus() != Status.MINORS && !playerSeason.getIsMinorLeaguer())
+                (fantasyPosition != Position.DISABLEDLIST && playerSeason.getMlbStatus() == Status.DISABLEDLIST) ||
+                (fantasyPosition != Position.MINORLEAGUES && playerSeason.getMlbStatus() == Status.MINORS) ||
+                (fantasyPosition == Position.DISABLEDLIST && playerSeason.getMlbStatus() != Status.DISABLEDLIST) ||
+                (fantasyPosition == Position.MINORLEAGUES && playerSeason.getMlbStatus() != Status.MINORS && !playerSeason.getIsMinorLeaguer())
                 )
         {
             return true;

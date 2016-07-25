@@ -1,6 +1,7 @@
 package com.homer.web;
 
 import com.homer.data.*;
+import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.full.FullPlayerService;
 import com.homer.service.full.IFullPlayerService;
@@ -46,7 +47,7 @@ public class PlayerResource {
         this.minorLeaguePickService = new MinorLeaguePickService(new MinorLeaguePickRepository());
         this.tradeService = new TradeService(new TradeRepository());
         this.tradeElementService = new TradeElementService(new TradeElementRepository());
-        this.fullPlayerService = new FullPlayerService(playerService, playerSeasonService);
+        this.fullPlayerService = new FullPlayerService(playerService, playerSeasonService, new MLBRestClient());
 
         gatherer = new Gatherer(
                 playerService,
