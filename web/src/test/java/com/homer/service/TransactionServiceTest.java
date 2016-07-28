@@ -3,9 +3,9 @@ package com.homer.service;
 import com.homer.data.PlayerRepository;
 import com.homer.data.PlayerSeasonRepository;
 import com.homer.data.TransactionRepository;
+import com.homer.email.aws.AWSEmailService;
 import com.homer.external.rest.espn.ESPNRestClient;
 import com.homer.type.Transaction;
-import com.homer.util.core.$;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +24,8 @@ public class TransactionServiceTest {
                 new TransactionRepository(),
                 new PlayerService(new PlayerRepository()),
                 new PlayerSeasonService(new PlayerSeasonRepository()),
-                new ESPNRestClient());
+                new ESPNRestClient(),
+                new AWSEmailService());
     }
 
     @Test

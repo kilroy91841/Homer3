@@ -112,7 +112,8 @@ public class Resource {
         minorLeagueDraftService = new FullMinorLeagueDraftService(gatherer, minorLeaguePickService, playerService, playerSeasonService,
                 new FullPlayerService(playerService, playerSeasonService, mlbClient), mlbClient, emailService, userService, teamService, scheduler);
 
-        transactionService = new TransactionService(new TransactionRepository(), playerService, playerSeasonService, new ESPNRestClient());
+        transactionService = new TransactionService(new TransactionRepository(), playerService, playerSeasonService, new ESPNRestClient(),
+                emailService);
     }
 
     @GET

@@ -1,8 +1,11 @@
 package com.homer.service;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.homer.data.common.ITransactionRepository;
+import com.homer.email.EmailRequest;
+import com.homer.email.HtmlObject;
+import com.homer.email.HtmlTag;
+import com.homer.email.IEmailService;
 import com.homer.external.common.espn.ESPNTransaction;
 import com.homer.external.common.espn.IESPNClient;
 import com.homer.type.*;
@@ -30,16 +33,19 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
     private IPlayerService playerService;
     private IPlayerSeasonService playerSeasonService;
     private IESPNClient espnClient;
+    private IEmailService emailService;
 
     public TransactionService(ITransactionRepository transactionRepo,
                               IPlayerService playerService,
                               IPlayerSeasonService playerSeasonService,
-                              IESPNClient espnClient) {
+                              IESPNClient espnClient,
+                              IEmailService emailService) {
         super(transactionRepo);
         this.transactionRepo = transactionRepo;
         this.playerService = playerService;
         this.playerSeasonService = playerSeasonService;
         this.espnClient = espnClient;
+        this.emailService = emailService;
     }
 
     @Override
@@ -75,7 +81,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
         Pair<List<Transaction>, List<ESPNTransaction>> pair = translateESPNTransactions(espnTransactions);
         allTransactions.addAll(pair.fst);
 
-        handleErrorTransactions(pair.snd);
+        handleErrorTransactions($.of(pair.snd).toList(ESPNTransaction::getText));
 
         return $.of(allTransactions).sorted().toList();
     }
@@ -84,6 +90,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
     public List<Transaction> processDailyTransactions() {
         List<Transaction> transactions = getDailyTransactions();
         List<Transaction> createdTransactions = Lists.newArrayList();
+        List<String> erroredTransactions = Lists.newArrayList();
         for (Transaction t : transactions) {
             try {
                 if (doesTransactionExist(t)) {
@@ -105,8 +112,10 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                 createdTransactions.add(createdTransaction);
             } catch (Exception e) {
                 logger.error("Encountered an error processing transaction: " + t, e);
+                erroredTransactions.add(t.getText() + ": " + e.getMessage());
             }
         }
+        handleErrorTransactions(erroredTransactions);
         return createdTransactions;
     }
 
@@ -137,10 +146,16 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
         return Pair.of(transactions, errorTransactions);
     }
 
-    private void handleErrorTransactions(List<ESPNTransaction> transactions) {
-        for (ESPNTransaction transaction : transactions) {
-            logger.error("Encountered a transaction that had an error: " + transaction.getText());
+    private void handleErrorTransactions(List<String> transactions) {
+        HtmlObject htmlObj = HtmlObject.of(HtmlTag.DIV);
+
+        for (String transaction : transactions) {
+            logger.error("Encountered a transaction that had an error: " + transaction);
+            htmlObj.child(HtmlObject.of(HtmlTag.P).body(transaction));
         }
+
+        EmailRequest emailRequest = new EmailRequest(Lists.newArrayList(IEmailService.COMMISSIONER_EMAIL), "Erroring Transactions", htmlObj);
+        emailService.sendEmail(emailRequest);
     }
 
     @Nullable

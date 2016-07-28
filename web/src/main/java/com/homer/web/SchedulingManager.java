@@ -86,7 +86,7 @@ public class SchedulingManager {
         fullPlayerService = new FullPlayerService(playerService, playerSeasonService, mlbClient);
 
         transactionService = new TransactionService(new TransactionRepository(),
-                playerService, playerSeasonService, new ESPNRestClient());
+                playerService, playerSeasonService, new ESPNRestClient(), new AWSEmailService());
     }
 
     public void run() {
