@@ -9,6 +9,9 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.HttpRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.time.LocalDate;
@@ -20,6 +23,8 @@ import java.util.Map;
  * Created by arigolub on 4/17/16.
  */
 public class MLBRestClient implements IMLBClient {
+
+    final static Logger logger = LoggerFactory.getLogger(MLBRestClient.class);
 
     private static final String URL_PLAYERINFO      = "http://mlb.com/lookup/json/named.player_info.bam";
     private static final String URL_ROSTER          = "http://mlb.mlb.com/lookup/json/named.roster_40.bam";
@@ -94,9 +99,10 @@ public class MLBRestClient implements IMLBClient {
         try {
             String url = isBatter ? URL_BATTERSTATS : URL_PITCHERSTATS;
 
-            HttpResponse<JsonNode> response = Unirest.get(url)
-                    .queryString(parameters)
-                    .asJson();
+            HttpRequest request = Unirest.get(url)
+                    .queryString(parameters);
+            logger.info("Making request to url " + request.getUrl());
+            HttpResponse<JsonNode> response = request.asJson();
 
             stats = JSONStatParser.parseStats(response.getBody(), isBatter);
 

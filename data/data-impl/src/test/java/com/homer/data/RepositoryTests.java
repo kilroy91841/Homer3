@@ -170,6 +170,21 @@ public class RepositoryTests {
         testCRUD(freeAgentAuctionBid, new FreeAgentAuctionBidRepository(), funcs2);
     }
 
+    @Test
+    public void testTransactionCRUD() throws Exception {
+        Transaction transaction = new Transaction();
+        transaction.setPlayerId(1);
+        transaction.setTransactionDate(DateTime.now().withMillisOfSecond(0));
+        transaction.setTeamId(1);
+        transaction.setOldPosition(Position.PITCHER);
+        transaction.setNewPosition(Position.MIDDLEINFIELD);
+        transaction.setTransactionType(TransactionType.ADD);
+        transaction.setText("Transaction Text");
+
+        List<Consumer<Transaction>> updaters = Lists.newArrayList();
+        testCRUD(transaction, new TransactionRepository(), updaters);
+    }
+
     private <T extends IBaseObject> void testCRUD(T obj, IRepository<T> repo,
                                                     List<Consumer<T>> updaters) throws Exception {
         T updatedObj = testCRU(obj, repo, updaters);

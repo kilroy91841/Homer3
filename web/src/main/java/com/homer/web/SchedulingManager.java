@@ -5,6 +5,7 @@ import com.homer.data.*;
 import com.homer.email.IEmailService;
 import com.homer.email.aws.AWSEmailService;
 import com.homer.external.common.IMLBClient;
+import com.homer.external.rest.espn.ESPNRestClient;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.auth.UserService;
@@ -32,6 +33,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.joda.time.DateTime;
 import org.slf4j.*;
 
 /**
@@ -50,6 +52,7 @@ public class SchedulingManager {
     private Validator validator;
     private EnvironmentUtility envUtil;
     private IFullPlayerService fullPlayerService;
+    private ITransactionService transactionService;
 
     public SchedulingManager() {
         envUtil = EnvironmentUtility.getInstance();
@@ -81,6 +84,9 @@ public class SchedulingManager {
         validator = new Validator(teamService, gatherer, emailService);
 
         fullPlayerService = new FullPlayerService(playerService, playerSeasonService, mlbClient);
+
+        transactionService = new TransactionService(new TransactionRepository(),
+                playerService, playerSeasonService, new ESPNRestClient(), new AWSEmailService());
     }
 
     public void run() {
@@ -92,6 +98,13 @@ public class SchedulingManager {
         validateRosters();
 
         updateMinorLeaguerStatusForPlayers();
+    }
+
+    private ScheduledFuture processTransactions() {
+        Runnable runnable = processTransactionsRunnable(transactionService);
+        DateTime now = DateTime.now();
+        int offsetMinutes = 60 - now.getMinuteOfHour();
+        return scheduler.scheduleAtFixedRate(runnable, offsetMinutes, 60, TimeUnit.MINUTES);
     }
 
     private ScheduledFuture validateRosters() {
@@ -198,6 +211,16 @@ public class SchedulingManager {
                 fullPlayerService.updateMinorLeaguerStatusForPlayers();
             } catch (Exception e) {
                 logger.error(String.format("ERROR: updateMinorLeaguerStatusForPlayers, %s %s", e.getMessage(), e.getStackTrace().toString()));
+            }
+        };
+    }
+
+    public static Runnable processTransactionsRunnable(ITransactionService transactionService) {
+        return () -> {
+            try {
+                transactionService.processDailyTransactions();
+            } catch (Exception e) {
+                logger.error(String.format("ERROR: processTransactions, %s %s", e.getMessage(), e.getMessage().toString()));
             }
         };
     }

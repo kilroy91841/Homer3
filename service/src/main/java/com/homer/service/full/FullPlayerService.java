@@ -2,12 +2,14 @@ package com.homer.service.full;
 
 import com.google.common.collect.Lists;
 import com.homer.external.common.IMLBClient;
+import com.homer.external.common.espn.IESPNClient;
 import com.homer.external.common.mlb.BaseStats;
 import com.homer.external.common.mlb.HittingStats;
 import com.homer.external.common.mlb.PitchingStats;
 import com.homer.external.common.mlb.Stats;
 import com.homer.service.IPlayerSeasonService;
 import com.homer.service.IPlayerService;
+import com.homer.service.ITransactionService;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
@@ -38,7 +40,8 @@ public class FullPlayerService implements IFullPlayerService {
     private static final int MINOR_LEAGUER_AB_THRESHOLD = 150;
     private static final double MINOR_LEAGUE_IP_THRESHOLD = 50;
 
-    public FullPlayerService(IPlayerService playerService, IPlayerSeasonService playerSeasonService,
+    public FullPlayerService(IPlayerService playerService,
+                             IPlayerSeasonService playerSeasonService,
                              IMLBClient mlbClient) {
         this.playerService = playerService;
         this.playerSeasonService = playerSeasonService;
@@ -67,24 +70,28 @@ public class FullPlayerService implements IFullPlayerService {
 
         List<PlayerView> updatedPlayers = Lists.newArrayList();
         for (Player player : players) {
-            logger.info(player.getName() + ": retrieving stats");
-            boolean isBatter = player.isBatter();
-            PlayerView playerView;
-            if (isBatter) {
-                playerView = getStatsAndUpdateMinorLeaguerStatus(player,
-                        (playerId) -> (Stats<HittingStats>) mlbClient.getStats(playerId, isBatter), stats -> {
-                            logger.info(player.getName() + ": ab- " + stats.getSeasonStats().getAtBats());
-                            return stats.getSeasonStats().getAtBats() >= MINOR_LEAGUER_AB_THRESHOLD;
-                        });
-            } else {
-                playerView = getStatsAndUpdateMinorLeaguerStatus(player,
-                        (playerId) -> (Stats<PitchingStats>) mlbClient.getStats(playerId, isBatter), stats -> {
-                            logger.info(player.getName() + ": ip- " + stats.getSeasonStats().getInningsPitched());
-                            return stats.getSeasonStats().getInningsPitched() >= MINOR_LEAGUE_IP_THRESHOLD;
-                        });
-            }
-            if (playerView != null) {
-                updatedPlayers.add(playerView);
+            try {
+                logger.info(player.getName() + ": retrieving stats");
+                boolean isBatter = player.isBatter();
+                PlayerView playerView;
+                if (isBatter) {
+                    playerView = getStatsAndUpdateMinorLeaguerStatus(player,
+                            (playerId) -> (Stats<HittingStats>) mlbClient.getStats(playerId, isBatter), stats -> {
+                                logger.info(player.getName() + ": ab- " + stats.getSeasonStats().getAtBats());
+                                return stats.getSeasonStats().getAtBats() >= MINOR_LEAGUER_AB_THRESHOLD;
+                            });
+                } else {
+                    playerView = getStatsAndUpdateMinorLeaguerStatus(player,
+                            (playerId) -> (Stats<PitchingStats>) mlbClient.getStats(playerId, isBatter), stats -> {
+                                logger.info(player.getName() + ": ip- " + stats.getSeasonStats().getInningsPitched());
+                                return stats.getSeasonStats().getInningsPitched() >= MINOR_LEAGUE_IP_THRESHOLD;
+                            });
+                }
+                if (playerView != null) {
+                    updatedPlayers.add(playerView);
+                }
+            } catch (Exception e) {
+                logger.error("Error getting stats and updating minor league status for " + player.getName(), e);
             }
         }
         logger.info("END: updateMinorLeaguerStatusForPlayers");
