@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,25 +77,41 @@ public class JSONStatParser extends JSONParser {
     protected static BaseStats create(JsonStat jsonStat, boolean isBatter) {
         if (isBatter) {
             HittingStats hittingStats = new HittingStats();
-            hittingStats.setAtBats(Integer.parseInt(jsonStat.getAb()));
-            hittingStats.setRuns(Integer.parseInt(jsonStat.getR()));
-            hittingStats.setRbi(Integer.parseInt(jsonStat.getRbi()));
-            hittingStats.setHomeRuns(Integer.parseInt(jsonStat.getHr()));
-            hittingStats.setStolenBases(Integer.parseInt(jsonStat.getSb()));
-            hittingStats.setBattingAverage(Double.parseDouble(jsonStat.getAvg()));
-            hittingStats.setOnBasePercentage(Double.parseDouble(jsonStat.getObp()));
-            hittingStats.setSluggingPercentage(Double.parseDouble(jsonStat.getSlg()));
-            hittingStats.setOnBasePlusSlugging(Double.parseDouble(jsonStat.getOps()));
+            hittingStats.setAtBats(safeIntParse(jsonStat.getAb()));
+            hittingStats.setRuns(safeIntParse(jsonStat.getR()));
+            hittingStats.setRbi(safeIntParse(jsonStat.getRbi()));
+            hittingStats.setHomeRuns(safeIntParse(jsonStat.getHr()));
+            hittingStats.setStolenBases(safeIntParse(jsonStat.getSb()));
+            hittingStats.setBattingAverage(safeDoubleParse(jsonStat.getAvg()));
+            hittingStats.setOnBasePercentage(safeDoubleParse(jsonStat.getObp()));
+            hittingStats.setSluggingPercentage(safeDoubleParse(jsonStat.getSlg()));
+            hittingStats.setOnBasePlusSlugging(safeDoubleParse(jsonStat.getOps()));
             return hittingStats;
         } else {
             PitchingStats pitchingStats = new PitchingStats();
-            pitchingStats.setInningsPitched(Double.parseDouble(jsonStat.getIp()));
-            pitchingStats.setEra(Double.parseDouble(jsonStat.getEra()));
-            pitchingStats.setWhip(Double.parseDouble(jsonStat.getWhip()));
-            pitchingStats.setWins(Integer.parseInt(jsonStat.getW()));
-            pitchingStats.setSaves(Integer.parseInt(jsonStat.getSv()));
-            pitchingStats.setStrikeouts(Integer.parseInt(jsonStat.getSo()));
+            pitchingStats.setInningsPitched(safeDoubleParse(jsonStat.getIp()));
+            pitchingStats.setEra(safeDoubleParse(jsonStat.getEra()));
+            pitchingStats.setWhip(safeDoubleParse(jsonStat.getWhip()));
+            pitchingStats.setWins(safeIntParse(jsonStat.getW()));
+            pitchingStats.setSaves(safeIntParse(jsonStat.getSv()));
+            pitchingStats.setStrikeouts(safeIntParse(jsonStat.getSo()));
             return pitchingStats;
         }
+    }
+    
+    @Nullable
+    private static Integer safeIntParse(@Nullable String str) {
+        if (str == null || str.isEmpty()) {
+            return null;
+        }
+        return Integer.parseInt(str);
+    }
+    
+    @Nullable
+    private static Double safeDoubleParse(@Nullable String str) {
+        if (str == null || str.isEmpty()) {
+            return null;
+        }
+        return Double.parseDouble(str);
     }
 }

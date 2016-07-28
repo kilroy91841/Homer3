@@ -12,6 +12,7 @@ import com.homer.email.IEmailService;
 import com.homer.email.aws.AWSEmailService;
 import com.homer.exception.LoginFailedException;
 import com.homer.external.common.IMLBClient;
+import com.homer.external.rest.espn.ESPNRestClient;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.auth.IUserService;
@@ -71,6 +72,7 @@ public class Resource {
     private IFullMinorLeagueDraftService minorLeagueDraftService;
     private IScheduler scheduler;
     private Validator validator;
+    private ITransactionService transactionService;
 
     public Resource() {
         this.teamService = new TeamService(new TeamRepository());
@@ -109,6 +111,8 @@ public class Resource {
 
         minorLeagueDraftService = new FullMinorLeagueDraftService(gatherer, minorLeaguePickService, playerService, playerSeasonService,
                 new FullPlayerService(playerService, playerSeasonService, mlbClient), mlbClient, emailService, userService, teamService, scheduler);
+
+        transactionService = new TransactionService(new TransactionRepository(), playerService, playerSeasonService, new ESPNRestClient());
     }
 
     @GET
@@ -347,6 +351,28 @@ public class Resource {
     public ApiResponse validateTeams() {
         try {
             return new ApiResponse("success", validator.validateTeams());
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("processTransactions")
+    public ApiResponse processTransactions() {
+        try {
+            return new ApiResponse("success", transactionService.processDailyTransactions());
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("transactions")
+    public ApiResponse getTransactions() {
+        try {
+            return new ApiResponse("success", transactionService.getTransactions());
         } catch (Exception e) {
             return new ApiResponse(e.getMessage(), null);
         }

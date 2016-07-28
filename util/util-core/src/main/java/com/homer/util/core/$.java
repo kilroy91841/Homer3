@@ -6,6 +6,7 @@ import com.google.common.collect.Multimaps;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -98,6 +99,16 @@ public class $<T> {
     public boolean allMatch(Predicate<T> predicate)
     {
         return backing.allMatch(predicate);
+    }
+
+    public boolean anyMatch(Predicate<T> predicate)
+    {
+        return backing.anyMatch(predicate);
+    }
+
+    public $<T> sorted()
+    {
+        return of(backing.sorted());
     }
 
     // endregion
