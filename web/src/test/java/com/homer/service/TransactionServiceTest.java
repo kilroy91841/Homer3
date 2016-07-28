@@ -16,20 +16,14 @@ import java.util.List;
  */
 public class TransactionServiceTest {
 
-    private ITransactionService transactionService;
-
-    @Before
-    public void setup() {
-        transactionService = new TransactionService(
+    public static void main(String[] args) {
+        ITransactionService transactionService = new TransactionService(
                 new TransactionRepository(),
                 new PlayerService(new PlayerRepository()),
                 new PlayerSeasonService(new PlayerSeasonRepository()),
                 new ESPNRestClient(),
                 new AWSEmailService());
-    }
-
-    @Test
-    public void testIt() {
+        
         List<Transaction> trans = transactionService.processDailyTransactions();
         for (Transaction t : trans) {
             System.out.println(t);

@@ -11,7 +11,7 @@ import com.homer.external.common.espn.IESPNClient;
 import com.homer.type.*;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
-import com.sun.tools.javac.util.Pair;
+import com.homer.util.core.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,9 +79,9 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
         espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.DROP, today, today));
         espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.MOVE, today, today));
         Pair<List<Transaction>, List<ESPNTransaction>> pair = translateESPNTransactions(espnTransactions);
-        allTransactions.addAll(pair.fst);
+        allTransactions.addAll(pair.getFirst());
 
-        handleErrorTransactions($.of(pair.snd).toList(ESPNTransaction::getText));
+        handleErrorTransactions($.of(pair.getSecond()).toList(ESPNTransaction::getText));
 
         return $.of(allTransactions).sorted().toList();
     }
@@ -121,7 +121,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
 
     private Pair<List<Transaction>, List<ESPNTransaction>> translateESPNTransactions(List<ESPNTransaction> espnTransactions) {
         if (espnTransactions.size() == 0) {
-            return Pair.of(Lists.newArrayList(), Lists.newArrayList());
+            return new Pair(Lists.newArrayList(), Lists.newArrayList());
         }
         List<Transaction> transactions = Lists.newArrayList();
         List<ESPNTransaction> errorTransactions = Lists.newArrayList();
@@ -143,7 +143,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
             transaction.setTeamId(espnTrans.getTeamId());
             transactions.add(transaction);
         }
-        return Pair.of(transactions, errorTransactions);
+        return new Pair(transactions, errorTransactions);
     }
 
     private void handleErrorTransactions(List<String> transactions) {
