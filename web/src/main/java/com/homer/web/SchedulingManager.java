@@ -98,6 +98,8 @@ public class SchedulingManager {
         validateRosters();
 
         updateMinorLeaguerStatusForPlayers();
+
+        processTransactions();
     }
 
     private ScheduledFuture processTransactions() {

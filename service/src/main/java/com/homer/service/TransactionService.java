@@ -66,13 +66,14 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
 
     @Override
     public List<Transaction> getDailyTransactions() {
-        DateTime now = DateTime.now();
+        DateTime now = DateTime.now().minusHours(4);
         int year = now.getYear();
         int month = now.getMonthOfYear();
         int day = now.getDayOfMonth();
         String monthStr = month < 10 ? "0" + month : "" + month;
         String dayStr = day < 10 ? "0" + day : "" + day;
         String today = "" + year + monthStr + dayStr;
+        logger.info("Getting transactions for " + today);
         List<Transaction> allTransactions = Lists.newArrayList();
         List<ESPNTransaction> espnTransactions = Lists.newArrayList();
         espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.ADD, today, today));

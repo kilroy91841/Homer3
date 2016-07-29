@@ -1,6 +1,7 @@
 package com.homer.external.rest.espn;
 
 import com.homer.external.common.espn.ESPNTransaction;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,6 +26,7 @@ public class ESPNRestClientTest {
         List<ESPNTransaction> espnTrans = client.getTransactions(1, ESPNTransaction.Type.ADD, "20160725", "20160725");
         assertEquals(1, espnTrans.size());
         ESPNTransaction add = espnTrans.get(0);
+        assertEquals(add.getTransDate(), new DateTime("2015-07-25T07:35:00.000-04:00"));
         assertEquals("Jake Peavy", add.getPlayerName());
         assertEquals(1, add.getTeamId());
         assertEquals(ESPNTransaction.Type.ADD, add.getType());

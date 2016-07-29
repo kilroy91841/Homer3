@@ -8,6 +8,7 @@ import com.homer.external.rest.espn.parser.TransactionsParser;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.HttpRequest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +89,7 @@ public class ESPNRestClient implements IESPNClient {
         List<ESPNTransaction> transactions = null;
         try {
             String html = IOUtils.toString(response.getBody());
+            LOG.info("Request successful, parsing");
             TransactionsParser parser = new TransactionsParser(tranType);
             transactions = parser.parse(html);
         } catch (IOException e) {
@@ -99,9 +101,10 @@ public class ESPNRestClient implements IESPNClient {
     private HttpResponse<InputStream> makeRequest(String url, Map<String, Object> parameters) {
         HttpResponse<InputStream> response = null;
         try {
-            response = Unirest.get(url)
-                    .queryString(parameters)
-                    .asBinary();
+            HttpRequest request = Unirest.get(url)
+                    .queryString(parameters);
+            LOG.info("Making request to URL " + request.getUrl());
+            response = request.asBinary();
         } catch (UnirestException e) {
             LOG.error("Excepting fetching document", e);
         }

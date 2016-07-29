@@ -44,13 +44,14 @@ public class TransactionsParser {
         Elements transactionRows = document.select(SELECTOR_TABLEROWS);
         transactionRows.remove(0);
         transactionRows.remove(0);
+        LOG.info("Found " + transactionRows.size() + " transactions");
         for(Element e : transactionRows) {
             if(this.tranType.equals(ESPNTransaction.Type.ADD) || this.tranType.equals(ESPNTransaction.Type.DROP)) {
-                transactions.addAll(new AddDropParser().parseAddDrop(e));
+                transactions.addAll(parseAddDrop(tranType, e));
             } else if(this.tranType.equals(ESPNTransaction.Type.TRADE)) {
-                transactions.addAll(new TradeParser().parseTrade(e));
+                transactions.addAll(parseTrade(e));
             } else if(this.tranType.equals(ESPNTransaction.Type.MOVE)) {
-                transactions.addAll(new MoveParser().parseMove(e));
+                transactions.addAll(parseMove(e));
             } else {
                 LOG.warn("Unrecognized tran type " + tranType);
             }
@@ -59,144 +60,134 @@ public class TransactionsParser {
         return transactions;
     }
 
-    private class AddDropParser {
-        public List<ESPNTransaction> parseAddDrop(Element e) {
-            LOG.info("Parsing AddDrops");
 
-            Node timeNode = e.childNode(0);
-            Node playerNode = e.childNode(2);
+    public static List<ESPNTransaction> parseAddDrop(ESPNTransaction.Type tranType, Element e) {
+        LOG.info("Parsing AddDrops");
 
-            LOG.info("Parse transaction from nodes [timeNode=" + timeNode + ", playerNode=" + playerNode + "]");
+        Node playerNode = e.childNode(2);
 
-            String playerNodeText = ((Element)playerNode).text();
-            String playerName = ((Element)playerNode.childNode(1)).text().replace("*", "");
-            int teamId = new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
+        String playerNodeText = ((Element)playerNode).text();
+        String playerName = ((Element)playerNode.childNode(1)).text().replace("*", "");
+        int teamId = new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
 
-            DateTime dateTime = parseTimeFromNode(timeNode);
+        DateTime dateTime = parseTime(e);
 
-            ESPNTransaction transaction = new ESPNTransaction();
-            transaction.setPlayerName(playerName);
-            transaction.setTeamId(teamId);
-            transaction.setType(tranType);
-            transaction.setTransDate(dateTime);
-            transaction.setText(playerNodeText);
-            LOG.info("Transaction: " + transaction);
+        ESPNTransaction transaction = new ESPNTransaction();
+        transaction.setPlayerName(playerName);
+        transaction.setTeamId(teamId);
+        transaction.setType(tranType);
+        transaction.setTransDate(dateTime);
+        transaction.setText(playerNodeText);
+        LOG.info("Transaction: " + transaction);
 
-            List<ESPNTransaction> transactions = Lists.newArrayList();
-            transactions.add(transaction);
-            return transactions;
-        }
+        List<ESPNTransaction> transactions = Lists.newArrayList();
+        transactions.add(transaction);
+        return transactions;
     }
 
-    private class MoveParser {
-        public List<ESPNTransaction> parseMove(Element e) {
-            LOG.info("Parsing Moves");
 
-            Node timeNode = e.childNode(0);
-            Node playerNode = e.childNode(2);
+    public static List<ESPNTransaction> parseMove(Element e) {
+        LOG.info("Parsing Moves");
 
-            LOG.info("Parse transaction from nodes [timeNode=" + timeNode + ", playerNode=" + playerNode + "]");
+        Node playerNode = e.childNode(2);
 
-            String pattern = "(\\w+) from (\\w+) to (\\w+)";
-            Pattern pat = Pattern.compile(pattern);
+        String pattern = "(\\w+) from (\\w+) to (\\w+)";
+        Pattern pat = Pattern.compile(pattern);
 
-            String playerNodeText = ((Element)playerNode).text();
-            String playerName = ((Element)playerNode.childNode(1)).text().replace("*", "");
-            int teamId = new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
+        String playerNodeText = ((Element)playerNode).text();
+        String playerName = ((Element)playerNode.childNode(1)).text().replace("*", "");
+        int teamId = new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
 
-            Matcher m = pat.matcher(playerNodeText);
-            String oldPos = null;
-            String newPos = null;
-            if (m.find()) {
-                oldPos = m.group(2);
-                newPos = m.group(3);
-            }
-
-            DateTime dateTime = parseTimeFromNode(timeNode);
-
-            ESPNTransaction transaction = new ESPNTransaction();
-            transaction.setPlayerName(playerName);
-            transaction.setTeamId(teamId);
-            transaction.setType(tranType);
-            transaction.setTransDate(dateTime);
-            transaction.setText(playerNodeText);
-            transaction.setOldPosition(oldPos);
-            transaction.setNewPosition(newPos);
-            LOG.info("Transaction: " + transaction);
-
-            List<ESPNTransaction> transactions = Lists.newArrayList();
-            transactions.add(transaction);
-            return transactions;
+        Matcher m = pat.matcher(playerNodeText);
+        String oldPos = null;
+        String newPos = null;
+        if (m.find()) {
+            oldPos = m.group(2);
+            newPos = m.group(3);
         }
+
+        DateTime dateTime = parseTime(e);
+
+        ESPNTransaction transaction = new ESPNTransaction();
+        transaction.setPlayerName(playerName);
+        transaction.setTeamId(teamId);
+        transaction.setType(ESPNTransaction.Type.MOVE);
+        transaction.setTransDate(dateTime);
+        transaction.setText(playerNodeText);
+        transaction.setOldPosition(oldPos);
+        transaction.setNewPosition(newPos);
+        LOG.info("Transaction: " + transaction);
+
+        List<ESPNTransaction> transactions = Lists.newArrayList();
+        transactions.add(transaction);
+        return transactions;
     }
 
-    private class TradeParser {
-        public List<ESPNTransaction> parseTrade(Element e) {
-            LOG.info("Parsing trades");
-            if(!e.childNode(1).toString().contains("Trade Upheld")) {
-                LOG.info("Trade is not 'Trade Upheld', delaying parsing until its upheld");
-                return Lists.newArrayList();
-            }
-            Node timeNode = e.childNode(0);
-            DateTime dateTime = parseTimeFromNode(timeNode);
+    public static List<ESPNTransaction> parseTrade(Element e) {
+        LOG.info("Parsing trades");
+        if(!e.childNode(1).toString().contains("Trade Upheld")) {
+            LOG.info("Trade is not 'Trade Upheld', delaying parsing until its upheld");
+            return Lists.newArrayList();
+        }
+        DateTime dateTime = parseTime(e);
 
-            //The trade text only contains team code, not team id, so map the team code in the trade text
-            //to the team ids found in the link. Then use these codes to map which team ids received which player
-            String teamCode1 = ((Element)e.childNode(3).childNode(0)).text().split(" ")[0];
-            int teamId1 = new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
-            String teamCode2 = ((Element)e.childNode(3).childNode(2)).text().split(" ")[0];
-            int teamId2 = new Integer(e.childNode(3).childNode(2).attr("href").split("teamId=")[1]);
+        //The trade text only contains team code, not team id, so map the team code in the trade text
+        //to the team ids found in the link. Then use these codes to map which team ids received which player
+        String teamCode1 = ((Element)e.childNode(3).childNode(0)).text().split(" ")[0];
+        int teamId1 = new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
+        String teamCode2 = ((Element)e.childNode(3).childNode(2)).text().split(" ")[0];
+        int teamId2 = new Integer(e.childNode(3).childNode(2).attr("href").split("teamId=")[1]);
 
-            List<ESPNTransaction> transactions = Lists.newArrayList();
-            List<List<Node>> individualTradeMoves = Lists.newArrayList();
+        List<ESPNTransaction> transactions = Lists.newArrayList();
+        List<List<Node>> individualTradeMoves = Lists.newArrayList();
 
-            Node tradeTextNode = e.childNode(2);
+        Node tradeTextNode = e.childNode(2);
 
-            List<Node> individualMove = new ArrayList<Node>();
-            for(int i = 0; i < tradeTextNode.childNodes().size(); i++) {
-                if(tradeTextNode.childNode(i).getClass().equals(TextNode.class)) {
-                    individualMove.add(tradeTextNode.childNode(i));
-                } else if(tradeTextNode.childNode(i).getClass().equals(Element.class)) {
-                    Element e1 = (Element)tradeTextNode.childNode(i);
-                    if(e1.tag().getName().equals(SELECTOR_BR)) {
-                        individualTradeMoves.add(individualMove);
-                        individualMove = new ArrayList<Node>();
-                    } else {
-                        individualMove.add(e1.childNode(0));
-                    }
-                }
-            }
-            if(individualMove.size() > 0) {
-                individualTradeMoves.add(individualMove);
-            }
-            for(List<Node> tradeNodes : individualTradeMoves) {
-                Node tradingTeamNode = tradeNodes.get(0);
-                Node playerNode = tradeNodes.get(1);
-                Node tradedToTeamNode = tradeNodes.get(2);
-                String tradingTeamName = tradingTeamNode.toString().split(" ")[0];
-                String playerName = playerNode.toString();
-                String tradedToTeamName = tradedToTeamNode.toString().split("to ")[1];
-                Integer acquiringTeamId = null;
-                if(tradedToTeamName.equals(teamCode1)) {
-                    acquiringTeamId = teamId1;
-                } else if(tradedToTeamName.equals(teamCode2)) {
-                    acquiringTeamId = teamId2;
+        List<Node> individualMove = new ArrayList<Node>();
+        for(int i = 0; i < tradeTextNode.childNodes().size(); i++) {
+            if(tradeTextNode.childNode(i).getClass().equals(TextNode.class)) {
+                individualMove.add(tradeTextNode.childNode(i));
+            } else if(tradeTextNode.childNode(i).getClass().equals(Element.class)) {
+                Element e1 = (Element)tradeTextNode.childNode(i);
+                if(e1.tag().getName().equals(SELECTOR_BR)) {
+                    individualTradeMoves.add(individualMove);
+                    individualMove = new ArrayList<Node>();
                 } else {
-                    LOG.warn("Could not find acquiring team for this trade");
+                    individualMove.add(e1.childNode(0));
                 }
-                ESPNTransaction transaction = new ESPNTransaction();
-                transaction.setTransDate(dateTime);
-                transaction.setPlayerName(playerName);
-                transaction.setType(tranType);
-                transaction.setTeamId(acquiringTeamId);
-                transaction.setText($.of(tradeNodes).toList(Node::toString).stream().collect(Collectors.joining("")));
-                transactions.add(transaction);
             }
-            return transactions;
         }
+        if(individualMove.size() > 0) {
+            individualTradeMoves.add(individualMove);
+        }
+        for(List<Node> tradeNodes : individualTradeMoves) {
+            Node tradingTeamNode = tradeNodes.get(0);
+            Node playerNode = tradeNodes.get(1);
+            Node tradedToTeamNode = tradeNodes.get(2);
+            String tradingTeamName = tradingTeamNode.toString().split(" ")[0];
+            String playerName = playerNode.toString();
+            String tradedToTeamName = tradedToTeamNode.toString().split("to ")[1];
+            Integer acquiringTeamId = null;
+            if(tradedToTeamName.equals(teamCode1)) {
+                acquiringTeamId = teamId1;
+            } else if(tradedToTeamName.equals(teamCode2)) {
+                acquiringTeamId = teamId2;
+            } else {
+                LOG.warn("Could not find acquiring team for this trade");
+            }
+            ESPNTransaction transaction = new ESPNTransaction();
+            transaction.setTransDate(dateTime);
+            transaction.setPlayerName(playerName);
+            transaction.setType(ESPNTransaction.Type.TRADE);
+            transaction.setTeamId(acquiringTeamId);
+            transaction.setText($.of(tradeNodes).toList(Node::toString).stream().collect(Collectors.joining("")));
+            transactions.add(transaction);
+        }
+        return transactions;
     }
 
-    private static DateTime parseTimeFromNode(Node timeNode) {
+    private static DateTime parseTime(Element e) {
+        Node timeNode = e.childNode(0);
         String time = ((Element)timeNode).text();
         DateTime dateTime = DateTime.parse("2015" + time.split(",")[1], dateFormatter);
         return dateTime;
