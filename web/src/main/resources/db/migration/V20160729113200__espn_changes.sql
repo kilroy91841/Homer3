@@ -13,7 +13,7 @@ ADD COLUMN espnPlayerId BIGINT AFTER mlbPlayerId;
 DROP TABLE IF EXISTS player_dailies;
 CREATE TABLE IF NOT EXISTS player_dailies (
     id BIGINT,
-    date DATETIME NOT NULL,
+    date DATE NOT NULL,
     playerId BIGINT NOT NULL,
     teamId BIGINT,
     fantasyPosition INT,
@@ -45,7 +45,7 @@ DROP TABLE IF EXISTS history_player_dailies;
 CREATE TABLE IF NOT EXISTS history_player_dailies (
     historyId BIGINT NOT NULL AUTO_INCREMENT,
     id BIGINT NOT NULL,
-    date DATETIME NOT NULL,
+    date DATE NOT NULL,
     playerId BIGINT NOT NULL,
     teamId BIGINT,
     fantasyPosition INT,

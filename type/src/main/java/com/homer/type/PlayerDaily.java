@@ -1,5 +1,7 @@
 package com.homer.type;
 
+import com.google.common.base.Objects;
+import com.homer.util.core.data.DateOnly;
 import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
@@ -12,6 +14,7 @@ import javax.persistence.Table;
 @Table(name = "player_dailies", schema = "homer")
 public class PlayerDaily extends BaseObject {
 
+    @DateOnly
     @Column
     private DateTime date;
     @Column(updatable = false)
@@ -75,6 +78,69 @@ public class PlayerDaily extends BaseObject {
     @Nullable
     @Column
     private Integer earnedRuns;
+
+    // region equals/hashCode/toString
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        PlayerDaily that = (PlayerDaily) o;
+        return playerId == that.playerId &&
+                scoringPeriodId == that.scoringPeriodId &&
+                Objects.equal(date, that.date) &&
+                Objects.equal(teamId, that.teamId) &&
+                fantasyPosition == that.fantasyPosition &&
+                Objects.equal(walks, that.walks) &&
+                Objects.equal(atBats, that.atBats) &&
+                Objects.equal(homeRuns, that.homeRuns) &&
+                Objects.equal(runs, that.runs) &&
+                Objects.equal(rbi, that.rbi) &&
+                Objects.equal(stolenBases, that.stolenBases) &&
+                Objects.equal(hitByPitches, that.hitByPitches) &&
+                Objects.equal(sacFlies, that.sacFlies) &&
+                Objects.equal(totalBases, that.totalBases) &&
+                Objects.equal(strikeouts, that.strikeouts) &&
+                Objects.equal(wins, that.wins) &&
+                Objects.equal(saves, that.saves) &&
+                Objects.equal(inningsPitched, that.inningsPitched) &&
+                Objects.equal(hits, that.hits) &&
+                Objects.equal(earnedRuns, that.earnedRuns);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(super.hashCode(), date, playerId, teamId, fantasyPosition, scoringPeriodId, walks, atBats, homeRuns, runs, rbi, stolenBases, hitByPitches, sacFlies, totalBases, strikeouts, wins, saves, inningsPitched, hits, earnedRuns);
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerDaily{" +
+                "date=" + date +
+                "\n, playerId=" + playerId +
+                "\n, teamId=" + teamId +
+                "\n, fantasyPosition=" + fantasyPosition +
+                "\n, scoringPeriodId=" + scoringPeriodId +
+                "\n, walks=" + walks +
+                "\n, atBats=" + atBats +
+                "\n, homeRuns=" + homeRuns +
+                "\n, runs=" + runs +
+                "\n, rbi=" + rbi +
+                "\n, stolenBases=" + stolenBases +
+                "\n, hitByPitches=" + hitByPitches +
+                "\n, sacFlies=" + sacFlies +
+                "\n, totalBases=" + totalBases +
+                "\n, strikeouts=" + strikeouts +
+                "\n, wins=" + wins +
+                "\n, saves=" + saves +
+                "\n, inningsPitched=" + inningsPitched +
+                "\n, hits=" + hits +
+                "\n, earnedRuns=" + earnedRuns +
+                "} " + super.toString();
+    }
+
+    // endregion
 
     public DateTime getDate() {
         return date;

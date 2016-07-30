@@ -10,9 +10,12 @@ import com.homer.util.core.data.IRepository;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 
@@ -190,7 +193,7 @@ public class RepositoryTests {
         PlayerDaily playerDaily = new PlayerDaily();
         playerDaily.setPlayerId(1);
         playerDaily.setTeamId(1L);
-        playerDaily.setDate(DateTime.parse("2016-04-03T12:00:00"));
+        playerDaily.setDate(DateTime.parse("2016-04-03T12:00:00").withMillisOfDay(0));
         playerDaily.setScoringPeriodId(1);
 
         Consumer<PlayerDaily> updater = (pd) -> {
@@ -198,7 +201,25 @@ public class RepositoryTests {
             pd.setAtBats(4);
             pd.setInningsPitched(3.33);
         };
-        testCRU(playerDaily, new PlayerDailyRepository(), Lists.newArrayList(updater));
+        PlayerDailyRepository repo = new PlayerDailyRepository();
+        testCRU(playerDaily, repo, updated -> repo.getByKey(updated.getPlayerId(), updated.getDate()), new ArrayList<Consumer<PlayerDaily>>(Lists.newArrayList(updater)));
+    }
+
+    @Test
+    public void testStandingsCRUD() throws Exception {
+        Standing standing = new Standing();
+        standing.setTeamId(1);
+        standing.setDate(DateTime.parse("2016-04-03T12:00:00").withMillisOfDay(0));
+
+        Consumer<Standing> updater = (s) -> {
+            s.setEraPoints(10.3);
+            s.setEraTotal(2);
+            s.setSbPoints(3.4);
+            s.setSbTotal(4);
+        };
+
+        StandingRepository repo = new StandingRepository();
+        testCRU(standing, repo, updated -> repo.getByKey(updated.getTeamId(), updated.getDate()), new ArrayList<Consumer<Standing>>(Lists.newArrayList(updater)));
     }
 
     private <T extends IBaseObject> void testCRUD(T obj, IRepository<T> repo,
@@ -211,13 +232,18 @@ public class RepositoryTests {
     }
 
     private <T extends IBaseObject> T testCRU(T obj, IRepository<T> repo,
+                                              List<Consumer<T>> updaters) throws Exception {
+        return testCRU(obj, repo, (updated) -> repo.getById(updated.getId()), updaters);
+    }
+
+    private <T extends IBaseObject> T testCRU(T obj, IRepository<T> repo, Function<T, T> supplier,
                                                   List<Consumer<T>> updaters) throws Exception {
         T createdObj = repo.upsert(obj);
         assertNotNull(createdObj);
         obj.setId(createdObj.getId());
         assertEquals(obj, createdObj);
 
-        T fetchedObj = repo.getById(createdObj.getId());
+        T fetchedObj = supplier.apply(createdObj);
         assertEquals(createdObj, fetchedObj);
 
         updaters.forEach(u -> u.accept(createdObj));

@@ -5,6 +5,7 @@ import com.homer.util.core.$;
 import com.homer.util.core.IBaseObject;
 import com.homer.util.core.IDated;
 import com.homer.util.core.IIntEnum;
+import com.homer.util.core.data.DateOnly;
 import com.homer.util.core.data.IRepository;
 import com.homer.util.core.data.Matcher;
 import org.apache.commons.beanutils.BeanUtils;
@@ -20,6 +21,7 @@ import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 /**
@@ -357,9 +359,14 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                 } else if (String.class.equals(f.getType())) {
                     BeanUtils.setProperty(obj, fieldName, rs.getString(fieldName));
                 } else if (DateTime.class.equals(f.getType())) {
-                    Timestamp timestamp = rs.getTimestamp(fieldName);
-                    if (timestamp != null) {
-                        BeanUtils.setProperty(obj, fieldName, dateTimeFormatter.parseDateTime(timestamp.toString()).withZone(DateTimeZone.getDefault()));
+                    if (f.isAnnotationPresent(DateOnly.class)) {
+                        Date date = rs.getDate(fieldName);
+                        BeanUtils.setProperty(obj, fieldName, new DateTime(date));
+                    } else {
+                        Timestamp timestamp = rs.getTimestamp(fieldName);
+                        if (timestamp != null) {
+                            BeanUtils.setProperty(obj, fieldName, dateTimeFormatter.parseDateTime(timestamp.toString()).withZone(DateTimeZone.getDefault()));
+                        }
                     }
                 } else if (IIntEnum.class.isAssignableFrom(f.getType())) {
                     Class<IIntEnum> clazz = (Class<IIntEnum>) f.getType();

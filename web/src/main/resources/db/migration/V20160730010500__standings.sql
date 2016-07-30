@@ -1,0 +1,71 @@
+USE homer;
+
+DROP TABLE IF EXISTS standings;
+CREATE TABLE IF NOT EXISTS standings (
+    id BIGINT,
+    date DATE NOT NULL,
+    teamId BIGINT NOT NULL,
+    runsPoints DOUBLE NOT NULL,
+    runTotal INT NOT NULL,
+    hrPoints DOUBLE NOT NULL,
+    hrTotal INT NOT NULL,
+    rbiPoints DOUBLE NOT NULL,
+    rbiTotal INT NOT NULL,
+    sbPoints DOUBLE NOT NULL,
+    sbTotal INT NOT NULL,
+    obpPoints DOUBLE NOT NULL,
+    obpTotal DOUBLE NOT NULL,
+    kPoints DOUBLE NOT NULL,
+    kTotal INT NOT NULL,
+    winPoints DOUBLE NOT NULL,
+    winTotal INT NOT NULL,
+    savePoints DOUBLE NOT NULL,
+    saveTotal INT NOT NULL,
+    eraPoints DOUBLE NOT NULL,
+    eraTotal DOUBLE NOT NULL,
+    whipPoints DOUBLE NOT NULL,
+    whipTotal DOUBLE NOT NULL,
+    totalPoints DOUBLE NOT NULL,
+    place INT NOT NULL,
+    createdDateUTC DATETIME NOT NULL,
+    updatedDateUTC DATETIME NOT NULL,
+    PRIMARY KEY (teamId, date),
+    FOREIGN KEY (teamId) REFERENCES teams (id)
+);
+
+DROP TABLE IF EXISTS history_standings;
+CREATE TABLE IF NOT EXISTS history_standings (
+    historyId BIGINT NOT NULL AUTO_INCREMENT,
+    id BIGINT NOT NULL,
+    date DATE NOT NULL,
+    teamId BIGINT NOT NULL,
+    runsPoints DOUBLE NOT NULL,
+    runTotal INT NOT NULL,
+    hrPoints DOUBLE NOT NULL,
+    hrTotal INT NOT NULL,
+    rbiPoints DOUBLE NOT NULL,
+    rbiTotal INT NOT NULL,
+    sbPoints DOUBLE NOT NULL,
+    sbTotal INT NOT NULL,
+    obpPoints DOUBLE NOT NULL,
+    obpTotal DOUBLE NOT NULL,
+    kPoints DOUBLE NOT NULL,
+    kTotal INT NOT NULL,
+    winPoints DOUBLE NOT NULL,
+    winTotal INT NOT NULL,
+    savePoints DOUBLE NOT NULL,
+    saveTotal INT NOT NULL,
+    eraPoints DOUBLE NOT NULL,
+    eraTotal DOUBLE NOT NULL,
+    whipPoints DOUBLE NOT NULL,
+    whipTotal DOUBLE NOT NULL,
+    totalPoints DOUBLE NOT NULL,
+    place INT NOT NULL,
+    createdDateUTC DATETIME NOT NULL,
+    updatedDateUTC DATETIME NOT NULL,
+    historyCreatedDateUTC DATETIME NOT NULL,
+    isDeleted TINYINT(1),
+    PRIMARY KEY (historyId)
+);
+
+ALTER TABLE history_standings AUTO_INCREMENT = 1;
