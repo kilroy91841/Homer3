@@ -185,6 +185,22 @@ public class RepositoryTests {
         testCRUD(transaction, new TransactionRepository(), updaters);
     }
 
+    @Test
+    public void testPlayerDailyCRUD() throws Exception {
+        PlayerDaily playerDaily = new PlayerDaily();
+        playerDaily.setPlayerId(1);
+        playerDaily.setTeamId(1L);
+        playerDaily.setDate(DateTime.parse("2016-04-03T12:00:00"));
+        playerDaily.setScoringPeriodId(1);
+
+        Consumer<PlayerDaily> updater = (pd) -> {
+            pd.setId(3);
+            pd.setAtBats(4);
+            pd.setInningsPitched(3.33);
+        };
+        testCRU(playerDaily, new PlayerDailyRepository(), Lists.newArrayList(updater));
+    }
+
     private <T extends IBaseObject> void testCRUD(T obj, IRepository<T> repo,
                                                     List<Consumer<T>> updaters) throws Exception {
         T updatedObj = testCRU(obj, repo, updaters);

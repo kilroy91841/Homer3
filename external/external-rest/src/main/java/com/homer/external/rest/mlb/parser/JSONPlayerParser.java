@@ -6,11 +6,15 @@ import com.homer.external.rest.mlb.MLBJSONObject;
 import com.homer.external.rest.mlb.model.JsonPlayer;
 import com.mashape.unirest.http.JsonNode;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by arigolub on 2/14/15.
  */
 public class JSONPlayerParser extends JSONParser {
+
+    final static Logger logger = LoggerFactory.getLogger(JSONPlayerParser.class);
 
     private static final String JSON_QUERY_RESULTS  = "queryResults";
     private static final String JSON_PLAYER_INFO    = "player_info";
@@ -30,6 +34,8 @@ public class JSONPlayerParser extends JSONParser {
         JsonPlayer jsonPlayer = new JsonPlayer();
         copyPropertiesFromJson(jsonPlayer, jsonObject);
 
+        logger.info("Creating player from JSON for " + jsonPlayer.getNameDisplayFirstLast());
+
         MLBPlayer player = new MLBPlayer();
         player.setName(jsonPlayer.getNameDisplayFirstLast());
         player.setFirstName(jsonPlayer.getNameFirst());
@@ -45,7 +51,7 @@ public class JSONPlayerParser extends JSONParser {
         if ("D".equals(primaryPosition)) {
             return 8;
         }
-        if ("8".equals(primaryPosition) || "9".equals(primaryPosition)) {
+        if ("8".equals(primaryPosition) || "9".equals(primaryPosition) || "O".equals(primaryPosition)) {
             return 7;
         }
         return Integer.parseInt(primaryPosition);

@@ -27,6 +27,9 @@ public class Player extends BaseObject {
     @Column
     @Nullable
     private Long mlbPlayerId;
+    @Column
+    @Nullable
+    private Long espnPlayerId;
 
     public boolean isBatter() {
         return !(position.equals(Position.PITCHER) || position.equals(Position.RELIEFPITCHER));
@@ -43,12 +46,13 @@ public class Player extends BaseObject {
                 Objects.equal(firstName, player.firstName) &&
                 Objects.equal(lastName, player.lastName) &&
                 position == player.position &&
-                Objects.equal(mlbPlayerId, player.mlbPlayerId);
+                Objects.equal(mlbPlayerId, player.mlbPlayerId) &&
+                Objects.equal(espnPlayerId, player.espnPlayerId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), name, firstName, lastName, position, mlbTeamId, mlbPlayerId);
+        return Objects.hashCode(super.hashCode(), name, firstName, lastName, position, mlbTeamId, mlbPlayerId, espnPlayerId);
     }
 
     @Override
@@ -60,6 +64,7 @@ public class Player extends BaseObject {
                 ", position=" + position +
                 ", mlbTeamId=" + mlbTeamId +
                 ", mlbPlayerId=" + mlbPlayerId +
+                ", espnPlayerId=" + espnPlayerId +
                 "} " + super.toString();
     }
 
@@ -110,5 +115,14 @@ public class Player extends BaseObject {
 
     public void setMlbPlayerId(@Nullable Long mlbPlayerId) {
         this.mlbPlayerId = mlbPlayerId;
+    }
+
+    @Nullable
+    public Long getEspnPlayerId() {
+        return espnPlayerId;
+    }
+
+    public void setEspnPlayerId(@Nullable Long espnPlayerId) {
+        this.espnPlayerId = espnPlayerId;
     }
 }

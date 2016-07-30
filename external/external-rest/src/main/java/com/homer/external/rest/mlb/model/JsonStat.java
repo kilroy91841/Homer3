@@ -95,6 +95,8 @@ public class JsonStat {
     private String w;
     @JsonProperty(value = "ip")
     private String ip;
+    @JsonProperty(value = "er")
+    private String er;
 
     // region getters + setters
 
@@ -448,6 +450,14 @@ public class JsonStat {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String getEr() {
+        return er;
+    }
+
+    public void setEr(String er) {
+        this.er = er;
     }
 
     // endregion

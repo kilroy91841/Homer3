@@ -12,6 +12,10 @@ public class HittingStats extends BaseStats {
     private Integer runs;
     private Integer rbi;
     private Integer stolenBases;
+    private Integer walks;
+    private Integer hitByPitches;
+    private Integer sacFlies;
+    private Integer totalBases;
     private Double battingAverage;
     private Double onBasePercentage;
     private Double onBasePlusSlugging;
@@ -89,5 +93,37 @@ public class HittingStats extends BaseStats {
 
     public void setSluggingPercentage(Double sluggingPercentage) {
         this.sluggingPercentage = sluggingPercentage;
+    }
+
+    public Integer getWalks() {
+        return walks;
+    }
+
+    public void setWalks(Integer walks) {
+        this.walks = walks;
+    }
+
+    public Integer getHitByPitches() {
+        return hitByPitches;
+    }
+
+    public void setHitByPitches(Integer hitByPitches) {
+        this.hitByPitches = hitByPitches;
+    }
+
+    public Integer getSacFlies() {
+        return sacFlies;
+    }
+
+    public void setSacFlies(Integer sacFlies) {
+        this.sacFlies = sacFlies;
+    }
+
+    public Integer getTotalBases() {
+        return totalBases;
+    }
+
+    public void setTotalBases(Integer totalBases) {
+        this.totalBases = totalBases;
     }
 }

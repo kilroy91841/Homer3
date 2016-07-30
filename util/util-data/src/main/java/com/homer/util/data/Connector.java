@@ -28,7 +28,6 @@ public class Connector {
 
         Connection conn = DriverManager.getConnection(envUtil.getDatabaseUrl(), connectionProps);
         conn.setAutoCommit(false);
-        System.out.println("Connected to database");
         return conn;
     }
 }

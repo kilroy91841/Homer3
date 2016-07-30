@@ -1,5 +1,6 @@
 package com.homer.external.rest.mlb.parser;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.homer.external.common.mlb.BaseStats;
 import com.homer.external.common.mlb.HittingStats;
@@ -7,6 +8,7 @@ import com.homer.external.common.mlb.PitchingStats;
 import com.homer.external.common.mlb.Stats;
 import com.homer.external.rest.mlb.model.JsonStat;
 import com.mashape.unirest.http.JsonNode;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,6 +77,7 @@ public class JSONStatParser extends JSONParser {
     }
 
     protected static BaseStats create(JsonStat jsonStat, boolean isBatter) {
+        BaseStats stat;
         if (isBatter) {
             HittingStats hittingStats = new HittingStats();
             hittingStats.setAtBats(safeIntParse(jsonStat.getAb()));
@@ -86,17 +89,34 @@ public class JSONStatParser extends JSONParser {
             hittingStats.setOnBasePercentage(safeDoubleParse(jsonStat.getObp()));
             hittingStats.setSluggingPercentage(safeDoubleParse(jsonStat.getSlg()));
             hittingStats.setOnBasePlusSlugging(safeDoubleParse(jsonStat.getOps()));
-            return hittingStats;
+            hittingStats.setWalks(safeIntParse(jsonStat.getBb()));
+            hittingStats.setHitByPitches(safeIntParse(jsonStat.getHbp()));
+            hittingStats.setSacFlies(safeIntParse(jsonStat.getSf()));
+            hittingStats.setTotalBases(safeIntParse(jsonStat.getTb()));
+            stat = hittingStats;
         } else {
             PitchingStats pitchingStats = new PitchingStats();
-            pitchingStats.setInningsPitched(safeDoubleParse(jsonStat.getIp()));
+            Double inningsPitched = safeDoubleParse(jsonStat.getIp());
+            if (inningsPitched != null) {
+                int wholePart = (int) (double) inningsPitched;
+                double fractionPart = (inningsPitched - wholePart) * 3.333333;
+                double modifiedInningsPitched = wholePart + fractionPart;
+                pitchingStats.setInningsPitched(modifiedInningsPitched);
+            }
             pitchingStats.setEra(safeDoubleParse(jsonStat.getEra()));
             pitchingStats.setWhip(safeDoubleParse(jsonStat.getWhip()));
             pitchingStats.setWins(safeIntParse(jsonStat.getW()));
             pitchingStats.setSaves(safeIntParse(jsonStat.getSv()));
             pitchingStats.setStrikeouts(safeIntParse(jsonStat.getSo()));
-            return pitchingStats;
+            pitchingStats.setHits(safeIntParse(jsonStat.getH()));
+            pitchingStats.setWalks(safeIntParse(jsonStat.getBb()));
+            pitchingStats.setEarnedRuns(safeIntParse(jsonStat.getEr()));
+            stat = pitchingStats;
         }
+        if (!Strings.isNullOrEmpty(jsonStat.getGameDate())) {
+            stat.setGameDate(DateTime.parse(jsonStat.getGameDate()));
+        }
+        return stat;
     }
     
     @Nullable

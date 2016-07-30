@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.homer.service.utility.ESPNUtility.translateESPNPosition;
+import static com.homer.service.utility.ESPNUtility.translateESPNTransactionType;
 
 /**
  * Created by arigolub on 7/25/16.
@@ -66,7 +68,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
 
     @Override
     public List<Transaction> getDailyTransactions() {
-        DateTime now = DateTime.now().minusHours(4);
+        DateTime now = DateTime.now().minusHours(8);
         int year = now.getYear();
         int month = now.getMonthOfYear();
         int day = now.getDayOfMonth();
@@ -161,55 +163,5 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
 
         EmailRequest emailRequest = new EmailRequest(Lists.newArrayList(IEmailService.COMMISSIONER_EMAIL), subject, htmlObj);
         emailService.sendEmail(emailRequest);
-    }
-
-    @Nullable
-    private static Position translateESPNPosition(String positionText) {
-        if (positionText == null) {
-            return null;
-        }
-        switch (positionText) {
-            case "C":
-                return Position.CATCHER;
-            case "1B":
-                return Position.FIRSTBASE;
-            case "2B":
-                return Position.SECONDBASE;
-            case "3B":
-                return Position.THIRDBASE;
-            case "SS":
-                return Position.SHORTSTOP;
-            case "2B/SS":
-                return Position.MIDDLEINFIELD;
-            case "1B/3B":
-                return Position.CORNERINFIELD;
-            case "OF":
-                return Position.OUTFIELD;
-            case "UTIL":
-                return Position.UTILITY;
-            case "P":
-                return Position.PITCHER;
-            case "DL":
-                return Position.DISABLEDLIST;
-            default:
-                return null;
-        }
-    }
-
-    @Nullable
-    private static TransactionType translateESPNTransactionType(ESPNTransaction.Type type) {
-        switch (type) {
-            case ADD:
-                return TransactionType.ADD;
-            case DROP:
-                return TransactionType.DROP;
-            case MOVE:
-                return TransactionType.MOVE;
-            case TRADE:
-                return TransactionType.TRADE;
-            default:
-                return TransactionType.UNKNOWN;
-        }
-
     }
 }

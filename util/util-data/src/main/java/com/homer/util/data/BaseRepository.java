@@ -13,6 +13,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Table;
 import java.lang.reflect.Field;
@@ -24,6 +26,8 @@ import java.util.*;
  * Created by arigolub on 3/13/16.
  */
 public abstract class BaseRepository<T extends IBaseObject> implements IRepository<T> {
+
+    static final Logger logger = LoggerFactory.getLogger(BaseRepository.class);
 
     private final Class<T> clazz;
     protected final DateTimeFormatter dateTimeFormatter;
@@ -40,7 +44,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         Connection con = null;
         try {
             String query = buildQuery(clazz, filters);
-            System.out.println(query);
+            logger.debug(query);
             con = Connector.getConnection();
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -80,7 +84,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         Connection con = null;
         try {
             String query = buildUpsert(clazz, $.of(obj).toList());
-            System.out.println(query);
+            logger.debug(query);
             con = Connector.getConnection();
             stmt = con.createStatement();
             int rowCount = stmt.executeUpdate(query);
@@ -127,7 +131,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         Statement stmt = null;
         Connection con = null;
         try {
-            System.out.println(query);
+            logger.debug(query);
             con = Connector.getConnection();
             stmt = con.createStatement();
             stmt.execute(query);
