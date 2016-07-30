@@ -1,0 +1,4 @@
+USE homer;
+
+ALTER TABLE transactions
+MODIFY COLUMN text VARCHAR(200) NOT NULL;

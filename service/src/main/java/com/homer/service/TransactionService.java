@@ -82,7 +82,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
         Pair<List<Transaction>, List<ESPNTransaction>> pair = translateESPNTransactions(espnTransactions);
         allTransactions.addAll(pair.getFirst());
 
-        handleErrorTransactions($.of(pair.getSecond()).toList(ESPNTransaction::getText));
+        handleErrorTransactions("Errors parsing ESPN transactions", $.of(pair.getSecond()).toList(ESPNTransaction::getText));
 
         return $.of(allTransactions).sorted().toList();
     }
@@ -116,7 +116,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                 erroredTransactions.add(t.getText() + ": " + e.getMessage());
             }
         }
-        handleErrorTransactions(erroredTransactions);
+        handleErrorTransactions("Errors processing the following transactions", erroredTransactions);
         return createdTransactions;
     }
 
@@ -147,7 +147,11 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
         return new Pair(transactions, errorTransactions);
     }
 
-    private void handleErrorTransactions(List<String> transactions) {
+    private void handleErrorTransactions(String subject, List<String> transactions) {
+        if (transactions.size() == 0) {
+            return;
+        }
+
         HtmlObject htmlObj = HtmlObject.of(HtmlTag.DIV);
 
         for (String transaction : transactions) {
@@ -155,7 +159,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
             htmlObj.child(HtmlObject.of(HtmlTag.P).body(transaction));
         }
 
-        EmailRequest emailRequest = new EmailRequest(Lists.newArrayList(IEmailService.COMMISSIONER_EMAIL), "Erroring Transactions", htmlObj);
+        EmailRequest emailRequest = new EmailRequest(Lists.newArrayList(IEmailService.COMMISSIONER_EMAIL), subject, htmlObj);
         emailService.sendEmail(emailRequest);
     }
 
