@@ -30,6 +30,7 @@ public class TeamView extends Team {
     private List<PlayerView> utility = Lists.newArrayList();
     private List<PlayerView> pitcher = Lists.newArrayList();
     private List<PlayerView> disabledList = Lists.newArrayList();
+    private List<PlayerView> bench = Lists.newArrayList();
 
     private List<DraftDollarView> draftDollars = Lists.newArrayList();
     private List<MinorLeaguePickView> minorLeaguePicks = Lists.newArrayList();
@@ -215,6 +216,17 @@ public class TeamView extends Team {
 
     public void setDisabledList(List<PlayerView> disabledList) {
         this.disabledList = disabledList;
+    }
+
+    public List<PlayerView> getBench() {
+        if (bench.size() == 0) {
+            setPosition(TeamView::setBench, Position.BENCH);
+        }
+        return bench;
+    }
+
+    public void setBench(List<PlayerView> bench) {
+        this.bench = bench;
     }
 
     //endregion

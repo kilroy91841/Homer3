@@ -93,8 +93,7 @@ public class ESPNRestClient implements IESPNClient {
         try {
             String html = IOUtils.toString(response.getBody());
             LOG.info("Request successful, parsing");
-            TransactionsParser parser = new TransactionsParser(tranType);
-            transactions = parser.parse(html);
+            transactions = TransactionsParser.parse(tranType, html);
         } catch (IOException e) {
             LOG.error("IO exception", e);
         }

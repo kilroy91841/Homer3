@@ -33,6 +33,19 @@ public class ESPNTransaction {
     private String oldPosition;
     private String newPosition;
 
+    @Override
+    public String toString() {
+        return "ESPNTransaction{" +
+                "transDate=" + transDate +
+                ", playerName='" + playerName + '\'' +
+                ", type=" + type +
+                ", teamId=" + teamId +
+                ", text='" + text + '\'' +
+                ", oldPosition='" + oldPosition + '\'' +
+                ", newPosition='" + newPosition + '\'' +
+                '}';
+    }
+
     public DateTime getTransDate() {
         return transDate;
     }

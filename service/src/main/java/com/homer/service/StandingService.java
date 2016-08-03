@@ -86,7 +86,7 @@ public class StandingService extends BaseIdService<Standing> implements IStandin
         List<Standing> newStandings = computeNewStandings(scoringPeriod, teamDailies, yesterdaysStandings);
         List<Standing> sortedStandings = sortStandings(newStandings);
         $.of(sortedStandings).forEach(this::upsert);
-        logger.info("DONE: computeStandingsForDate");
+        logger.info("DONE: computeStandingsForDate, date: " + date.toString());
         return sortedStandings;
     }
 

@@ -50,6 +50,7 @@ public class Validator {
             validateCount(errors, tv.getOutfield(), 5, team.getName(), "Outfield");
             validateCount(errors, tv.getUtility(), 1, team.getName(), "Utility");
             validateCount(errors, tv.getPitcher(), 9, team.getName(), "Pitcher");
+            validateCount(errors, tv.getBench(), 0, team.getName(), "Bench");
         }
 
         HtmlObject htmlObj = HtmlObject.of(HtmlTag.DIV);

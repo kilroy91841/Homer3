@@ -51,6 +51,8 @@ public final class ESPNUtility {
                 return Position.PITCHER;
             case "DL":
                 return Position.DISABLEDLIST;
+            case "Bench":
+                return Position.BENCH;
             default:
                 return null;
         }
