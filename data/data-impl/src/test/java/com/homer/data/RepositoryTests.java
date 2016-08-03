@@ -10,9 +10,12 @@ import com.homer.util.core.data.IRepository;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 
@@ -185,6 +188,58 @@ public class RepositoryTests {
         testCRUD(transaction, new TransactionRepository(), updaters);
     }
 
+    @Test
+    public void testPlayerDailyCRUD() throws Exception {
+        PlayerDaily playerDaily = new PlayerDaily();
+        playerDaily.setPlayerId(1);
+        playerDaily.setTeamId(1L);
+        playerDaily.setGameId("2016/06/07/nynmlb-pitmlb-2");
+        playerDaily.setDate(DateTime.parse("2016-04-03T12:00:00").withMillisOfDay(0));
+        playerDaily.setScoringPeriodId(1);
+
+        Consumer<PlayerDaily> updater = (pd) -> {
+            pd.setId(3);
+            pd.setAtBats(4);
+            pd.setInningsPitched(3.33);
+        };
+        PlayerDailyRepository repo = new PlayerDailyRepository();
+        testCRU(playerDaily, repo, updated -> repo.getByKey(updated.getPlayerId(), updated.getDate()), new ArrayList<Consumer<PlayerDaily>>(Lists.newArrayList(updater)));
+    }
+
+    @Test
+    public void testTeamDailyCRUD() throws Exception {
+        TeamDaily teamDaily = new TeamDaily();
+        teamDaily.setTeamId(1L);
+        teamDaily.setDate(DateTime.parse("2016-04-03T12:00:00").withMillisOfDay(0));
+        teamDaily.setScoringPeriodId(1);
+
+        Consumer<TeamDaily> updater = (pd) -> {
+            pd.setId(3);
+            pd.setAtBats(4);
+            pd.setInningsPitched(3.33);
+        };
+        TeamDailyRepository repo = new TeamDailyRepository();
+        testCRU(teamDaily, repo, updated -> repo.getByKey(updated.getTeamId(), updated.getDate()), new ArrayList<Consumer<TeamDaily>>(Lists.newArrayList(updater)));
+    }
+
+    @Test
+    public void testStandingsCRUD() throws Exception {
+        Standing standing = new Standing();
+        standing.setTeamId(1);
+        standing.setDate(DateTime.parse("2016-04-03T12:00:00").withMillisOfDay(0));
+
+        Consumer<Standing> updater = (s) -> {
+            s.setEraPoints(10.3);
+            s.setEraTotal(2.0);
+            s.setSbPoints(3.4);
+            s.setSbTotal(4);
+            s.setkTotal(100);
+        };
+
+        StandingRepository repo = new StandingRepository();
+        testCRU(standing, repo, updated -> repo.getByKey(updated.getTeamId(), updated.getDate()), new ArrayList<Consumer<Standing>>(Lists.newArrayList(updater)));
+    }
+
     private <T extends IBaseObject> void testCRUD(T obj, IRepository<T> repo,
                                                     List<Consumer<T>> updaters) throws Exception {
         T updatedObj = testCRU(obj, repo, updaters);
@@ -195,13 +250,18 @@ public class RepositoryTests {
     }
 
     private <T extends IBaseObject> T testCRU(T obj, IRepository<T> repo,
+                                              List<Consumer<T>> updaters) throws Exception {
+        return testCRU(obj, repo, (updated) -> repo.getById(updated.getId()), updaters);
+    }
+
+    private <T extends IBaseObject> T testCRU(T obj, IRepository<T> repo, Function<T, T> supplier,
                                                   List<Consumer<T>> updaters) throws Exception {
         T createdObj = repo.upsert(obj);
         assertNotNull(createdObj);
         obj.setId(createdObj.getId());
         assertEquals(obj, createdObj);
 
-        T fetchedObj = repo.getById(createdObj.getId());
+        T fetchedObj = supplier.apply(createdObj);
         assertEquals(createdObj, fetchedObj);
 
         updaters.forEach(u -> u.accept(createdObj));

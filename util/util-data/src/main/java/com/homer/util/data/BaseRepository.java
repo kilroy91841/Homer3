@@ -5,6 +5,7 @@ import com.homer.util.core.$;
 import com.homer.util.core.IBaseObject;
 import com.homer.util.core.IDated;
 import com.homer.util.core.IIntEnum;
+import com.homer.util.core.data.DateOnly;
 import com.homer.util.core.data.IRepository;
 import com.homer.util.core.data.Matcher;
 import org.apache.commons.beanutils.BeanUtils;
@@ -13,17 +14,22 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 /**
  * Created by arigolub on 3/13/16.
  */
 public abstract class BaseRepository<T extends IBaseObject> implements IRepository<T> {
+
+    static final Logger logger = LoggerFactory.getLogger(BaseRepository.class);
 
     private final Class<T> clazz;
     protected final DateTimeFormatter dateTimeFormatter;
@@ -40,7 +46,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         Connection con = null;
         try {
             String query = buildQuery(clazz, filters);
-            System.out.println(query);
+            logger.debug(query);
             con = Connector.getConnection();
             stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -80,7 +86,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         Connection con = null;
         try {
             String query = buildUpsert(clazz, $.of(obj).toList());
-            System.out.println(query);
+            logger.debug(query);
             con = Connector.getConnection();
             stmt = con.createStatement();
             int rowCount = stmt.executeUpdate(query);
@@ -127,7 +133,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         Statement stmt = null;
         Connection con = null;
         try {
-            System.out.println(query);
+            logger.debug(query);
             con = Connector.getConnection();
             stmt = con.createStatement();
             stmt.execute(query);
@@ -337,6 +343,8 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                         BeanUtils.setProperty(obj, fieldName, rs.getInt(fieldName));
                     } else if ("boolean".equals(f.getType().getName())) {
                         BeanUtils.setProperty(obj, fieldName, rs.getBoolean(fieldName));
+                    } else if ("double".equals(f.getType().getName())) {
+                        BeanUtils.setProperty(obj, fieldName, rs.getDouble(fieldName));
                     }
                 } else if (Integer.class.equals(f.getType())) {
                     Integer o = rs.getInt(fieldName);
@@ -346,16 +354,27 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                     PropertyUtils.setProperty(obj, fieldName, o);
                 } else if (Long.class.equals(f.getType())) {
                     Long o = rs.getLong(fieldName);
-                    if(rs.wasNull()) {
+                    if (rs.wasNull()) {
+                        o = null;
+                    }
+                    PropertyUtils.setProperty(obj, fieldName, o);
+                } else if (Double.class.equals(f.getType())) {
+                    Double o = rs.getDouble(fieldName);
+                    if (rs.wasNull()) {
                         o = null;
                     }
                     PropertyUtils.setProperty(obj, fieldName, o);
                 } else if (String.class.equals(f.getType())) {
                     BeanUtils.setProperty(obj, fieldName, rs.getString(fieldName));
                 } else if (DateTime.class.equals(f.getType())) {
-                    Timestamp timestamp = rs.getTimestamp(fieldName);
-                    if (timestamp != null) {
-                        BeanUtils.setProperty(obj, fieldName, dateTimeFormatter.parseDateTime(timestamp.toString()).withZone(DateTimeZone.getDefault()));
+                    if (f.isAnnotationPresent(DateOnly.class)) {
+                        Date date = rs.getDate(fieldName);
+                        BeanUtils.setProperty(obj, fieldName, new DateTime(date));
+                    } else {
+                        Timestamp timestamp = rs.getTimestamp(fieldName);
+                        if (timestamp != null) {
+                            BeanUtils.setProperty(obj, fieldName, dateTimeFormatter.parseDateTime(timestamp.toString()).withZone(DateTimeZone.getDefault()));
+                        }
                     }
                 } else if (IIntEnum.class.isAssignableFrom(f.getType())) {
                     Class<IIntEnum> clazz = (Class<IIntEnum>) f.getType();

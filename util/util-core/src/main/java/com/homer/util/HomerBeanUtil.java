@@ -20,7 +20,14 @@ public class HomerBeanUtil {
         try {
             BeanUtils.copyProperties(dest, orig);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T cloneBean(T obj) {
+        try {
+            return (T) BeanUtils.cloneBean(obj);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

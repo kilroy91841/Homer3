@@ -1,5 +1,6 @@
 package com.homer.external.rest.espn;
 
+import com.homer.external.common.espn.ESPNPlayer;
 import com.homer.external.common.espn.ESPNTransaction;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -46,5 +47,11 @@ public class ESPNRestClientTest {
         assertEquals(ESPNTransaction.Type.MOVE, move.getType());
         assertEquals("Bench", move.getOldPosition());
         assertEquals("P", move.getNewPosition());
+    }
+
+    @Test
+    public void testRoster() {
+        List<ESPNPlayer> espnPlayers = client.getRoster(1, 119);
+        assertEquals(23, espnPlayers.size());
     }
 }

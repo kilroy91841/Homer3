@@ -10,6 +10,8 @@ public interface IESPNClient {
 
     List<ESPNPlayer> getRosterPage();
 
+    List<ESPNPlayer> getRoster(int teamId, int scoringPeriodId);
+
     List<ESPNTransaction> getTransactions(@Nullable Integer teamId, ESPNTransaction.Type tranType, String startDate, String endDate);
 
     default List<ESPNTransaction> getTransactions(ESPNTransaction.Type tranType, String startDate, String endDate) {

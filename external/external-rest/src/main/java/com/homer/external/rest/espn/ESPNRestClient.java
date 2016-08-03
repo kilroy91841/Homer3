@@ -4,6 +4,7 @@ import com.homer.external.common.espn.ESPNPlayer;
 import com.homer.external.common.espn.ESPNTransaction;
 import com.homer.external.common.espn.IESPNClient;
 import com.homer.external.rest.espn.parser.LeagueRosterParser;
+import com.homer.external.rest.espn.parser.TeamRosterParser;
 import com.homer.external.rest.espn.parser.TransactionsParser;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -31,10 +32,12 @@ public class ESPNRestClient implements IESPNClient {
 
     private static final String URL_LEAGUEROSTERS   = "http://games.espn.go.com/flb/leaguerosters";
     private static final String URL_TRANSACTIONS    = "http://games.espn.go.com/flb/recentactivity";
+    private static final String URL_TEAMROSTER      = "http://games.espn.go.com/flb/clubhouse";
 
     private static final String PARAM_LEAGUEID      = "leagueId";
     private static final String VALUE_LEAGUEID      = "216011";
 
+    private static final String PARAM_SEASONID      = "seasonId";
 
     /**
      * Download and parse roster page into list of players, positions, teams
@@ -77,7 +80,7 @@ public class ESPNRestClient implements IESPNClient {
     public List<ESPNTransaction> getTransactions(@Nullable Integer teamId, ESPNTransaction.Type tranType, String startDate, String endDate) {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put(PARAM_LEAGUEID, VALUE_LEAGUEID);
-        parameters.put("seasonId", SEASON);
+        parameters.put(PARAM_SEASONID, SEASON);
         parameters.put("activityType", 2);
         parameters.put("startDate", startDate);
         parameters.put("endDate", endDate);
@@ -96,6 +99,25 @@ public class ESPNRestClient implements IESPNClient {
             LOG.error("IO exception", e);
         }
         return transactions;
+    }
+
+    @Nullable
+    public List<ESPNPlayer> getRoster(int teamId, int scoringPeriodId) {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put(PARAM_LEAGUEID, VALUE_LEAGUEID);
+        parameters.put(PARAM_SEASONID, SEASON);
+        parameters.put("teamId", teamId);
+        parameters.put("scoringPeriodId", scoringPeriodId);
+        HttpResponse<InputStream> response = makeRequest(URL_TEAMROSTER, parameters);
+        List<ESPNPlayer> espnPlayers = null;
+        try {
+            String html = IOUtils.toString(response.getBody());
+            LOG.info("Request successful, parsing");
+            espnPlayers = TeamRosterParser.parse(html, teamId);
+        } catch (IOException e) {
+            LOG.error("IO exception", e);
+        }
+        return espnPlayers;
     }
 
     private HttpResponse<InputStream> makeRequest(String url, Map<String, Object> parameters) {

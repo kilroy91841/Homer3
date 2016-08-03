@@ -27,6 +27,7 @@ public enum Position implements IIntEnum<Position> {
     RELIEFPITCHER(9, "RP", null, null),
     DISABLEDLIST(13, "DL", null, null),
     MINORLEAGUES(14, "MIN", null, null),
+    BENCH(15, "BENCH", null, null),
     ;
 
     private final int id;

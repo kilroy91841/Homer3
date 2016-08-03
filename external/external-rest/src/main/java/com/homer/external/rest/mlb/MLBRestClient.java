@@ -104,6 +104,7 @@ public class MLBRestClient implements IMLBClient {
             logger.info("Making request to url " + request.getUrl());
             HttpResponse<JsonNode> response = request.asJson();
 
+            logger.info("Parsing stats for mlbPlayerId " + playerId);
             stats = JSONStatParser.parseStats(response.getBody(), isBatter);
 
         } catch (UnirestException e) {
@@ -138,18 +139,17 @@ public class MLBRestClient implements IMLBClient {
         Map<String, Object> parameters = getTeamParameters(teamId);
         try {
 
-            HttpResponse<JsonNode> response = Unirest.get(URL_ROSTER)
-                    .queryString(parameters)
-                    .asJson();
+            HttpRequest request = Unirest.get(URL_ROSTER)
+                    .queryString(parameters);
+            logger.info("Requesting URL " + request.getUrl());
+            HttpResponse<JsonNode> response = request.asJson();
 
             players = JSONRosterParser.parseRoster(response.getBody());
 
         } catch (UnirestException e) {
-            System.out.println("Http Client Exception [teamId:" + teamId + "]");
-            e.printStackTrace();
+            logger.error("Http Client Exception [teamId:" + teamId + "]", e);
         } catch (Exception e) {
-            System.out.println("Runtime Exception [teamId:" + teamId + "]");
-            e.printStackTrace();
+            logger.error("Runtime Exception [teamId:" + teamId + "]", e);
         }
         return players;
     }

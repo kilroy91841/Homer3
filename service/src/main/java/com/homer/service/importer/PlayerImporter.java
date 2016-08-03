@@ -13,6 +13,8 @@ import com.homer.type.view.PlayerSeasonView;
 import com.homer.type.view.PlayerView;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.Map;
  */
 //TODO Test this class
 public class PlayerImporter implements IPlayerImporter {
+
+    final static Logger logger = LoggerFactory.getLogger(PlayerImporter.class);
 
     private IPlayerService playerService;
     private IPlayerSeasonService playerSeasonService;
@@ -47,12 +51,12 @@ public class PlayerImporter implements IPlayerImporter {
                 Player player = nameToPlayerMap.get(mlbPlayer.getName());
                 if (player != null) {
                     playerViews.add(updatePlayerImpl(player, mlbPlayer));
-                    System.out.println("Updated " + player.getName());
+                    logger.info("Updated " + player.getName());
                 } else {
-                    System.out.println(mlbPlayer.getName() + " not in database");
+                    logger.info(mlbPlayer.getName() + " not in database");
                 }
             } catch (Exception e) {
-                System.out.println("Error processing " + mlbPlayer.getName());
+                logger.error("Error processing " + mlbPlayer.getName(), e);
             }
         }
         return playerViews;

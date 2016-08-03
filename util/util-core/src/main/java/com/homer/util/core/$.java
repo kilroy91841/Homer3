@@ -89,7 +89,11 @@ public class $<T> {
     }
 
     public int reduceToInt(Function<T, Integer> mapper) {
-        return backing.map(mapper).reduce(Integer::sum).orElse(null);
+        return backing.map(mapper).reduce(Integer::sum).orElse(0);
+    }
+
+    public double reduceToDouble(Function<T, Double> mapper) {
+        return backing.map(mapper).reduce(Double::sum).orElse(0.0);
     }
 
     public <K, T> Map<K, List<T>> groupBy(Function<T, K> mapperFunction) {
@@ -106,9 +110,13 @@ public class $<T> {
         return backing.anyMatch(predicate);
     }
 
-    public $<T> sorted()
+    public List<T> sorted()
     {
-        return of(backing.sorted());
+        return of(backing.sorted()).toList();
+    }
+
+    public void forEach(Consumer<T> func) {
+        backing.forEach(func);
     }
 
     // endregion

@@ -11,6 +11,9 @@ public class PitchingStats extends BaseStats {
     private Integer wins;
     private Integer saves;
     private Double inningsPitched;
+    private Integer walks;
+    private Integer hits;
+    private Integer earnedRuns;
 
     public PitchingStats() {}
 
@@ -60,5 +63,29 @@ public class PitchingStats extends BaseStats {
 
     public void setInningsPitched(Double inningsPitched) {
         this.inningsPitched = inningsPitched;
+    }
+
+    public Integer getWalks() {
+        return walks;
+    }
+
+    public void setWalks(Integer walks) {
+        this.walks = walks;
+    }
+
+    public Integer getHits() {
+        return hits;
+    }
+
+    public void setHits(Integer hits) {
+        this.hits = hits;
+    }
+
+    public Integer getEarnedRuns() {
+        return earnedRuns;
+    }
+
+    public void setEarnedRuns(Integer earnedRuns) {
+        this.earnedRuns = earnedRuns;
     }
 }
