@@ -45,7 +45,7 @@ public class TeamDailyService extends BaseIdService<TeamDaily> implements ITeamD
     public List<TeamDaily> getBetweenDates(DateTime start, DateTime end) {
         return $.of(teamDailyRepository.getAll())
                 .filterToList(td -> td.getDate().withMillisOfDay(0).isBefore(end.withMillisOfDay(100)) &&
-                        td.getDate().withMillisOfDay(0).isAfter(start.withMillisOfDay(100)));
+                        td.getDate().withMillisOfDay(1000).isAfter(start.withMillisOfDay(0)));
     }
 
     @Override

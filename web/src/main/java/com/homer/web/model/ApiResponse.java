@@ -16,6 +16,10 @@ public class ApiResponse {
         this.data = data;
     }
 
+    public static ApiResponse failure(Exception e) {
+        return new ApiResponse(e.getMessage(), null);
+    }
+
     public String getMessage() {
         return message;
     }

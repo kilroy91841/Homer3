@@ -1,8 +1,10 @@
 package com.homer.web;
 
+import com.google.common.collect.Lists;
 import com.homer.service.IPlayerDailyService;
 import com.homer.service.IStandingService;
 import com.homer.service.ITeamDailyService;
+import com.homer.service.utility.ESPNUtility;
 import com.homer.type.Standing;
 import com.homer.web.model.ApiResponse;
 import org.joda.time.DateTime;
@@ -43,18 +45,23 @@ public class StandingsResource {
             DateTime date = DateTime.parse(dateString).withMillisOfDay(0);
             return new ApiResponse("success", standingService.computeStandingsForDate(date, refreshTeamDailies));
         } catch (Exception e) {
-            return new ApiResponse(e.getMessage(), null);
+            return ApiResponse.failure(e);
         }
     }
 
     @GET
-    @Path("/latest")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse getLatestStandings() {
+    public ApiResponse getLatestStandings(@QueryParam(value = "date") String dateString) {
         try {
-            return new ApiResponse("success", standingService.getLatestStandings());
+            List<Standing> standings;
+            if (dateString == null) {
+                standings = standingService.getLatestStandings();
+            } else {
+                standings = standingService.getByDate(DateTime.parse(dateString).withMillisOfDay(0));
+            }
+            return new ApiResponse("success", standings);
         } catch (Exception e) {
-            return new ApiResponse(e.getMessage(), null);
+            return ApiResponse.failure(e);
         }
     }
 
@@ -68,7 +75,24 @@ public class StandingsResource {
             DateTime end = DateTime.parse(endString).withMillisOfDay(0);
             return new ApiResponse("success", standingService.computeStandingsBetweenDates(start, end));
         } catch (Exception e) {
-            return new ApiResponse(e.getMessage(), null);
+            return ApiResponse.failure(e);
+        }
+    }
+
+    @GET
+    @Path("/updateToLatest")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse updateToLatest() {
+        try {
+            DateTime date = ESPNUtility.SCORING_PERIOD_1;
+            List<Standing> standings = Lists.newArrayList();
+            while (date.isBeforeNow()) {
+                standings = standingService.computeStandingsForDate(date, true);
+                date = date.plusDays(1);
+            }
+            return new ApiResponse("success", standings);
+        } catch (Exception e) {
+            return ApiResponse.failure(e);
         }
     }
 }
