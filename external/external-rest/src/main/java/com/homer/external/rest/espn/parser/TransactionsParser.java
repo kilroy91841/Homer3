@@ -3,18 +3,18 @@ package com.homer.external.rest.espn.parser;
 import com.google.common.collect.Lists;
 import com.homer.external.common.espn.ESPNTransaction;
 import com.homer.util.core.$;
+import com.homer.util.core.Pair;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.joda.time.format.DateTimeFormat;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -30,15 +30,12 @@ public class TransactionsParser {
 
     private static final String SELECTOR_TABLEROWS  = ".tableBody tr";
     private static final String SELECTOR_BR         = "br";
+    private static final String POSITION_PATTERN    = "from ([\\/\\w]+) to ([\\/\\w]+)";
 
     private ESPNTransaction.Type tranType;
     private static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("yyyy MMM d h:mm a");
 
-    public TransactionsParser(ESPNTransaction.Type tranType) {
-        this.tranType = tranType;
-    }
-
-    public List<ESPNTransaction> parse(String html) {
+    public static List<ESPNTransaction> parse(ESPNTransaction.Type tranType, String html) {
         List<ESPNTransaction> transactions = Lists.newArrayList();
         Document document = Jsoup.parse(html);
         Elements transactionRows = document.select(SELECTOR_TABLEROWS);
@@ -46,82 +43,79 @@ public class TransactionsParser {
         transactionRows.remove(0);
         LOG.info("Found " + transactionRows.size() + " transactions");
         for(Element e : transactionRows) {
-            if(this.tranType.equals(ESPNTransaction.Type.ADD) || this.tranType.equals(ESPNTransaction.Type.DROP)) {
-                transactions.addAll(parseAddDrop(tranType, e));
-            } else if(this.tranType.equals(ESPNTransaction.Type.TRADE)) {
-                transactions.addAll(parseTrade(e));
-            } else if(this.tranType.equals(ESPNTransaction.Type.MOVE)) {
-                transactions.addAll(parseMove(e));
-            } else {
-                LOG.warn("Unrecognized tran type " + tranType);
-            }
+            transactions.addAll(parseTransactionRow(tranType, e));
         }
         LOG.info("Done parsing, list: " + transactions);
         return transactions;
     }
 
-
-    public static List<ESPNTransaction> parseAddDrop(ESPNTransaction.Type tranType, Element e) {
-        LOG.info("Parsing AddDrops");
-
-        Node playerNode = e.childNode(2);
-
-        String playerNodeText = ((Element)playerNode).text();
-        String playerName = ((Element)playerNode.childNode(1)).text().replace("*", "");
-        int teamId = new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
-
-        DateTime dateTime = parseTime(e);
-
-        ESPNTransaction transaction = new ESPNTransaction();
-        transaction.setPlayerName(playerName);
-        transaction.setTeamId(teamId);
-        transaction.setType(tranType);
-        transaction.setTransDate(dateTime);
-        transaction.setText(playerNodeText);
-        LOG.info("Transaction: " + transaction);
+    public static List<ESPNTransaction> parseTransactionRow(ESPNTransaction.Type tranType, Element e) {
+        LOG.info("Parsing Transactions");
 
         List<ESPNTransaction> transactions = Lists.newArrayList();
-        transactions.add(transaction);
+
+        DateTime dateTime = parseTime(e);
+        int teamId = parseTeamId(e);
+        Node playerNode = e.childNode(2);
+
+        for(int i = 0; i + 3 <=  playerNode.childNodes().size(); i += 4) {
+            String playerNameString = ((Element)playerNode.childNode(i+1)).text().replace("*", "");
+            String fullText = ((TextNode)playerNode.childNode(i)).text() +
+                    playerNameString +
+                    ((TextNode)playerNode.childNode(i+2)).text();
+
+            ESPNTransaction espnTransaction = createTransaction(playerNameString, teamId, tranType, dateTime, fullText);
+            if(tranType.equals(ESPNTransaction.Type.ADD) || tranType.equals(ESPNTransaction.Type.DROP)) {
+                transactions.add(espnTransaction);
+            } else if(tranType.equals(ESPNTransaction.Type.MOVE)) {
+                Pair<String, String> positions = getPositionsForMove(fullText);
+                espnTransaction.setOldPosition(positions.getFirst());
+                espnTransaction.setNewPosition(positions.getSecond());
+                transactions.add(espnTransaction);
+            } else {
+                LOG.info("Unsupported transaction type: " + tranType);
+                continue;
+            }
+            LOG.info("Transaction: " + espnTransaction);
+        }
         return transactions;
     }
 
-
-    public static List<ESPNTransaction> parseMove(Element e) {
-        LOG.info("Parsing Moves");
-
-        Node playerNode = e.childNode(2);
-
-        String pattern = "(\\w+) from (\\w+) to (\\w+)";
-        Pattern pat = Pattern.compile(pattern);
-
-        String playerNodeText = ((Element)playerNode).text();
-        String playerName = ((Element)playerNode.childNode(1)).text().replace("*", "");
-        int teamId = new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
-
-        Matcher m = pat.matcher(playerNodeText);
+    private static Pair<String, String> getPositionsForMove(String fullText) {
+        Pattern pat = Pattern.compile(POSITION_PATTERN);
+        Matcher m = pat.matcher(fullText);
         String oldPos = null;
         String newPos = null;
         if (m.find()) {
-            oldPos = m.group(2);
-            newPos = m.group(3);
+            oldPos = m.group(1);
+            newPos = m.group(2);
         }
+        return new Pair<>(oldPos, newPos);
+    }
 
-        DateTime dateTime = parseTime(e);
-
+    private static ESPNTransaction createTransaction(String playerName, int teamId, ESPNTransaction.Type transactionType,
+                                                     DateTime transDate, String fullText) {
         ESPNTransaction transaction = new ESPNTransaction();
         transaction.setPlayerName(playerName);
         transaction.setTeamId(teamId);
-        transaction.setType(ESPNTransaction.Type.MOVE);
-        transaction.setTransDate(dateTime);
-        transaction.setText(playerNodeText);
-        transaction.setOldPosition(oldPos);
-        transaction.setNewPosition(newPos);
-        LOG.info("Transaction: " + transaction);
-
-        List<ESPNTransaction> transactions = Lists.newArrayList();
-        transactions.add(transaction);
-        return transactions;
+        transaction.setType(transactionType);
+        transaction.setTransDate(transDate);
+        transaction.setText(fullText);
+        return transaction;
     }
+
+    private static DateTime parseTime(Element e) {
+        Node timeNode = e.childNode(0);
+        String time = ((Element)timeNode).text();
+        DateTime dateTime = DateTime.parse("2015" + time.split(",")[1], dateFormatter);
+        return dateTime;
+    }
+
+    private static int parseTeamId(Element e) {
+        return new Integer(e.childNode(3).childNode(0).attr("href").split("teamId=")[1]);
+    }
+
+    // region trade
 
     public static List<ESPNTransaction> parseTrade(Element e) {
         LOG.info("Parsing trades");
@@ -186,11 +180,6 @@ public class TransactionsParser {
         return transactions;
     }
 
-    private static DateTime parseTime(Element e) {
-        Node timeNode = e.childNode(0);
-        String time = ((Element)timeNode).text();
-        DateTime dateTime = DateTime.parse("2015" + time.split(",")[1], dateFormatter);
-        return dateTime;
-    }
+    // endregion
 }
 

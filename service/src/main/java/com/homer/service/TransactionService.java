@@ -84,7 +84,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
         Pair<List<Transaction>, List<ESPNTransaction>> pair = translateESPNTransactions(espnTransactions);
         allTransactions.addAll(pair.getFirst());
 
-        handleErrorTransactions("Errors parsing ESPN transactions", $.of(pair.getSecond()).toList(ESPNTransaction::getText));
+        handleErrorTransactions("Error parsing ESPN transactions: ESPN players not in Homer", $.of(pair.getSecond()).toList(ESPNTransaction::getText));
 
         return $.of(allTransactions).sorted();
     }
@@ -103,6 +103,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                 PlayerSeason playerSeason = null;
                 if (t.getTransactionType() == TransactionType.ADD) {
                     playerSeason = playerSeasonService.switchTeam(t.getPlayerId(), LeagueUtil.SEASON, null, t.getTeamId());
+                    playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, null, Position.BENCH);
                 } else if (t.getTransactionType() == TransactionType.DROP) {
                     playerSeason = playerSeasonService.switchTeam(t.getPlayerId(), LeagueUtil.SEASON, t.getTeamId(), null);
                 } else if (t.getTransactionType() == TransactionType.MOVE) {
