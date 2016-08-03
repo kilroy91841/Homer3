@@ -193,6 +193,7 @@ public class RepositoryTests {
         PlayerDaily playerDaily = new PlayerDaily();
         playerDaily.setPlayerId(1);
         playerDaily.setTeamId(1L);
+        playerDaily.setGameId("2016/06/07/nynmlb-pitmlb-2");
         playerDaily.setDate(DateTime.parse("2016-04-03T12:00:00").withMillisOfDay(0));
         playerDaily.setScoringPeriodId(1);
 
@@ -206,6 +207,22 @@ public class RepositoryTests {
     }
 
     @Test
+    public void testTeamDailyCRUD() throws Exception {
+        TeamDaily teamDaily = new TeamDaily();
+        teamDaily.setTeamId(1L);
+        teamDaily.setDate(DateTime.parse("2016-04-03T12:00:00").withMillisOfDay(0));
+        teamDaily.setScoringPeriodId(1);
+
+        Consumer<TeamDaily> updater = (pd) -> {
+            pd.setId(3);
+            pd.setAtBats(4);
+            pd.setInningsPitched(3.33);
+        };
+        TeamDailyRepository repo = new TeamDailyRepository();
+        testCRU(teamDaily, repo, updated -> repo.getByKey(updated.getTeamId(), updated.getDate()), new ArrayList<Consumer<TeamDaily>>(Lists.newArrayList(updater)));
+    }
+
+    @Test
     public void testStandingsCRUD() throws Exception {
         Standing standing = new Standing();
         standing.setTeamId(1);
@@ -213,9 +230,10 @@ public class RepositoryTests {
 
         Consumer<Standing> updater = (s) -> {
             s.setEraPoints(10.3);
-            s.setEraTotal(2);
+            s.setEraTotal(2.0);
             s.setSbPoints(3.4);
             s.setSbTotal(4);
+            s.setkTotal(100);
         };
 
         StandingRepository repo = new StandingRepository();

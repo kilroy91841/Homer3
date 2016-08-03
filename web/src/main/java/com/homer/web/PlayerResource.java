@@ -28,8 +28,9 @@ import java.util.List;
 @Path("/player")
 public class PlayerResource {
 
-    private IGatherer gatherer;
+    private ServiceFactory serviceFactory = ServiceFactory.getInstance();
 
+    private IGatherer gatherer;
     private ITeamService teamService;
     private IPlayerService playerService;
     private IPlayerSeasonService playerSeasonService;
@@ -40,24 +41,15 @@ public class PlayerResource {
     private IFullPlayerService fullPlayerService;
 
     public PlayerResource() {
-        this.teamService = new TeamService(new TeamRepository());
-        this.playerService = new PlayerService(new PlayerRepository());
-        this.playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
-        this.draftDollarService = new DraftDollarService(new DraftDollarRepository());
-        this.minorLeaguePickService = new MinorLeaguePickService(new MinorLeaguePickRepository());
-        this.tradeService = new TradeService(new TradeRepository());
-        this.tradeElementService = new TradeElementService(new TradeElementRepository());
-        this.fullPlayerService = new FullPlayerService(playerService, playerSeasonService, new MLBRestClient());
-
-        gatherer = new Gatherer(
-                playerService,
-                teamService,
-                playerSeasonService,
-                draftDollarService,
-                minorLeaguePickService,
-                tradeService,
-                tradeElementService
-        );
+        this.teamService = serviceFactory.get(ITeamService.class);
+        this.playerService = serviceFactory.get(IPlayerService.class);
+        this.playerSeasonService = serviceFactory.get(IPlayerSeasonService.class);
+        this.draftDollarService = serviceFactory.get(IDraftDollarService.class);
+        this.minorLeaguePickService = serviceFactory.get(IMinorLeaguePickService.class);
+        this.tradeService = serviceFactory.get(ITradeService.class);
+        this.tradeElementService = serviceFactory.get(ITradeElementService.class);
+        this.fullPlayerService = serviceFactory.get(IFullPlayerService.class);
+        this.gatherer = serviceFactory.get(IGatherer.class);
     }
 
     @Produces(MediaType.APPLICATION_JSON)

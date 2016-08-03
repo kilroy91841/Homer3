@@ -37,7 +37,7 @@ public abstract class BaseVersionedRepository<T extends IBaseObject, H extends I
                 history.setIsDeleted(false);
                 history.setHistoryCreatedDateUTC(DateTime.now(DateTimeZone.UTC));
                 String query = buildUpsert(historyClass, $.of(history).toList());
-                System.out.println(query);
+                logger.debug(query);
                 con = Connector.getConnection();
                 stmt = con.createStatement();
                 stmt.executeUpdate(query);

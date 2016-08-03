@@ -12,6 +12,8 @@ import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -21,6 +23,8 @@ import java.util.List;
  * Created by arigolub on 4/19/16.
  */
 public class JSONStatParser extends JSONParser {
+
+    static final Logger logger = LoggerFactory.getLogger(JSONStatParser.class);
 
     private static final String JSON_QUERY_RESULTS  = "queryResults";
     private static final String JSON_ROW            = "row";
@@ -80,6 +84,7 @@ public class JSONStatParser extends JSONParser {
         BaseStats stat;
         if (isBatter) {
             HittingStats hittingStats = new HittingStats();
+            hittingStats.setHits(safeIntParse(jsonStat.getH()));
             hittingStats.setAtBats(safeIntParse(jsonStat.getAb()));
             hittingStats.setRuns(safeIntParse(jsonStat.getR()));
             hittingStats.setRbi(safeIntParse(jsonStat.getRbi()));
@@ -113,6 +118,7 @@ public class JSONStatParser extends JSONParser {
             pitchingStats.setEarnedRuns(safeIntParse(jsonStat.getEr()));
             stat = pitchingStats;
         }
+        stat.setGameId(jsonStat.getGameID());
         if (!Strings.isNullOrEmpty(jsonStat.getGameDate())) {
             stat.setGameDate(DateTime.parse(jsonStat.getGameDate()));
         }
@@ -124,7 +130,12 @@ public class JSONStatParser extends JSONParser {
         if (str == null || str.isEmpty()) {
             return null;
         }
-        return Integer.parseInt(str);
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException nfe) {
+            logger.error("Error parsing int", nfe);
+            return null;
+        }
     }
     
     @Nullable
@@ -132,6 +143,11 @@ public class JSONStatParser extends JSONParser {
         if (str == null || str.isEmpty()) {
             return null;
         }
-        return Double.parseDouble(str);
+        try {
+            return Double.parseDouble(str);
+        } catch (NumberFormatException nfe) {
+            logger.error("Error parsing double", nfe);
+            return null;
+        }
     }
 }

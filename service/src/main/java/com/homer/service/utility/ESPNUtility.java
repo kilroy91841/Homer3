@@ -2,7 +2,9 @@ package com.homer.service.utility;
 
 import com.homer.external.common.espn.ESPNTransaction;
 import com.homer.type.Position;
+import com.homer.type.ScoringPeriod;
 import com.homer.type.TransactionType;
+import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
 
@@ -10,6 +12,16 @@ import javax.annotation.Nullable;
  * Created by arigolub on 7/29/16.
  */
 public final class ESPNUtility {
+
+    public static final DateTime SCORING_PERIOD_1 = DateTime.parse("2016-04-03T12:00:00");
+
+    public static ScoringPeriod getScoringPeriod(DateTime date) {
+        return new ScoringPeriod(date.dayOfYear().get() - SCORING_PERIOD_1.dayOfYear().get() + 1, date);
+    }
+
+    public static ScoringPeriod getTodaysScoringPeriod() {
+        return getScoringPeriod(DateTime.now().minusHours(6).withMillisOfDay(0));
+    }
 
     @Nullable
     public static Position translateESPNPosition(String positionText) {

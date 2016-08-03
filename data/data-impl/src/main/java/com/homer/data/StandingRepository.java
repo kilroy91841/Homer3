@@ -10,6 +10,7 @@ import com.homer.util.data.BaseVersionedRepository;
 import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,5 +28,10 @@ public class StandingRepository extends BaseVersionedRepository<Standing, Histor
         filters.put("date", date.withMillisOfDay(0));
         filters.put("teamId", teamId);
         return this.get(filters);
+    }
+
+    @Override
+    public List<Standing> getByDate(DateTime date) {
+        return getMany("date", date.withMillisOfDay(0));
     }
 }

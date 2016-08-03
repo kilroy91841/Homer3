@@ -343,6 +343,8 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                         BeanUtils.setProperty(obj, fieldName, rs.getInt(fieldName));
                     } else if ("boolean".equals(f.getType().getName())) {
                         BeanUtils.setProperty(obj, fieldName, rs.getBoolean(fieldName));
+                    } else if ("double".equals(f.getType().getName())) {
+                        BeanUtils.setProperty(obj, fieldName, rs.getDouble(fieldName));
                     }
                 } else if (Integer.class.equals(f.getType())) {
                     Integer o = rs.getInt(fieldName);
@@ -352,7 +354,13 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
                     PropertyUtils.setProperty(obj, fieldName, o);
                 } else if (Long.class.equals(f.getType())) {
                     Long o = rs.getLong(fieldName);
-                    if(rs.wasNull()) {
+                    if (rs.wasNull()) {
+                        o = null;
+                    }
+                    PropertyUtils.setProperty(obj, fieldName, o);
+                } else if (Double.class.equals(f.getType())) {
+                    Double o = rs.getDouble(fieldName);
+                    if (rs.wasNull()) {
                         o = null;
                     }
                     PropertyUtils.setProperty(obj, fieldName, o);

@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 public abstract class BaseStats {
 
     private DateTime gameDate;
+    private String gameId;
 
     public DateTime getGameDate() {
         return gameDate;
@@ -15,5 +16,13 @@ public abstract class BaseStats {
 
     public void setGameDate(DateTime gameDate) {
         this.gameDate = gameDate;
+    }
+
+    public String getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(String gameId) {
+        this.gameId = gameId;
     }
 }

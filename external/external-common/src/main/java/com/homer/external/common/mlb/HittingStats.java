@@ -7,6 +7,7 @@ import java.time.LocalDate;
  */
 public class HittingStats extends BaseStats {
 
+    private Integer hits;
     private Integer atBats;
     private Integer homeRuns;
     private Integer runs;
@@ -22,6 +23,14 @@ public class HittingStats extends BaseStats {
     private Double sluggingPercentage;
 
     public HittingStats() { }
+
+    public Integer getHits() {
+        return hits;
+    }
+
+    public void setHits(Integer hits) {
+        this.hits = hits;
+    }
 
     public Integer getAtBats() {
         return atBats;

@@ -55,14 +55,13 @@ public class Resource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Resource.class);
 
+    private ServiceFactory serviceFactory = ServiceFactory.getInstance();
+
     private IGatherer gatherer;
     private IFullTradeService fullTradeService;
-
     private ITeamService teamService;
     private IPlayerService playerService;
     private IPlayerSeasonService playerSeasonService;
-    private ITradeService tradeService;
-    private ITradeElementService tradeElementService;
     private IMinorLeaguePickService minorLeaguePickService;
     private IDraftDollarService draftDollarService;
     private IPlayerImporter playerImporter;
@@ -75,45 +74,21 @@ public class Resource {
     private ITransactionService transactionService;
 
     public Resource() {
-        this.teamService = new TeamService(new TeamRepository());
-        this.playerService = new PlayerService(new PlayerRepository());
-        this.playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
-        this.draftDollarService = new DraftDollarService(new DraftDollarRepository());
-        this.minorLeaguePickService = new MinorLeaguePickService(new MinorLeaguePickRepository());
-        this.tradeService = new TradeService(new TradeRepository());
-        this.tradeElementService = new TradeElementService(new TradeElementRepository());
-        this.fullTeamService = new FullTeamService(playerSeasonService, teamService);
-        this.userService = new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository());
-        this.emailService = new AWSEmailService();
-        this.scheduler = new Scheduler();
-
-        gatherer = new Gatherer(
-                playerService,
-                teamService,
-                playerSeasonService,
-                draftDollarService,
-                minorLeaguePickService,
-                tradeService,
-                tradeElementService
-        );
-
-        this.validator = new Validator(teamService, gatherer, emailService);
-
-        fullTradeService = new FullTradeService(tradeService, minorLeaguePickService, draftDollarService,
-                playerSeasonService, tradeElementService);
-
-        IMLBClient mlbClient = new MLBRestClient();
-        playerImporter = new PlayerImporter(
-                playerService,
-                playerSeasonService,
-                mlbClient
-        );
-
-        minorLeagueDraftService = new FullMinorLeagueDraftService(gatherer, minorLeaguePickService, playerService, playerSeasonService,
-                new FullPlayerService(playerService, playerSeasonService, mlbClient), mlbClient, emailService, userService, teamService, scheduler);
-
-        transactionService = new TransactionService(new TransactionRepository(), playerService, playerSeasonService, new ESPNRestClient(),
-                emailService);
+        this.teamService = serviceFactory.get(ITeamService.class);
+        this.playerService = serviceFactory.get(IPlayerService.class);
+        this.playerSeasonService = serviceFactory.get(IPlayerSeasonService.class);
+        this.draftDollarService = serviceFactory.get(IDraftDollarService.class);
+        this.minorLeaguePickService = serviceFactory.get(IMinorLeaguePickService.class);
+        this.fullTeamService = serviceFactory.get(IFullTeamService.class);
+        this.userService = serviceFactory.get(IUserService.class);
+        this.emailService = serviceFactory.get(IEmailService.class);
+        this.scheduler = serviceFactory.get(IScheduler.class);
+        gatherer = serviceFactory.get(IGatherer.class);
+        this.validator = serviceFactory.get(Validator.class);
+        fullTradeService = serviceFactory.get(IFullTradeService.class);
+        playerImporter = serviceFactory.get(IPlayerImporter.class);
+        minorLeagueDraftService = serviceFactory.get(IFullMinorLeagueDraftService.class);
+        transactionService = serviceFactory.get(ITransactionService.class);
     }
 
     @GET

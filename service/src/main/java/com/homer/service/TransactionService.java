@@ -86,7 +86,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
 
         handleErrorTransactions("Errors parsing ESPN transactions", $.of(pair.getSecond()).toList(ESPNTransaction::getText));
 
-        return $.of(allTransactions).sorted().toList();
+        return $.of(allTransactions).sorted();
     }
 
     @Override

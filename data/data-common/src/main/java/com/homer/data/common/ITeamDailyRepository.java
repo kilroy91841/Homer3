@@ -1,6 +1,6 @@
 package com.homer.data.common;
 
-import com.homer.type.Standing;
+import com.homer.type.TeamDaily;
 import com.homer.util.core.data.IRepository;
 import org.joda.time.DateTime;
 
@@ -10,10 +10,9 @@ import java.util.List;
 /**
  * Created by arigolub on 7/30/16.
  */
-public interface IStandingRepository extends IRepository<Standing> {
-
+public interface ITeamDailyRepository extends IRepository<TeamDaily> {
     @Nullable
-    Standing getByKey(long teamId, DateTime date);
+    TeamDaily getByKey(long teamId, DateTime date);
 
-    List<Standing> getByDate(DateTime date);
+    List<TeamDaily> getByDate(DateTime date);
 }

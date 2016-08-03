@@ -8,6 +8,7 @@ import com.homer.util.data.BaseVersionedRepository;
 import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,5 +27,13 @@ public class PlayerDailyRepository extends BaseVersionedRepository<PlayerDaily, 
         filters.put("date", date);
         filters.put("playerId", playerId);
         return this.get(filters);
+    }
+
+    @Override
+    public List<PlayerDaily> getByDate(int teamId, DateTime date) {
+        Map<String, Object> filters = Maps.newHashMap();
+        filters.put("date", date.withMillisOfDay(0));
+        filters.put("teamId", teamId);
+        return getMany(filters);
     }
 }

@@ -104,6 +104,7 @@ public class MLBRestClient implements IMLBClient {
             logger.info("Making request to url " + request.getUrl());
             HttpResponse<JsonNode> response = request.asJson();
 
+            logger.info("Parsing stats for mlbPlayerId " + playerId);
             stats = JSONStatParser.parseStats(response.getBody(), isBatter);
 
         } catch (UnirestException e) {
