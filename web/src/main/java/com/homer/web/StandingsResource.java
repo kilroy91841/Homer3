@@ -82,12 +82,12 @@ public class StandingsResource {
     @GET
     @Path("/updateToLatest")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse updateToLatest() {
+    public ApiResponse updateToLatest(@QueryParam(value = "refreshTeamDailies") boolean refreshTeamDailies) {
         try {
             DateTime date = ESPNUtility.SCORING_PERIOD_1;
             List<Standing> standings = Lists.newArrayList();
             while (date.isBeforeNow()) {
-                standings = standingService.computeStandingsForDate(date, true);
+                standings = standingService.computeStandingsForDate(date, refreshTeamDailies);
                 date = date.plusDays(1);
             }
             return new ApiResponse("success", standings);
