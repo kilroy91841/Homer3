@@ -65,7 +65,7 @@ public class PlayerResource {
     public ApiResponse addPlayer(Player player) {
         try {
             player = fullPlayerService.createPlayer(player);
-            return new ApiResponse(String.format("Created %s", player.getName()), player);
+            return new ApiResponse(String.format("Created %s", player.getName()), gatherer.gatherPlayerById(player.getId()));
         } catch (Exception e) {
             e.printStackTrace();
             return new ApiResponse(e.getMessage(), null);
@@ -79,7 +79,7 @@ public class PlayerResource {
     public ApiResponse updatePlayer(Player player) {
         try {
             player = playerService.updatePlayer(player);
-            return new ApiResponse(String.format("Updated %s", player.getName()), player);
+            return new ApiResponse(String.format("Updated %s", player.getName()), gatherer.gatherPlayerById(player.getId()));
         } catch (Exception e) {
             e.printStackTrace();
             return new ApiResponse(e.getMessage(), null);
@@ -122,7 +122,7 @@ public class PlayerResource {
         }
         updated = playerSeasonService.upsert(updated);
         return new ApiResponse(String.format("Moved %s from team %s to team %s", updated.getPlayerId(),
-                oldTeamId, newTeamId), updated);
+                oldTeamId, newTeamId), gatherer.gatherPlayerById(playerId));
     }
 
     @AuthRequired
@@ -145,6 +145,6 @@ public class PlayerResource {
         }
         updated = playerSeasonService.upsert(updated);
         return new ApiResponse(String.format("Moved %s from position %s to position %s", updated.getPlayerId(),
-                oldPosition != null ? oldPosition.getName() : "none", newPosition.getName()), updated);
+                oldPosition != null ? oldPosition.getName() : "none", newPosition.getName()), gatherer.gatherPlayerById(playerId));
     }
 }
