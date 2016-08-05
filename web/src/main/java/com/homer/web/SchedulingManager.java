@@ -125,10 +125,10 @@ public class SchedulingManager {
     public ScheduledFuture updateStandings() {
         long delayMinutes;
         DateTime now = DateTime.now();
-        if (now.getHourOfDay() <= 6) {
-            delayMinutes = 420 - now.getMinuteOfDay();
+        if (now.getHourOfDay() <= 10) {
+            delayMinutes = 660 - now.getMinuteOfDay();
         } else {
-            delayMinutes = 1440 - (now.getMinuteOfDay() - 420);
+            delayMinutes = 1440 - (now.getMinuteOfDay() - 660);
         }
         logger.info("Delay minutes: " + delayMinutes);
         Runnable runnable = updateStandingsRunnable(standingsService);
