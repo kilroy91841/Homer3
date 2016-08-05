@@ -1,23 +1,9 @@
 package com.homer.web;
 
-import com.homer.auth.stormpath.StormpathAuthService;
-import com.homer.data.*;
-import com.homer.email.IEmailService;
-import com.homer.email.aws.AWSEmailService;
-import com.homer.external.common.IMLBClient;
-import com.homer.external.rest.espn.ESPNRestClient;
-import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
-import com.homer.service.auth.UserService;
-import com.homer.service.full.FullPlayerService;
-import com.homer.service.full.FullVultureService;
 import com.homer.service.full.IFullPlayerService;
 import com.homer.service.full.IFullVultureService;
-import com.homer.service.gather.Gatherer;
-import com.homer.service.gather.IGatherer;
 import com.homer.service.importer.IPlayerImporter;
-import com.homer.service.importer.PlayerImporter;
-import com.homer.service.schedule.Scheduler;
 import com.homer.type.MLBTeam;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
@@ -45,6 +31,8 @@ public class SchedulingManager {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
+    private final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+
     private IPlayerImporter playerImporter;
     private IPlayerSeasonService playerSeasonService;
     private IPlayerService playerService;
@@ -53,40 +41,18 @@ public class SchedulingManager {
     private EnvironmentUtility envUtil;
     private IFullPlayerService fullPlayerService;
     private ITransactionService transactionService;
+    private IStandingService standingsService;
 
     public SchedulingManager() {
         envUtil = EnvironmentUtility.getInstance();
-        playerService = new PlayerService(new PlayerRepository());
-        playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
-
-        IMLBClient mlbClient = new MLBRestClient();
-        playerImporter = new PlayerImporter(
-                new PlayerService(new PlayerRepository()),
-                playerSeasonService,
-                mlbClient
-        );
-
-        ITeamService teamService = new TeamService(new TeamRepository());
-        IEmailService emailService = new AWSEmailService();
-        fullVultureService = new FullVultureService(
-                new VultureService(new VultureRepository()),
-                playerSeasonService,
-                teamService,
-                playerService,
-                new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository()),
-                emailService,
-                new Scheduler());
-
-        IGatherer gatherer = new Gatherer(playerService, teamService, playerSeasonService,
-                new DraftDollarService(new DraftDollarRepository()), new MinorLeaguePickService(new MinorLeaguePickRepository()),
-                new TradeService(new TradeRepository()), new TradeElementService(new TradeElementRepository()));
-
-        validator = new Validator(teamService, gatherer, emailService);
-
-        fullPlayerService = new FullPlayerService(playerService, playerSeasonService, mlbClient);
-
-        transactionService = new TransactionService(new TransactionRepository(),
-                playerService, playerSeasonService, new ESPNRestClient(), new AWSEmailService());
+        playerService = serviceFactory.get(IPlayerService.class);
+        playerSeasonService = serviceFactory.get(IPlayerSeasonService.class);
+        playerImporter = serviceFactory.get(IPlayerImporter.class);
+        fullVultureService = serviceFactory.get(IFullVultureService.class);
+        validator = serviceFactory.get(Validator.class);
+        fullPlayerService = serviceFactory.get(IFullPlayerService.class);
+        transactionService = serviceFactory.get(ITransactionService.class);
+        standingsService = serviceFactory.get(IStandingService.class);
     }
 
     public void run() {
@@ -100,6 +66,8 @@ public class SchedulingManager {
         updateMinorLeaguerStatusForPlayers();
 
         processTransactions();
+
+        updateStandings();
     }
 
     private ScheduledFuture processTransactions() {
@@ -150,6 +118,23 @@ public class SchedulingManager {
                 runnable,
                 envUtil.getUpdatePlayersDelay(),
                 envUtil.getUpdatePlayersPeriod(),
+                TimeUnit.MINUTES
+        );
+    }
+
+    public ScheduledFuture updateStandings() {
+        long delayMinutes;
+        DateTime now = DateTime.now();
+        if (now.getHourOfDay() <= 6) {
+            delayMinutes = 420 - now.getMinuteOfDay();
+        } else {
+            delayMinutes = 1440 - (now.getMinuteOfDay() - 420);
+        }
+        logger.info("Delay minutes: " + delayMinutes);
+        Runnable runnable = updateStandingsRunnable(standingsService);
+        return scheduler.scheduleAtFixedRate(runnable,
+                delayMinutes,
+                1440,
                 TimeUnit.MINUTES
         );
     }
@@ -223,6 +208,17 @@ public class SchedulingManager {
                 transactionService.processDailyTransactions();
             } catch (Exception e) {
                 logger.error(String.format("ERROR: processTransactions, %s %s", e.getMessage(), e.getMessage().toString()));
+            }
+        };
+    }
+
+    public static Runnable updateStandingsRunnable(IStandingService standingService) {
+        return () -> {
+            try {
+                DateTime date = DateTime.now().withMillisOfDay(0);
+                standingService.computeStandingsForDate(date, true);
+            } catch (Exception e) {
+                logger.error(String.format("ERROR: updateStandings, %s", e.getMessage()), e);
             }
         };
     }
