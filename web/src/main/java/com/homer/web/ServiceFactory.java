@@ -21,8 +21,6 @@ import com.homer.service.importer.IPlayerImporter;
 import com.homer.service.importer.PlayerImporter;
 import com.homer.service.schedule.IScheduler;
 import com.homer.service.schedule.Scheduler;
-import com.homer.type.TeamDaily;
-import javassist.NotFoundException;
 
 import java.util.Map;
 
@@ -137,6 +135,20 @@ public final class ServiceFactory {
         instanceMap.put(IStandingService.class, new StandingService(
                 get(IStandingRepository.class),
                 get(ITeamDailyService.class)
+        ));
+
+        instanceMap.put(IVultureRepository.class, new VultureRepository());
+        instanceMap.put(IVultureService.class, new VultureService(
+                get(IVultureRepository.class)
+        ));
+        instanceMap.put(IFullVultureService.class, new FullVultureService(
+                get(IVultureService.class),
+                get(IPlayerSeasonService.class),
+                get(ITeamService.class),
+                get(IPlayerService.class),
+                get(IUserService.class),
+                get(IEmailService.class),
+                get(IScheduler.class)
         ));
     }
 
