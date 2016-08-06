@@ -215,7 +215,7 @@ public class SchedulingManager {
     public static Runnable updateStandingsRunnable(IStandingService standingService) {
         return () -> {
             try {
-                DateTime date = DateTime.now().withMillisOfDay(0);
+                DateTime date = DateTime.now().minusDays(1).withMillisOfDay(0);
                 standingService.computeStandingsForDate(date, true);
             } catch (Exception e) {
                 logger.error(String.format("ERROR: updateStandings, %s", e.getMessage()), e);
