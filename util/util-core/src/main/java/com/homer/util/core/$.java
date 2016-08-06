@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -113,6 +114,11 @@ public class $<T> {
     public List<T> sorted()
     {
         return of(backing.sorted()).toList();
+    }
+
+    public List<T> sorted(Comparator<T> comparator)
+    {
+        return of(backing.sorted(comparator)).toList();
     }
 
     public void forEach(Consumer<T> func) {

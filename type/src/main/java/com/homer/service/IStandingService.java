@@ -1,5 +1,6 @@
 package com.homer.service;
 
+import com.homer.type.PlayerDaily;
 import com.homer.type.Standing;
 import org.joda.time.DateTime;
 
@@ -15,4 +16,6 @@ public interface IStandingService extends IIdService<Standing> {
     List<Standing> computeStandingsForDate(DateTime date, boolean refreshTeamDailies);
     List<Standing> getLatestStandings();
     List<Standing> computeStandingsBetweenDates(DateTime start, DateTime end);
+
+    List<PlayerDaily> getActiveStatsForTeam(long teamId);
 }

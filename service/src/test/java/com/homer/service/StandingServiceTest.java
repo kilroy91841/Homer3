@@ -20,7 +20,7 @@ public class StandingServiceTest {
 
     @Before
     public void setup() {
-        service = new StandingService(mock(IStandingRepository.class), mock(ITeamDailyService.class));
+        service = new StandingService(mock(IStandingRepository.class), mock(ITeamDailyService.class), mock(IPlayerDailyService.class));
     }
 
     @Test

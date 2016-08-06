@@ -134,7 +134,8 @@ public final class ServiceFactory {
         ));
         instanceMap.put(IStandingService.class, new StandingService(
                 get(IStandingRepository.class),
-                get(ITeamDailyService.class)
+                get(ITeamDailyService.class),
+                get(IPlayerDailyService.class)
         ));
 
         instanceMap.put(IVultureRepository.class, new VultureRepository());

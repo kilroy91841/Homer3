@@ -53,6 +53,11 @@ public class BaseDaily extends BaseObject {
     @Column
     private int earnedRuns;
 
+    //computed
+    private double obp;
+    private Double whip;
+    private Double era;
+
     // region equals/hashCode/toString
 
     @Override
@@ -77,12 +82,15 @@ public class BaseDaily extends BaseObject {
                 Double.compare(baseDaily.inningsPitched, inningsPitched) == 0 &&
                 hits == baseDaily.hits &&
                 earnedRuns == baseDaily.earnedRuns &&
+                obp == baseDaily.obp &&
+                Objects.equal(whip, baseDaily.whip) &&
+                Objects.equal(era, baseDaily.era) &&
                 Objects.equal(date, baseDaily.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), date, scoringPeriodId, walks, atBats, homeRuns, runs, rbi, stolenBases, hitByPitches, sacFlies, totalBases, strikeouts, wins, saves, inningsPitched, hits, earnedRuns);
+        return Objects.hashCode(super.hashCode(), date, scoringPeriodId, walks, atBats, homeRuns, runs, rbi, stolenBases, hitByPitches, sacFlies, totalBases, strikeouts, wins, saves, inningsPitched, hits, earnedRuns, obp, whip, era);
     }
 
     @Override
@@ -105,6 +113,9 @@ public class BaseDaily extends BaseObject {
                 ", inningsPitched=" + inningsPitched +
                 ", hits=" + hits +
                 ", earnedRuns=" + earnedRuns +
+                ", obp=" + obp +
+                ", era=" + era +
+                ", whip=" + whip +
                 "} " + super.toString();
     }
 
@@ -244,5 +255,29 @@ public class BaseDaily extends BaseObject {
 
     public void setEarnedRuns(int earnedRuns) {
         this.earnedRuns = earnedRuns;
+    }
+
+    public double getObp() {
+        return obp;
+    }
+
+    public void setObp(double obp) {
+        this.obp = obp;
+    }
+
+    public Double getWhip() {
+        return whip;
+    }
+
+    public void setWhip(Double whip) {
+        this.whip = whip;
+    }
+
+    public Double getEra() {
+        return era;
+    }
+
+    public void setEra(Double era) {
+        this.era = era;
     }
 }

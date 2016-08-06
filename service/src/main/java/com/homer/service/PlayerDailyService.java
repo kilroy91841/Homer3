@@ -62,6 +62,17 @@ public class PlayerDailyService extends BaseIdService<PlayerDaily> implements IP
     }
 
     @Override
+    public List<PlayerDaily> getByTeam(long teamId, int season) {
+        List<PlayerDaily> playerDailies = playerDailyRepo.getByTeam(teamId);
+        playerDailies = $.of(playerDailies).filterToList(pd -> pd.getDate().getYear() == season);
+        Map<Long, Player> playersMap = $.of(playerService.getByIds($.of(playerDailies).toList(PlayerDaily::getPlayerId))).toIdMap();
+        return $.of(playerDailies).toList(pd -> {
+            pd.setPlayer(playersMap.get(pd.getPlayerId()));
+            return pd;
+        });
+    }
+
+    @Override
     public List<PlayerDaily> refreshPlayerDailies() {
         return refreshPlayerDailies(ESPNUtility.getTodaysScoringPeriod());
     }

@@ -3,21 +3,30 @@ package com.homer.service;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.homer.data.common.IStandingRepository;
+import com.homer.external.common.mlb.HittingStats;
+import com.homer.external.common.mlb.PitchingStats;
 import com.homer.service.utility.ESPNUtility;
 import com.homer.type.*;
 import com.homer.util.HomerBeanUtil;
+import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
+
+import static com.homer.service.utility.StatsUtility.calculateEra;
+import static com.homer.service.utility.StatsUtility.calculateOBP;
+import static com.homer.service.utility.StatsUtility.calculateWhip;
 
 /**
  * Created by arigolub on 7/30/16.
@@ -39,11 +48,14 @@ public class StandingService extends BaseIdService<Standing> implements IStandin
 
     private IStandingRepository standingRepo;
     private ITeamDailyService teamDailyService;
+    private IPlayerDailyService playerDailyService;
 
-    public StandingService(IStandingRepository standingRepository, ITeamDailyService teamDailyService) {
+    public StandingService(IStandingRepository standingRepository, ITeamDailyService teamDailyService,
+                           IPlayerDailyService playerDailyService) {
         super(standingRepository);
         this.standingRepo = standingRepository;
         this.teamDailyService = teamDailyService;
+        this.playerDailyService = playerDailyService;
     }
 
     @Override
@@ -128,15 +140,65 @@ public class StandingService extends BaseIdService<Standing> implements IStandin
             standing.setEarnedRunsTotal($.of(teamDailies).reduceToInt(TeamDaily::getEarnedRuns));
             standing.setPitcherWalksTotal($.of(teamDailies).reduceToInt(TeamDaily::getPitcherWalks));
             standing.setPitcherHitsTotal($.of(teamDailies).reduceToInt(TeamDaily::getPitcherHits));
-            standing.setEraTotal(calculateEraTotal(standing.getInningsPitchedTotal(), standing.getEarnedRunsTotal()));
+            standing.setEraTotal(calculateEra(standing.getInningsPitchedTotal(), standing.getEarnedRunsTotal()));
             standing.setWhipTotal(calculateWhip(standing.getInningsPitchedTotal(), standing.getPitcherHitsTotal(), standing.getPitcherWalksTotal()));
-
 
             standings.add(standing);
         });
         List<Standing> sortedStandings = sortStandings(standings);
         logger.info("DONE: computeStandingsBetweenDates");
         return sortedStandings;
+    }
+
+    @Override
+    public List<PlayerDaily> getActiveStatsForTeam(long teamId) {
+        List<PlayerDaily> response = Lists.newArrayList();
+        Map<Long, List<PlayerDaily>> playerDailiesMap =
+                $.of(playerDailyService.getByTeam(teamId, LeagueUtil.SEASON)).groupBy(PlayerDaily::getPlayerId);
+
+        for (List<PlayerDaily> playerDailies : playerDailiesMap.values()) {
+            if (playerDailies.size() == 0) {
+                continue;
+            }
+            PlayerDaily pd = new PlayerDaily();
+            pd.setPlayer($.of(playerDailies).first().getPlayer());
+            pd.setHits($.of(playerDailies).reduceToInt(PlayerDaily::getHits));
+            pd.setAtBats($.of(playerDailies).reduceToInt(PlayerDaily::getAtBats));
+            pd.setRuns($.of(playerDailies).reduceToInt(PlayerDaily::getRuns));
+            pd.setRbi($.of(playerDailies).reduceToInt(PlayerDaily::getRbi));
+            pd.setHomeRuns($.of(playerDailies).reduceToInt(PlayerDaily::getHomeRuns));
+            pd.setStolenBases($.of(playerDailies).reduceToInt(PlayerDaily::getStolenBases));
+            pd.setWalks($.of(playerDailies).reduceToInt(PlayerDaily::getWalks));
+            pd.setHitByPitches($.of(playerDailies).reduceToInt(PlayerDaily::getHitByPitches));
+            pd.setSacFlies($.of(playerDailies).reduceToInt(PlayerDaily::getSacFlies));
+            pd.setTotalBases($.of(playerDailies).reduceToInt(PlayerDaily::getTotalBases));
+            pd.setWins($.of(playerDailies).reduceToInt(PlayerDaily::getWins));
+            pd.setSaves($.of(playerDailies).reduceToInt(PlayerDaily::getSaves));
+            pd.setStrikeouts($.of(playerDailies).reduceToInt(PlayerDaily::getStrikeouts));
+            pd.setHits($.of(playerDailies).reduceToInt(PlayerDaily::getHits));
+            pd.setWalks($.of(playerDailies).reduceToInt(PlayerDaily::getWalks));
+            pd.setEarnedRuns($.of(playerDailies).reduceToInt(PlayerDaily::getEarnedRuns));
+            pd.setInningsPitched($.of(playerDailies).reduceToDouble(PlayerDaily::getInningsPitched));
+
+            pd.setObp(calculateOBP(pd.getAtBats(), pd.getHits(), pd.getWalks(), pd.getSacFlies(), pd.getHitByPitches()));
+            pd.setEra(calculateEra(pd.getInningsPitched(), pd.getEarnedRuns()));
+            pd.setWhip(calculateWhip(pd.getInningsPitched(), pd.getHits(), pd.getWalks()));
+
+            response.add(pd);
+        }
+        return $.of(response).sorted((pd1, pd2) -> {
+            if (pd1.getPlayer().isBatter() && !pd2.getPlayer().isBatter()) {
+                return -1;
+            } else if (!pd1.getPlayer().isBatter() && pd2.getPlayer().isBatter()) {
+                return 1;
+            } else if (pd1.getPlayer().isBatter() && pd2.getPlayer().isBatter()) {
+                return Integer.compare(pd1.getAtBats(), pd2.getAtBats()) * -1;
+            } else if (!pd1.getPlayer().isBatter() && !pd2.getPlayer().isBatter()) {
+                return Double.compare(pd1.getInningsPitched(), pd2.getInningsPitched()) * -1;
+            } else {
+                return 0;
+            }
+        });
     }
 
     // region helpers
@@ -173,32 +235,9 @@ public class StandingService extends BaseIdService<Standing> implements IStandin
             addValueAndResetPoints(teamDaily.getInningsPitched(), (x, y) -> x + y, newStanding, Standing::getInningsPitchedTotal, Standing::setInningsPitchedTotal, (x, y) -> {});
             addValueAndResetPoints(teamDaily.getEarnedRuns(), (x, y) -> x + y, newStanding, Standing::getEarnedRunsTotal , Standing::setEarnedRunsTotal, (x, y) -> {});
             newStanding.setWhipTotal(calculateWhip(newStanding.getInningsPitchedTotal(), newStanding.getPitcherHitsTotal(), newStanding.getPitcherWalksTotal()));
-            newStanding.setEraTotal(calculateEraTotal(newStanding.getInningsPitchedTotal(), newStanding.getEarnedRunsTotal()));
+            newStanding.setEraTotal(calculateEra(newStanding.getInningsPitchedTotal(), newStanding.getEarnedRunsTotal()));
             return newStanding;
         });
-    }
-
-    private static double calculateOBP(int atBats, int hits, int walks, int sacFlies, int hitByPitches) {
-        if (atBats == 0) {
-            return 0;
-        }
-        return (hits + walks + hitByPitches) / (double)(atBats + walks + hitByPitches + sacFlies);
-    }
-
-    @Nullable
-    private static Double calculateWhip(double inningsPitched, int hits, int walks) {
-        if (inningsPitched == 0) {
-            return null;
-        }
-        return (walks + hits) / inningsPitched;
-    }
-
-    @Nullable
-    private static Double calculateEraTotal(double inningsPitched, int earnedRuns) {
-        if (inningsPitched == 0) {
-            return null;
-        }
-        return (earnedRuns * 9) / inningsPitched;
     }
 
     private static <T extends Number> void addValueAndResetPoints(T newStat, BiFunction<T, T, T> addFunc, Standing standing, Function<Standing, T> getter, BiConsumer<Standing, T> setter,

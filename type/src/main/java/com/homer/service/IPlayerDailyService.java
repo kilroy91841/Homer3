@@ -12,6 +12,7 @@ import java.util.List;
 public interface IPlayerDailyService extends IIdService<PlayerDaily> {
 
     List<PlayerDaily> getByDate(int teamId, DateTime date);
+    List<PlayerDaily> getByTeam(long teamId, int season);
     List<PlayerDaily> refreshPlayerDailies();
     List<PlayerDaily> refreshPlayerDailies(ScoringPeriod scoringPeriod);
     List<PlayerDaily> refreshPlayerDailies(int teamId, DateTime date, int scoringPeriodId);
