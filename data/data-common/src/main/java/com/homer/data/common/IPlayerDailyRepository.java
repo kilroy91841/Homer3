@@ -16,4 +16,6 @@ public interface IPlayerDailyRepository extends IRepository<PlayerDaily> {
     PlayerDaily getByKey(long playerId, DateTime date);
 
     List<PlayerDaily> getByDate(int teamId, DateTime date);
+
+    List<PlayerDaily> getByTeam(long teamId);
 }

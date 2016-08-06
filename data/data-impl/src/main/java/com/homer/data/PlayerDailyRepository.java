@@ -36,4 +36,9 @@ public class PlayerDailyRepository extends BaseVersionedRepository<PlayerDaily, 
         filters.put("teamId", teamId);
         return getMany(filters);
     }
+
+    @Override
+    public List<PlayerDaily> getByTeam(long teamId) {
+        return getMany("teamId", teamId);
+    }
 }

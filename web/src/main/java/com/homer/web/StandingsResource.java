@@ -16,6 +16,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.function.Supplier;
+
+import static com.homer.web.RestUtility.safelyDo;
 
 /**
  * Created by arigolub on 7/31/16.
@@ -27,13 +30,9 @@ public class StandingsResource {
     private ServiceFactory serviceFactory = ServiceFactory.getInstance();
 
     private IStandingService standingService;
-    private ITeamDailyService teamDailyService;
-    private IPlayerDailyService playerDailyService;
 
     public StandingsResource() {
-        this.playerDailyService = serviceFactory.get(IPlayerDailyService.class);
         this.standingService = serviceFactory.get(IStandingService.class);
-        this.teamDailyService = serviceFactory.get(ITeamDailyService.class);
     }
 
     @GET
@@ -41,28 +40,22 @@ public class StandingsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse computeStandingsForDate(@QueryParam(value = "date") String dateString,
                                  @QueryParam(value = "refreshTeamDailies") boolean refreshTeamDailies) {
-        try {
-            DateTime date = DateTime.parse(dateString).withMillisOfDay(0);
-            return new ApiResponse("success", standingService.computeStandingsForDate(date, refreshTeamDailies));
-        } catch (Exception e) {
-            return ApiResponse.failure(e);
-        }
+        return safelyDo(() ->
+                standingService.computeStandingsForDate(DateTime.parse(dateString).withMillisOfDay(0), refreshTeamDailies));
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse getLatestStandings(@QueryParam(value = "date") String dateString) {
-        try {
+        return safelyDo(() -> {
             List<Standing> standings;
             if (dateString == null) {
                 standings = standingService.getLatestStandings();
             } else {
                 standings = standingService.getByDate(DateTime.parse(dateString).withMillisOfDay(0));
             }
-            return new ApiResponse("success", standings);
-        } catch (Exception e) {
-            return ApiResponse.failure(e);
-        }
+            return standings;
+        });
     }
 
     @GET
@@ -70,29 +63,34 @@ public class StandingsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse computeStandingsBetweenDates(@QueryParam(value = "start") String startString,
                                                     @QueryParam(value = "end") String endString) {
-        try {
+        return safelyDo(() -> {
             DateTime start = DateTime.parse(startString).withMillisOfDay(0);
             DateTime end = DateTime.parse(endString).withMillisOfDay(0);
-            return new ApiResponse("success", standingService.computeStandingsBetweenDates(start, end));
-        } catch (Exception e) {
-            return ApiResponse.failure(e);
-        }
+            return standingService.computeStandingsBetweenDates(start, end);
+        });
     }
 
     @GET
     @Path("/updateToLatest")
     @Produces(MediaType.APPLICATION_JSON)
     public ApiResponse updateToLatest(@QueryParam(value = "refreshTeamDailies") boolean refreshTeamDailies) {
-        try {
+        return safelyDo(() -> {
             DateTime date = ESPNUtility.SCORING_PERIOD_1;
             List<Standing> standings = Lists.newArrayList();
             while (date.isBeforeNow()) {
                 standings = standingService.computeStandingsForDate(date, refreshTeamDailies);
                 date = date.plusDays(1);
             }
-            return new ApiResponse("success", standings);
-        } catch (Exception e) {
-            return ApiResponse.failure(e);
-        }
+            return standings;
+        });
+    }
+
+    @GET
+    @Path("/activeStats")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse getActiveStats(@QueryParam(value = "teamId") long teamId) {
+        return safelyDo(() ->
+                standingService.getActiveStatsForTeam(teamId)
+        );
     }
 }
