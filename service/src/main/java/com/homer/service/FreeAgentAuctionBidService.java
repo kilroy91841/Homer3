@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Created by arigolub on 5/8/16.
  */
-public class FreeAgentAuctionBidService extends BaseIdService<FreeAgentAuctionBid> implements IFreeAgentAuctionBidService {
+public class FreeAgentAuctionBidService extends BaseVersionedIdService<FreeAgentAuctionBid, HistoryFreeAgentAuctionBid> implements IFreeAgentAuctionBidService {
 
     public FreeAgentAuctionBidService(IFreeAgentAuctionBidRepository repo) {
         super(repo);

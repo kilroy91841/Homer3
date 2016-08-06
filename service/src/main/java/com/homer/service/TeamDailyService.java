@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.homer.data.common.ITeamDailyRepository;
 import com.homer.service.utility.ESPNUtility;
 import com.homer.type.*;
+import com.homer.type.history.HistoryTeamDaily;
 import com.homer.util.core.$;
 import com.homer.util.core.data.IRepository;
 import org.joda.time.DateTime;
@@ -20,7 +21,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by arigolub on 7/30/16.
  */
-public class TeamDailyService extends BaseIdService<TeamDaily> implements ITeamDailyService {
+public class TeamDailyService extends BaseVersionedIdService<TeamDaily, HistoryTeamDaily> implements ITeamDailyService {
 
     final static Logger logger = LoggerFactory.getLogger(PlayerDailyService.class);
 

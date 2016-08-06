@@ -3,6 +3,7 @@ package com.homer.service;
 import com.google.common.collect.Maps;
 import com.homer.data.common.IFreeAgentAuctionRepository;
 import com.homer.type.FreeAgentAuction;
+import com.homer.type.history.HistoryFreeAgentAuction;
 
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * Created by arigolub on 5/8/16.
  */
-public class FreeAgentAuctionService extends BaseIdService<FreeAgentAuction> implements IFreeAgentAuctionService {
+public class FreeAgentAuctionService extends BaseVersionedIdService<FreeAgentAuction, HistoryFreeAgentAuction> implements IFreeAgentAuctionService {
 
     public FreeAgentAuctionService(IFreeAgentAuctionRepository repo) {
         super(repo);

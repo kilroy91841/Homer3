@@ -5,6 +5,7 @@ import com.homer.data.common.IDraftDollarRepository;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.type.DraftDollar;
 import com.homer.type.DraftDollarType;
+import com.homer.type.history.HistoryDraftDollar;
 import com.homer.util.core.Tuple;
 
 import javax.annotation.Nullable;
@@ -15,7 +16,7 @@ import java.util.Map;
 /**
  * Created by arigolub on 3/17/16.
  */
-public class DraftDollarService extends BaseIdService<DraftDollar> implements IDraftDollarService {
+public class DraftDollarService extends BaseVersionedIdService<DraftDollar, HistoryDraftDollar> implements IDraftDollarService {
 
     private IDraftDollarRepository repo;
 
@@ -72,6 +73,11 @@ public class DraftDollarService extends BaseIdService<DraftDollar> implements ID
         }
 
         return new Tuple<>(fromDollar, toDollar);
+    }
+
+    @Override
+    public List<HistoryDraftDollar> getHistories(long id) {
+        return repo.getHistories(id);
     }
 
     @Nullable

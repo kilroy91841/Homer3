@@ -1,20 +1,22 @@
 package com.homer.service;
 
 import com.homer.util.core.IBaseObject;
+import com.homer.util.core.IHistoryObject;
 import com.homer.util.core.data.IRepository;
+import com.homer.util.core.data.IVersionedRepository;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by arigolub on 3/18/16.
+ * Created by arigolub on 8/5/16.
  */
-public class BaseIdService<T extends IBaseObject> implements IIdService<T> {
+public class BaseVersionedIdService<T extends IBaseObject, H extends IHistoryObject> implements IIdService<T> {
 
-    private IRepository<T> repo;
+    private IVersionedRepository<T, H> repo;
 
-    public BaseIdService(IRepository<T> repo) {
+    public BaseVersionedIdService(IVersionedRepository<T, H> repo) {
         this.repo = repo;
     }
 
@@ -25,7 +27,7 @@ public class BaseIdService<T extends IBaseObject> implements IIdService<T> {
 
     @Override
     public T upsert(T obj) {
-        return repo.upsertNoHistory(obj);
+        return repo.upsert(obj);
     }
 
     @Override

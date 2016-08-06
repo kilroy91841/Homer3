@@ -81,7 +81,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
     }
 
     @Override
-    public T upsert(T obj) {
+    public T upsertNoHistory(T obj) {
         Statement stmt = null;
         Connection con = null;
         try {
@@ -126,7 +126,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
     }
 
     @Override
-    public boolean delete(long id) {
+    public boolean deleteNoHistory(long id) {
         String query = buildDelete(clazz, id);
 
         boolean deleted = false;
@@ -203,7 +203,7 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         return query.toString();
     }
 
-    private String buildQuery(Class<T> clazz, Map<String, ?> filters)
+    protected <F> String buildQuery(Class<F> clazz, Map<String, ?> filters)
     {
         Table annotation = clazz.getAnnotation(Table.class);
         String tableName = annotation.name();
@@ -326,14 +326,14 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
         return dateTime.withMillisOfSecond(0).toString(dateTimeFormatter);
     }
 
-    private List<T> hydrate(Class<T> baseObject, ResultSet rs) throws SQLException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
+    protected <F> List<F> hydrate(Class<F> baseObject, ResultSet rs) throws SQLException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
         if (rs == null) {
             throw new SQLException("ResultSet was null");
         }
-        List<T> results = new ArrayList<>();
+        List<F> results = new ArrayList<>();
         List<Field> fields = ColumnUtil.getFields(baseObject);
         while(rs.next()) {
-            T obj = baseObject.newInstance();
+            F obj = baseObject.newInstance();
             for(Field f : fields) {
                 String fieldName = f.getName();
                 if (f.getType().isPrimitive()) {

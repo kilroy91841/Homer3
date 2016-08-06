@@ -2,6 +2,7 @@ package com.homer.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.base.Objects;
 import com.homer.util.EnumUtil;
 import com.homer.util.HomerBeanUtil;
 
@@ -25,29 +26,28 @@ public class DraftDollar extends BaseObject {
     private DraftDollarType draftDollarType;
     @Column
     private int amount;
+    @Nullable
+    @Column
+    private Long tradeId;
+
+    // region equals/hashCode/toString
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         DraftDollar that = (DraftDollar) o;
-
-        if (teamId != that.teamId) return false;
-        if (season != that.season) return false;
-        if (amount != that.amount) return false;
-        return draftDollarType == that.draftDollarType;
+        return teamId == that.teamId &&
+                season == that.season &&
+                amount == that.amount &&
+                draftDollarType == that.draftDollarType &&
+                Objects.equal(tradeId, that.tradeId);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (int) (teamId ^ (teamId >>> 32));
-        result = 31 * result + season;
-        result = 31 * result + draftDollarType.hashCode();
-        result = 31 * result + amount;
-        return result;
+        return Objects.hashCode(super.hashCode(), teamId, season, draftDollarType, amount, tradeId);
     }
 
     @Override
@@ -57,8 +57,11 @@ public class DraftDollar extends BaseObject {
                 ", season=" + season +
                 ", draftDollarType=" + draftDollarType +
                 ", amount=" + amount +
+                ", tradeId=" + tradeId +
                 "} " + super.toString();
     }
+
+    // endregion
 
     public long getTeamId() {
         return teamId;
@@ -90,5 +93,14 @@ public class DraftDollar extends BaseObject {
 
     public void setDraftDollarType(DraftDollarType draftDollarType) {
         this.draftDollarType = draftDollarType;
+    }
+
+    @Nullable
+    public Long getTradeId() {
+        return tradeId;
+    }
+
+    public void setTradeId(@Nullable Long tradeId) {
+        this.tradeId = tradeId;
     }
 }

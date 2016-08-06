@@ -43,6 +43,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.*;
 import java.util.List;
 
+import static com.homer.web.RestUtility.safelyDo;
+
 /**
  * Created by arigolub on 2/14/16.
  */
@@ -72,6 +74,7 @@ public class Resource {
     private IScheduler scheduler;
     private Validator validator;
     private ITransactionService transactionService;
+    private IFullHistoryService fullHistoryService;
 
     public Resource() {
         this.teamService = serviceFactory.get(ITeamService.class);
@@ -89,6 +92,7 @@ public class Resource {
         playerImporter = serviceFactory.get(IPlayerImporter.class);
         minorLeagueDraftService = serviceFactory.get(IFullMinorLeagueDraftService.class);
         transactionService = serviceFactory.get(ITransactionService.class);
+        fullHistoryService = serviceFactory.get(IFullHistoryService.class);
     }
 
     @GET
@@ -145,6 +149,13 @@ public class Resource {
             apiResponse.setMessage(e.getMessage());
         }
         return apiResponse;
+    }
+
+    @GET
+    @Path("draftDollar/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse getTrade(@PathParam(value = "id") long id) {
+        return safelyDo(() -> fullHistoryService.getDraftDollarHistory(id));
     }
 
     @Path("metadata")

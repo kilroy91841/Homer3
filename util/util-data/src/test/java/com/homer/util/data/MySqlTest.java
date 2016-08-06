@@ -36,7 +36,7 @@ public class MySqlTest {
         upsertTest.setCreatedDateUTC(DateTime.now());
         upsertTest.setUpdatedDateUTC(DateTime.now());
 
-        ChildObject upserted = repo.upsert(upsertTest);
+        ChildObject upserted = repo.upsertNoHistory(upsertTest);
         assertTrue(upserted.getId() > 0);
         upsertTest.setId(upserted.getId());
         assertEquals(upsertTest, upserted);
@@ -47,7 +47,7 @@ public class MySqlTest {
         assertEquals(upserted, fetched);
 
         upsertTest.setLongObject(36L);
-        upserted = repo.upsert(upsertTest);
+        upserted = repo.upsertNoHistory(upsertTest);
         assertEquals(upsertTest, upserted);
 
         fetchedList = repo.getMany(Maps.newHashMap());
@@ -56,7 +56,7 @@ public class MySqlTest {
         fetched = fetchedList.get(0);
         assertEquals(upserted, fetched);
 
-        assertTrue(repo.delete(fetched.getId()));
+        assertTrue(repo.deleteNoHistory(fetched.getId()));
 
         fetchedList = repo.getMany(Maps.newHashMap());
         assertEquals(0, fetchedList.size());

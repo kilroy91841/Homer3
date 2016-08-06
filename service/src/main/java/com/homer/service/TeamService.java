@@ -2,6 +2,7 @@ package com.homer.service;
 
 import com.homer.data.common.ITeamRepository;
 import com.homer.type.Team;
+import com.homer.type.history.HistoryTeam;
 import com.homer.util.core.$;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * Created by arigolub on 3/6/16.
  */
-public class TeamService extends BaseIdService<Team> implements ITeamService {
+public class TeamService extends BaseVersionedIdService<Team, HistoryTeam> implements ITeamService {
 
     private static Map<Long, Team> FANTASY_TEAM_MAP;
 

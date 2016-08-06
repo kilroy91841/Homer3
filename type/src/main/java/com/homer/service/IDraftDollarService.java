@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.type.DraftDollar;
 import com.homer.type.DraftDollarType;
+import com.homer.type.history.HistoryDraftDollar;
 import com.homer.util.core.Tuple;
 
 import java.util.Collection;
@@ -31,4 +32,6 @@ public interface IDraftDollarService extends IIdService<DraftDollar> {
         }
         return transferMoney(fromTeamId, toTeamId, dd.getSeason(), dd.getDraftDollarType(), amount);
     }
+
+    List<HistoryDraftDollar> getHistories(long id);
 }

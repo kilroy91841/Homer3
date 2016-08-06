@@ -7,6 +7,7 @@ import com.homer.external.common.mlb.HittingStats;
 import com.homer.external.common.mlb.PitchingStats;
 import com.homer.service.utility.ESPNUtility;
 import com.homer.type.*;
+import com.homer.type.history.HistoryStanding;
 import com.homer.util.HomerBeanUtil;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
@@ -31,7 +32,7 @@ import static com.homer.service.utility.StatsUtility.calculateWhip;
 /**
  * Created by arigolub on 7/30/16.
  */
-public class StandingService extends BaseIdService<Standing> implements IStandingService {
+public class StandingService extends BaseVersionedIdService<Standing, HistoryStanding> implements IStandingService {
 
     static final Logger logger = LoggerFactory.getLogger(StandingService.class);
     

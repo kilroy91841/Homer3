@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import com.homer.util.core.$;
 import com.homer.util.core.IBaseObject;
 
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +42,10 @@ public interface IRepository<T extends IBaseObject> {
         return getMany(Maps.newHashMap());
     }
 
-    T upsert(T obj);
+    T upsertNoHistory(T obj);
 
-    boolean delete(long id);
-    default boolean delete(T obj) {
-        return this.delete(obj.getId());
+    boolean deleteNoHistory(long id);
+    default boolean deleteNoHistory(T obj) {
+        return this.deleteNoHistory(obj.getId());
     }
 }

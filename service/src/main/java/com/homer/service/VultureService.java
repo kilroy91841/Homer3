@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.homer.data.common.IVultureRepository;
 import com.homer.type.Vulture;
 import com.homer.type.EventStatus;
+import com.homer.type.history.HistoryVulture;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Map;
  * Created by arigolub on 5/5/16.
  */
 //TODO Add season filter
-public class VultureService extends BaseIdService<Vulture> implements IVultureService {
+public class VultureService extends BaseVersionedIdService<Vulture, HistoryVulture> implements IVultureService {
 
     private IVultureRepository repo;
 

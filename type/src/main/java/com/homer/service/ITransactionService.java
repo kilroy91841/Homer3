@@ -15,8 +15,6 @@ public interface ITransactionService extends IIdService<Transaction> {
 
     boolean doesTransactionExist(Transaction transaction);
 
-    Transaction createTransaction(Transaction transaction);
-
     List<Transaction> processDailyTransactions();
 
     List<Transaction> getDailyTransactions();
