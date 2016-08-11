@@ -3,6 +3,7 @@ package com.homer.service;
 import com.google.common.collect.Maps;
 import com.homer.data.common.IPlayerRepository;
 import com.homer.type.Player;
+import com.homer.type.history.HistoryPlayer;
 import com.homer.util.core.data.Matcher;
 
 import javax.annotation.Nullable;
@@ -14,7 +15,7 @@ import java.util.Objects;
 /**
  * Created by arigolub on 2/15/16.
  */
-public class PlayerService extends BaseIdService<Player> implements IPlayerService {
+public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer> implements IPlayerService {
 
     private IPlayerRepository repo;
 

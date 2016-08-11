@@ -151,6 +151,12 @@ public final class ServiceFactory {
                 get(IEmailService.class),
                 get(IScheduler.class)
         ));
+
+        instanceMap.put(IFullHistoryService.class, new FullHistoryService(
+                get(IDraftDollarService.class),
+                get(IFullTradeService.class),
+                get(ITeamService.class)
+        ));
     }
 
     public <T> T get(Class<T> clazz) {

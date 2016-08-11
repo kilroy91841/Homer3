@@ -6,6 +6,7 @@ import com.homer.data.common.IPlayerSeasonRepository;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.external.common.mlb.MLBPlayerStatus;
 import com.homer.type.*;
+import com.homer.type.history.HistoryPlayerSeason;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * Created by arigolub on 3/12/16.
  */
-public class PlayerSeasonService extends BaseIdService<PlayerSeason> implements IPlayerSeasonService {
+public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, HistoryPlayerSeason> implements IPlayerSeasonService {
 
     private IPlayerSeasonRepository repo;
 

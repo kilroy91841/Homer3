@@ -31,7 +31,7 @@ public class SessionTokenRepository extends BaseRepository<SessionToken> impleme
         sessionToken.setTeamId(teamId);
         sessionToken.setToken(nextSessionToken());
         sessionToken.setExpirationDateUTC(DateTime.now(DateTimeZone.UTC).plusDays(DAYS_UNTIL_EXPIRATION));
-        return super.upsert(sessionToken).getToken();
+        return super.upsertNoHistory(sessionToken).getToken();
     }
 
     @Nullable

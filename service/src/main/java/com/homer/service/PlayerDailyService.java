@@ -16,6 +16,7 @@ import com.homer.external.common.mlb.PitchingStats;
 import com.homer.external.common.mlb.Stats;
 import com.homer.service.utility.ESPNUtility;
 import com.homer.type.*;
+import com.homer.type.history.HistoryPlayerDaily;
 import com.homer.util.core.$;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ import static com.homer.service.utility.ESPNUtility.translateESPNPosition;
 /**
  * Created by arigolub on 7/29/16.
  */
-public class PlayerDailyService extends BaseIdService<PlayerDaily> implements IPlayerDailyService {
+public class PlayerDailyService extends BaseVersionedIdService<PlayerDaily, HistoryPlayerDaily> implements IPlayerDailyService {
 
     final static Logger logger = LoggerFactory.getLogger(PlayerDailyService.class);
 

@@ -8,6 +8,7 @@ import com.homer.email.IEmailService;
 import com.amazonaws.services.simpleemail.*;
 import com.amazonaws.services.simpleemail.model.*;
 import com.amazonaws.regions.*;
+import com.homer.util.EnvironmentUtility;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
@@ -47,6 +48,10 @@ public class AWSEmailService implements IEmailService {
         }
 
         logger.info("Sending email: " + emailRequest);
+
+        if (EnvironmentUtility.getInstance().isTestEnv()) {
+            emailRequest.setSubject("TEST ENV: " + emailRequest.getSubject());
+        }
 
         // Construct an object to contain the recipient address.
         Destination destination = new Destination().withToAddresses(emailRequest.getToAddresses());

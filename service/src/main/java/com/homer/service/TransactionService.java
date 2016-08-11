@@ -62,11 +62,6 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
     }
 
     @Override
-    public Transaction createTransaction(Transaction transaction) {
-        return transactionRepo.upsert(transaction);
-    }
-
-    @Override
     public List<Transaction> getDailyTransactions() {
         DateTime now = DateTime.now().minusHours(8);
         int year = now.getYear();
@@ -111,7 +106,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                 }
                 checkNotNull(playerSeason, "PlayerSeason was null after applying transaction");
                 playerSeasonService.upsert(playerSeason);
-                Transaction createdTransaction = createTransaction(t);
+                Transaction createdTransaction = upsert(t);
                 checkNotNull(createdTransaction, "Attempt to save transaction returned null for transaction");
                 createdTransactions.add(createdTransaction);
             } catch (Exception e) {

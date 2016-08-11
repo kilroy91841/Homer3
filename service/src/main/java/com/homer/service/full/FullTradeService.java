@@ -4,11 +4,14 @@ import com.google.common.collect.Lists;
 import com.homer.service.*;
 import com.homer.type.*;
 import com.homer.util.LeagueUtil;
+import com.homer.util.core.$;
 import com.homer.util.core.Tuple;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by arigolub on 3/20/16.
@@ -90,15 +93,33 @@ public class FullTradeService implements IFullTradeService {
         trade.setTradeDate(DateTime.now(DateTimeZone.UTC));
         trade = tradeService.upsert(trade);
 
+        long tradeId = trade.getId();
+
         for(TradeElement te : tradeElements) {
-            te.setTradeId(trade.getId());
+            te.setTradeId(tradeId);
             tradeElementService.upsert(te);
         }
 
         playersToUpdate.forEach(playerSeasonService::upsert);
         picksToUpdate.forEach(minorLeaguePickService::upsert);
-        dollarsToUpdate.forEach(draftDollarService::upsert);
+        dollarsToUpdate.forEach(dd -> {
+            dd.setTradeId(tradeId);
+            draftDollarService.upsert(dd);
+        });
 
         return true;
+    }
+
+    @Override
+    public List<Trade> getFullTrade(Collection<Long> tradeIds) {
+        List<Trade> trades = tradeService.getByIds(tradeIds);
+        Map<Long, List<TradeElement>> tradeElements =
+                $.of(tradeElementService.getTradeElementsByTradeIds(tradeIds))
+                        .groupBy(TradeElement::getTradeId);
+        return $.of(trades)
+                .toList(trade -> {
+                    trade.getTradeElements().addAll(tradeElements.get(trade.getId()));
+                    return trade;
+                });
     }
 }

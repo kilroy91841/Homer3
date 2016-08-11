@@ -121,7 +121,7 @@ public class MinorLeaguePickService extends BaseIdService<MinorLeaguePick> imple
             isReverse = !isReverse;
         }
         for (MinorLeaguePick pick : minorLeaguePicks) {
-            repo.upsert(pick);
+            repo.upsertNoHistory(pick);
         }
         minorLeaguePicks.sort((p1, p2) -> p1.getOverallPick() < p2.getOverallPick() ? -1 : 1);
         return minorLeaguePicks;

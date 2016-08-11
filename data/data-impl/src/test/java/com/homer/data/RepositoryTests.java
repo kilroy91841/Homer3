@@ -6,7 +6,9 @@ import com.homer.type.*;
 import com.homer.util.HomerBeanUtil;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.IBaseObject;
+import com.homer.util.core.IHistoryObject;
 import com.homer.util.core.data.IRepository;
+import com.homer.util.core.data.IVersionedRepository;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -15,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 
@@ -70,7 +71,7 @@ public class RepositoryTests {
         funcs.add(p -> p.setIsMinorLeaguer(false));
         funcs.add(p -> p.setMlbStatus(Status.DISABLEDLIST));
 
-        testCRUD(playerSeason, new PlayerSeasonRepository(), funcs);
+        testVersionedCRUD(playerSeason, new PlayerSeasonRepository(), funcs);
     }
 
     @Test
@@ -84,7 +85,7 @@ public class RepositoryTests {
         List<Consumer<DraftDollar>> funcs = Lists.newArrayList();
         funcs.add(dd -> dd.setAmount(200));
 
-        testCRUD(draftDollar, new DraftDollarRepository(), funcs);
+        testVersionedCRUD(draftDollar, new DraftDollarRepository(), funcs);
     }
 
     @Test
@@ -144,7 +145,7 @@ public class RepositoryTests {
         vulture.setVultureStatus(EventStatus.IN_PROGRESS);
 
         List<Consumer<Vulture>> funcs = Lists.newArrayList(v -> v.setVultureStatus(EventStatus.COMPLETE));
-        testCRUD(vulture, new VultureRepository(), funcs);
+        testVersionedCRUD(vulture, new VultureRepository(), funcs);
     }
 
     @Test
@@ -170,7 +171,7 @@ public class RepositoryTests {
 
         List<Consumer<FreeAgentAuctionBid>> funcs2 = Lists.newArrayList(faab -> faab.setAmount(100));
 
-        testCRUD(freeAgentAuctionBid, new FreeAgentAuctionBidRepository(), funcs2);
+        testVersionedCRUD(freeAgentAuctionBid, new FreeAgentAuctionBidRepository(), funcs2);
     }
 
     @Test
@@ -244,7 +245,7 @@ public class RepositoryTests {
                                                     List<Consumer<T>> updaters) throws Exception {
         T updatedObj = testCRU(obj, repo, updaters);
 
-        assertTrue(repo.delete(updatedObj));
+        assertTrue(repo.deleteNoHistory(updatedObj));
         T deletedObj = repo.getById(updatedObj.getId());
         assertNull(deletedObj);
     }
@@ -256,6 +257,37 @@ public class RepositoryTests {
 
     private <T extends IBaseObject> T testCRU(T obj, IRepository<T> repo, Function<T, T> supplier,
                                                   List<Consumer<T>> updaters) throws Exception {
+        T createdObj = repo.upsertNoHistory(obj);
+        assertNotNull(createdObj);
+        obj.setId(createdObj.getId());
+        assertEquals(obj, createdObj);
+
+        T fetchedObj = supplier.apply(createdObj);
+        assertEquals(createdObj, fetchedObj);
+
+        updaters.forEach(u -> u.accept(createdObj));
+        T updatedObj = repo.upsertNoHistory(createdObj);
+        assertNotNull(updatedObj);
+        assertEquals(createdObj, updatedObj);
+
+        return updatedObj;
+    }
+
+    private <T extends IBaseObject, H extends IHistoryObject> void testVersionedCRUD(T obj, IVersionedRepository<T, H> repo,
+                                                  List<Consumer<T>> updaters) throws Exception {
+        T updatedObj = testVersionedCRU(obj, repo, (updated) -> repo.getById(updated.getId()), updaters);
+
+        assertTrue(repo.delete(updatedObj));
+        T deletedObj = repo.getById(updatedObj.getId());
+        assertNull(deletedObj);
+
+        List<H> historyObjects = repo.getHistories(updatedObj.getId());
+        assertEquals(3, historyObjects.size());
+        assertTrue(historyObjects.get(2).getIsDeleted());
+    }
+
+    private <T extends IBaseObject, H extends IHistoryObject> T testVersionedCRU(T obj, IVersionedRepository<T, H> repo, Function<T, T> supplier,
+                                                                                 List<Consumer<T>> updaters) throws Exception {
         T createdObj = repo.upsert(obj);
         assertNotNull(createdObj);
         obj.setId(createdObj.getId());
@@ -268,6 +300,9 @@ public class RepositoryTests {
         T updatedObj = repo.upsert(createdObj);
         assertNotNull(updatedObj);
         assertEquals(createdObj, updatedObj);
+
+        List<H> historyObjects = repo.getHistories(createdObj.getId());
+        assertEquals(2, historyObjects.size());
 
         return updatedObj;
     }
