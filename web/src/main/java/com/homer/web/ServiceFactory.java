@@ -157,6 +157,12 @@ public final class ServiceFactory {
                 get(IFullTradeService.class),
                 get(ITeamService.class)
         ));
+
+        instanceMap.put(IKeeperRepository.class, new KeeperRepository());
+        instanceMap.put(IKeeperService.class, new KeeperService(
+                get(IKeeperRepository.class),
+                get(IDraftDollarService.class),
+                get(IPlayerSeasonService.class)));
     }
 
     public <T> T get(Class<T> clazz) {

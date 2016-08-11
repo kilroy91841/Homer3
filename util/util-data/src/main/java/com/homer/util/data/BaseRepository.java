@@ -197,9 +197,11 @@ public abstract class BaseRepository<T extends IBaseObject> implements IReposito
 
     private String buildDelete(Class<T> clazz, long id)
     {
-        String tableName = clazz.getAnnotation(Table.class).name();
+        Table annotation = clazz.getAnnotation(Table.class);
+        String tableName = annotation.name();
+        String schema = annotation.schema();
         StringBuilder query = new StringBuilder("DELETE FROM ");
-        query.append(tableName).append(" WHERE id = ").append(id).append(";");
+        query.append(schema).append(".").append(tableName).append(" WHERE id = ").append(id).append(";");
         return query.toString();
     }
 
