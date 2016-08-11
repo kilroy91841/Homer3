@@ -29,7 +29,7 @@ public class SchedulingManager {
 
     final static Logger logger = LoggerFactory.getLogger(SchedulingManager.class);
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
     private final ServiceFactory serviceFactory = ServiceFactory.getInstance();
 
