@@ -152,7 +152,7 @@ public class SchedulingManager {
                 }
                 logger.info("END: update40ManRostersRunnable");
             } catch (Exception e) {
-                logger.error(String.format("ERROR: update40ManRostersRunnable, %s %s", e.getMessage(), e.getStackTrace().toString()));
+                logger.error("ERROR: update40ManRostersRunnable", e);
             }
         };
     }
@@ -171,13 +171,12 @@ public class SchedulingManager {
                     try {
                         consumer.accept(playerImporter.updatePlayer(player));
                     } catch (Exception e) {
-                        logger.info(String.format(
-                                "Error updating %s : \n%s", player.getName(), e.getMessage()));
+                        logger.error("Error updating " + player.getName(), e);
                     }
                 }
                 logger.info("END: updatePlayersRunnable");
             } catch (Exception e) {
-                logger.error(String.format("ERROR: updatePlayersRunnable, %s %s", e.getMessage(), e.getStackTrace().toString()));
+                logger.error("ERROR: updatePlayersRunnable", e);
             }
         };
     }
@@ -185,9 +184,11 @@ public class SchedulingManager {
     public static Runnable validateRostersRunnable(Validator validator) {
         return () -> {
             try {
+                logger.info("BEGIN: validateRosters");
                 validator.validateTeams();
+                logger.info("END: validateRosters");
             } catch (Exception e) {
-                logger.error(String.format("ERROR: validateTeams, %s %s", e.getMessage(), e.getStackTrace().toString()));
+                logger.error("ERROR: validateTeams", e);
             }
         };
     }
@@ -195,9 +196,11 @@ public class SchedulingManager {
     public static Runnable updateMinorLeaguerStatusForPlayersRunnable(IFullPlayerService fullPlayerService) {
         return () -> {
             try {
+                logger.info("BEGIN: updateMinorLeaguerStatusForPlayers");
                 fullPlayerService.updateMinorLeaguerStatusForPlayers();
+                logger.info("END: updateMinorLeaguerStatusForPlayers");
             } catch (Exception e) {
-                logger.error(String.format("ERROR: updateMinorLeaguerStatusForPlayers, %s %s", e.getMessage(), e.getStackTrace().toString()));
+                logger.error("ERROR: updateMinorLeaguerStatusForPlayers", e);
             }
         };
     }
@@ -205,9 +208,11 @@ public class SchedulingManager {
     public static Runnable processTransactionsRunnable(ITransactionService transactionService) {
         return () -> {
             try {
+                logger.info("BEGIN: processTransactions");
                 transactionService.processDailyTransactions();
+                logger.info("END: processTransactions");
             } catch (Exception e) {
-                logger.error(String.format("ERROR: processTransactions, %s %s", e.getMessage(), e.getMessage().toString()));
+                logger.error("ERROR: processTransactions", e);
             }
         };
     }
@@ -215,10 +220,12 @@ public class SchedulingManager {
     public static Runnable updateStandingsRunnable(IStandingService standingService) {
         return () -> {
             try {
+                logger.info("BEGIN: updateStandings");
                 DateTime date = DateTime.now().minusDays(1).withMillisOfDay(0);
                 standingService.computeStandingsForDate(date, true);
+                logger.info("END: updateStandings");
             } catch (Exception e) {
-                logger.error(String.format("ERROR: updateStandings, %s", e.getMessage()), e);
+                logger.error("ERROR: updateStandings", e);
             }
         };
     }
