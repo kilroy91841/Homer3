@@ -35,6 +35,8 @@ public class PlayerSeason extends BaseObject {
     private Status mlbStatus;
     @Column
     private boolean vulturable;
+    @Column
+    private boolean hasRookieStatus;
 
     @Override
     public boolean equals(Object o) {
@@ -51,12 +53,13 @@ public class PlayerSeason extends BaseObject {
                 Objects.equal(teamId, that.teamId) &&
                 fantasyPosition == that.fantasyPosition &&
                 Objects.equal(keeperTeamId, that.keeperTeamId) &&
+                hasRookieStatus == that.hasRookieStatus &&
                 mlbStatus == that.mlbStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), season, playerId, teamId, fantasyPosition, keeperTeamId, keeperSeason, salary, isMinorLeaguer, mlbStatus, vulturable);
+        return Objects.hashCode(super.hashCode(), season, playerId, teamId, fantasyPosition, keeperTeamId, keeperSeason, salary, isMinorLeaguer, mlbStatus, vulturable, hasRookieStatus);
     }
 
     @Override
@@ -71,6 +74,7 @@ public class PlayerSeason extends BaseObject {
                 ", salary=" + salary +
                 ", isMinorLeaguer=" + isMinorLeaguer +
                 ", mlbStatus=" + mlbStatus +
+                ", hasRookieStatus=" + hasRookieStatus +
                 ", vulturable=" + vulturable +
                 "} " + super.toString();
     }
@@ -156,5 +160,13 @@ public class PlayerSeason extends BaseObject {
 
     public void setVulturable(boolean vulturable) {
         this.vulturable = vulturable;
+    }
+
+    public boolean getHasRookieStatus() {
+        return hasRookieStatus;
+    }
+
+    public void setHasRookieStatus(boolean hasRookieStatus) {
+        this.hasRookieStatus = hasRookieStatus;
     }
 }

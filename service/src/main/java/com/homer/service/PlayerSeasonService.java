@@ -44,6 +44,7 @@ public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, Hi
         playerSeason.setKeeperSeason(0);
         playerSeason.setSalary(0);
         playerSeason.setIsMinorLeaguer(isMinorLeaguer);
+        playerSeason.setHasRookieStatus(isMinorLeaguer);
         playerSeason.setMlbStatus(Status.UNKNOWN);
         playerSeason.setVulturable(false);
         return super.upsert(playerSeason);
@@ -161,6 +162,14 @@ public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, Hi
     public PlayerSeason updateMinorLeaguerStatus(long playerId, boolean newMinorLeagueStatus) {
         PlayerSeason playerSeason = getCurrentPlayerSeason(playerId);
         playerSeason.setIsMinorLeaguer(newMinorLeagueStatus);
+        updateVulturable(playerSeason);
+        return repo.upsert(playerSeason);
+    }
+
+    @Override
+    public PlayerSeason updateHasRookieStatus(long playerId, boolean newHasRookieStatus) {
+        PlayerSeason playerSeason = getCurrentPlayerSeason(playerId);
+        playerSeason.setHasRookieStatus(newHasRookieStatus);
         updateVulturable(playerSeason);
         return repo.upsert(playerSeason);
     }

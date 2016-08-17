@@ -73,6 +73,7 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
     List<PlayerSeason> getMinorLeaguers(long teamId, int season);
 
     PlayerSeason updateMinorLeaguerStatus(long playerId, boolean newMinorLeagueStatus);
+    PlayerSeason updateHasRookieStatus(long playerId, boolean newHasRookieStatus);
 
     // endregion
 }

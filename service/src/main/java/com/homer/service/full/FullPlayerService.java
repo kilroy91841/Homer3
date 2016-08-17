@@ -108,10 +108,11 @@ public class FullPlayerService implements IFullPlayerService {
         }
         boolean shouldUpdate = shouldUpdateFunction.apply(stats);
         if (shouldUpdate) {
-            PlayerSeason updatedPlayerSeason = playerSeasonService.updateMinorLeaguerStatus(player.getId(), false);
+            playerSeasonService.updateMinorLeaguerStatus(player.getId(), false);
+            PlayerSeason updatedPlayerSeason = playerSeasonService.updateHasRookieStatus(player.getId(), false);
             PlayerView playerView = PlayerView.from(player);
             playerView.setCurrentSeason(PlayerSeasonView.from(updatedPlayerSeason));
-            logger.info(player.getName() + ": updated isMinorLeaguer=false");
+            logger.info(player.getName() + ": updated isMinorLeaguer=false, hasRookieStatus=false");
             return playerView;
         }
         return null;
