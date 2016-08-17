@@ -1,12 +1,9 @@
 package com.homer.external.rest.mlb;
 
 import com.homer.external.common.mlb.MLBPlayer;
-import com.homer.external.common.mlb.BaseStats;
 import com.homer.external.common.mlb.Stats;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,7 +17,7 @@ public class MLBRestClientTest {
     private MLBRestClient client;
     private static final long MIKE_TROUT_PLAYER_ID = 545361;
     private static final long CLAYTON_KERSHAW_PLAYER_ID = 477132;
-    private static final long AARON_JUDGE_PLAYER_ID = 592450;
+    private static final long JORGE_MATEO_PLAYER_ID = 622761;
 
     @Before
     public void setup() {
@@ -42,7 +39,7 @@ public class MLBRestClientTest {
 
     @Test
     public void test_stats_batterNoMajorLeagueExperience() {
-        Stats stats = client.getStats(AARON_JUDGE_PLAYER_ID, true);
+        Stats stats = client.getStats(JORGE_MATEO_PLAYER_ID, true);
         assertEquals(0, stats.getGameLog().size());
     }
 
