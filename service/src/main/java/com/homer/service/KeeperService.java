@@ -79,8 +79,8 @@ public class KeeperService extends BaseVersionedIdService<Keeper, HistoryKeeper>
                 LOGGER.error(message);
                 throw new KeeperException.IncorrectTeam(message);
             }
-            if (!currentPlayerSeason.getIsMinorLeaguer() && keeper.getIsMinorLeaguer()) {
-                String message = "A player selected as a minor leaguer is not eligible to be kept as a minor leaguer";
+            if (!currentPlayerSeason.getHasRookieStatus() && keeper.getIsMinorLeaguer()) {
+                String message = "A player selected as a minor leaguer no longer has rookie status and can only be kept as a major leaguer";
                 LOGGER.error(message);
                 throw new KeeperException.IneligibleMinorLeaguer(message);
             }
