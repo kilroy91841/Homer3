@@ -65,26 +65,26 @@ public class KeeperServiceTest {
         List<Keeper> keepers = Lists.newArrayList();
         List<Long> playerIds = Lists.newArrayList();
         Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
-        keepers.add(setupKeeper(1, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(2, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(3, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(4, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(5, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(6, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(7, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(8, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(9, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(10, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(11, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(12, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(13, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(14, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(15, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(16, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(17, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(18, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(19, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(20, 0, true, 0, playerIds, playerSeasons));
+        keepers.add(setupKeeper(1, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(2, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(3, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(4, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(5, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(6, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(7, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(8, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(9, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(10, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(11, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(12, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(13, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(14, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(15, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(16, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(17, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(18, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(19, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(20, 0, true, 0, TEAM_1, playerIds, playerSeasons));
 
         when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
 
@@ -107,15 +107,14 @@ public class KeeperServiceTest {
         Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
         List<Long> playerIds = Lists.newArrayList();
 
-        Keeper existingKeeper1 = setupKeeper(1, 1, false, 0, playerIds, playerSeasons);
+        Keeper existingKeeper1 = setupKeeper(1, 1, false, 0, TEAM_1, playerIds, playerSeasons);
         existingKeeper1.setId(100);
-        Keeper existingKeeper2 = setupKeeper(2, 1, false, 0, Lists.newArrayList(), playerSeasons);
+        Keeper existingKeeper2 = setupKeeper(2, 1, false, 0, TEAM_1, Lists.newArrayList(), playerSeasons);
         existingKeeper2.setId(101);
         when(repo.getForTeam(TEAM_1, LeagueUtil.NEXT_SEASON)).thenReturn(Lists.newArrayList(existingKeeper1, existingKeeper2));
 
-
-        Keeper newKeeper1 = setupKeeper(3, 1, false, 0, playerIds, playerSeasons);
-        Keeper newKeeper2 = setupKeeper(4, 1, false, 0, playerIds, playerSeasons);
+        Keeper newKeeper1 = setupKeeper(3, 1, false, 0, TEAM_1, playerIds, playerSeasons);
+        Keeper newKeeper2 = setupKeeper(4, 1, false, 0, TEAM_1, playerIds, playerSeasons);
 
         when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
 
@@ -136,22 +135,20 @@ public class KeeperServiceTest {
 
     @Test(expected = KeeperException.MajorLeagueCountExceeded.class)
     public void test_tooManyMajorLeaguers() {
-        when(repo.getForTeam(TEAM_1, LeagueUtil.NEXT_SEASON)).thenReturn(Lists.newArrayList());
-
         List<Keeper> keepers = Lists.newArrayList();
         List<Long> playerIds = Lists.newArrayList();
         Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
-        keepers.add(setupKeeper(1, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(2, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(3, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(4, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(5, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(6, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(7, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(8, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(9, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(10, 1, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(11, 1, false, 0, playerIds, playerSeasons));
+        keepers.add(setupKeeper(1, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(2, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(3, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(4, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(5, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(6, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(7, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(8, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(9, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(10, 1, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(11, 1, false, 0, TEAM_1, playerIds, playerSeasons));
 
         when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
 
@@ -160,22 +157,20 @@ public class KeeperServiceTest {
 
     @Test(expected = KeeperException.MinorLeagueCountExceeded.class)
     public void test_tooManyMinorLeaguers() {
-        when(repo.getForTeam(TEAM_1, LeagueUtil.NEXT_SEASON)).thenReturn(Lists.newArrayList());
-
         List<Long> playerIds = Lists.newArrayList();
         Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
         List<Keeper> keepers = Lists.newArrayList();
-        keepers.add(setupKeeper(11, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(12, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(13, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(14, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(15, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(16, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(17, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(18, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(19, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(20, 0, true, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(21, 0, true, 0, playerIds, playerSeasons));
+        keepers.add(setupKeeper(11, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(12, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(13, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(14, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(15, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(16, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(17, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(18, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(19, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(20, 0, true, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(21, 0, true, 0, TEAM_1, playerIds, playerSeasons));
 
         when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
 
@@ -184,27 +179,72 @@ public class KeeperServiceTest {
 
     @Test(expected = KeeperException.InsufficientFunds.class)
     public void test_notEnoughSalary() {
-        when(repo.getForTeam(TEAM_1, LeagueUtil.NEXT_SEASON)).thenReturn(Lists.newArrayList());
-
         List<Long> playerIds = Lists.newArrayList();
         Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
         List<Keeper> keepers = Lists.newArrayList();
-        keepers.add(setupKeeper(1, TEAM_1_AMOUNT - 15, false, 0, playerIds, playerSeasons));
+        keepers.add(setupKeeper(1, TEAM_1_AMOUNT - 15, false, 0, TEAM_1, playerIds, playerSeasons));
 
         when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
 
         service.replaceKeepers(keepers, TEAM_1);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = KeeperException.NoKeeperYearsRemaining.class)
     public void test_playerWithoutKeeperYearsRemaining() {
-        when(repo.getForTeam(TEAM_1, LeagueUtil.NEXT_SEASON)).thenReturn(Lists.newArrayList());
-
         List<Long> playerIds = Lists.newArrayList();
         Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
         List<Keeper> keepers = Lists.newArrayList();
-        keepers.add(setupKeeper(1, 100, false, 0, playerIds, playerSeasons));
-        keepers.add(setupKeeper(2, 100, false, 3, playerIds, playerSeasons));
+        keepers.add(setupKeeper(1, 100, false, 0, TEAM_1, playerIds, playerSeasons));
+        keepers.add(setupKeeper(2, 100, false, 3, TEAM_1, playerIds, playerSeasons));
+
+        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+
+        service.replaceKeepers(keepers, TEAM_1);
+    }
+
+    @Test(expected = KeeperException.IneligibleMinorLeaguer.class)
+    public void test_playerWithoutRookeStatusKeptAsMinorLeaguer() {
+        List<Long> playerIds = Lists.newArrayList();
+        Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
+        List<Keeper> keepers = Lists.newArrayList();
+        long playerId = 1;
+        keepers.add(setupKeeper(playerId, 100, true, 0, TEAM_1, playerIds, playerSeasons));
+        playerSeasons.get(playerId).setHasRookieStatus(false);
+
+        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+
+        service.replaceKeepers(keepers, TEAM_1);
+    }
+
+    @Test
+    public void test_minorLeaguerKeptAsMajorLeaguer_CorrectIncrease() {
+        List<Long> playerIds = Lists.newArrayList();
+        Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
+        List<Keeper> keepers = Lists.newArrayList();
+        long playerId = 1;
+        int salary = 100;
+        int keeperSeason = 0;
+        keepers.add(setupKeeper(playerId, salary, true, keeperSeason, TEAM_1, playerIds, playerSeasons));
+        keepers.get(0).setIsMinorLeaguer(false);
+        playerSeasons.get(playerId).setHasRookieStatus(true);
+        playerSeasons.get(playerId).setIsMinorLeaguer(true);
+
+        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(repo.upsert(any(Keeper.class))).thenAnswer(x -> x.getArguments()[0]);
+
+        List<Keeper> results = service.replaceKeepers(keepers, TEAM_1);
+        assertEquals(1, results.size());
+        assertEquals(salary + 3, results.get(0).getSalary());
+        assertEquals(keeperSeason + 1, results.get(0).getKeeperSeason());
+    }
+
+    @Test(expected = KeeperException.IncorrectTeam.class)
+    public void test_playerOnWrongTeam() {
+        List<Long> playerIds = Lists.newArrayList();
+
+        Map<Long, PlayerSeason> playerSeasons = Maps.newHashMap();
+        List<Keeper> keepers = Lists.newArrayList();
+        keepers.add(setupKeeper(1, 100, false, 0, 2, playerIds, playerSeasons));
 
         when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
 
@@ -213,10 +253,10 @@ public class KeeperServiceTest {
 
     // region helpers
 
-    private Keeper setupKeeper(long playerId, int salary, boolean minorLeaguer, int keeperSeason,
+    private Keeper setupKeeper(long playerId, int salary, boolean minorLeaguer, int keeperSeason, long teamId,
                                List<Long> playerIds, Map<Long, PlayerSeason> playerSeasons) {
         Keeper keeper = getKeeper(playerId, minorLeaguer);
-        playerSeasons.put(playerId, getPlayerSeason(playerId, keeperSeason, salary, minorLeaguer));
+        playerSeasons.put(playerId, getPlayerSeason(playerId, keeperSeason, salary, minorLeaguer, teamId));
         playerIds.add(playerId);
         return keeper;
     }
@@ -230,12 +270,14 @@ public class KeeperServiceTest {
         return keeper;
     }
 
-    private static PlayerSeason getPlayerSeason(long playerId, int keeperSeason, int salary, boolean minorLeaguer) {
+    private static PlayerSeason getPlayerSeason(long playerId, int keeperSeason, int salary, boolean minorLeaguer, long teamId) {
         PlayerSeason playerSeason = new PlayerSeason();
         playerSeason.setPlayerId(playerId);
         playerSeason.setKeeperSeason(keeperSeason);
         playerSeason.setSalary(salary);
         playerSeason.setIsMinorLeaguer(minorLeaguer);
+        playerSeason.setHasRookieStatus(minorLeaguer);
+        playerSeason.setTeamId(teamId);
         return playerSeason;
     }
 
