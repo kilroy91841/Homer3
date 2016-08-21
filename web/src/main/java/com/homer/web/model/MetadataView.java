@@ -12,6 +12,8 @@ public class MetadataView {
 
     private List<Position> positions;
     private List<MLBTeam> mlbTeams;
+    private int season;
+    private int nextSeason;
 
     public List<Position> getPositions() {
         return positions;
@@ -27,5 +29,21 @@ public class MetadataView {
 
     public void setMlbTeams(List<MLBTeam> mlbTeams) {
         this.mlbTeams = mlbTeams;
+    }
+
+    public int getSeason() {
+        return season;
+    }
+
+    public void setSeason(int season) {
+        this.season = season;
+    }
+
+    public int getNextSeason() {
+        return nextSeason;
+    }
+
+    public void setNextSeason(int nextSeason) {
+        this.nextSeason = nextSeason;
     }
 }

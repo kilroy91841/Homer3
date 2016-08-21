@@ -165,6 +165,8 @@ public class Resource {
         MetadataView mv = new MetadataView();
         mv.setPositions(Lists.newArrayList(Position.class.getEnumConstants()));
         mv.setMlbTeams(Lists.newArrayList(MLBTeam.class.getEnumConstants()));
+        mv.setSeason(LeagueUtil.SEASON);
+        mv.setNextSeason(LeagueUtil.NEXT_SEASON);
         return mv;
     }
 
