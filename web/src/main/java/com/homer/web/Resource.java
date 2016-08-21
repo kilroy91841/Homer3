@@ -141,14 +141,7 @@ public class Resource {
     @Produces(MediaType.APPLICATION_JSON)
     @POST
     public ApiResponse acceptTrade(Trade trade) {
-        ApiResponse apiResponse = new ApiResponse();
-        try {
-            apiResponse.setData(fullTradeService.validateAndProcess(trade));
-        } catch (Exception e) {
-            e.printStackTrace();
-            apiResponse.setMessage(e.getMessage());
-        }
-        return apiResponse;
+        return safelyDo(() -> fullTradeService.validateAndProcess(trade), (ignored) -> "Trade successful!");
     }
 
     @GET
