@@ -86,6 +86,22 @@ public class PlayerResource {
         }
     }
 
+    @AuthRequired
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/season")
+    @POST
+    public ApiResponse updatePlayerSeason(PlayerSeason playerSeason) {
+        try {
+            playerSeasonService.upsert(playerSeason);
+            Player player = gatherer.gatherPlayerById(playerSeason.getPlayerId());
+            return new ApiResponse(String.format("Updated %s", player.getName()), player);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @GET

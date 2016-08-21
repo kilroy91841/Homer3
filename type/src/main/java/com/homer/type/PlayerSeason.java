@@ -4,11 +4,13 @@ import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Objects;
 
 /**
  * Created by arigolub on 2/14/16.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(name = "player_seasons", schema = "homer")
 public class PlayerSeason extends BaseObject {
 
