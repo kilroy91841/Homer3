@@ -91,8 +91,11 @@ public class FullTradeService implements IFullTradeService {
 
     @Override
     public Trade acceptTrade(long inTradeId) {
-        Trade inTrade = getFullTrade(inTradeId);
+        return acceptTrade(getFullTrade(inTradeId));
+    }
 
+    @Override
+    public Trade acceptTrade(Trade inTrade) {
         List<PlayerSeason> playersToUpdate = Lists.newArrayList();
         List<MinorLeaguePick> picksToUpdate = Lists.newArrayList();
         List<DraftDollar> dollarsToUpdate = Lists.newArrayList();

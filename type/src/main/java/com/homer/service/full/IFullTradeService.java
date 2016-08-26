@@ -16,6 +16,7 @@ public interface IFullTradeService {
     Trade proposeTrade(Trade inTrade);
     Trade rejectTrade(long tradeId);
     Trade acceptTrade(long tradeId);
+    Trade acceptTrade(Trade inTrade);
     Trade cancelTrade(long inTradeId);
 
     default Trade getFullTrade(long tradeId) {
