@@ -3,6 +3,7 @@ package com.homer.service.gather;
 import com.google.common.collect.Lists;
 import com.homer.type.Player;
 import com.homer.type.Team;
+import com.homer.type.Trade;
 import com.homer.type.view.PlayerView;
 import com.homer.type.view.TeamView;
 import com.homer.util.core.$;
@@ -43,6 +44,12 @@ public interface IGatherer {
     default TeamView gatherTeamById(long teamId) {
         return $.of(this.gatherTeamsByIds(Lists.newArrayList(teamId))).first();
     }
+
+    //endregion
+
+    // region trades
+
+    List<Trade> gatherTradesByIds(Collection<Long> tradeIdes);
 
     //endregion
 

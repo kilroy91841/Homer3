@@ -1,5 +1,6 @@
 package com.homer.type;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 
@@ -18,37 +19,40 @@ public class Trade extends BaseObject {
     @Column(updatable = false)
     private long team2Id;
     @Column(updatable = false)
-    private DateTime tradeDate;
+    private DateTime proposedDateUTC;
+    @Column
+    private DateTime respondedDateUTC;
     @Column(updatable = false)
     private int season;
+    @Column
+    private EventStatus tradeStatus;
 
     private Team team1;
     private Team team2;
     private List<TradeElement> tradeElements = Lists.newArrayList();
+
+    // region equals/hashCode/toString
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         Trade trade = (Trade) o;
-
-        if (team1Id != trade.team1Id) return false;
-        if (team2Id != trade.team2Id) return false;
-        if (season != trade.season) return false;
-        return tradeDate.equals(trade.tradeDate);
-
+        return team1Id == trade.team1Id &&
+                team2Id == trade.team2Id &&
+                season == trade.season &&
+                Objects.equal(proposedDateUTC, trade.proposedDateUTC) &&
+                Objects.equal(respondedDateUTC, trade.respondedDateUTC) &&
+                tradeStatus == trade.tradeStatus &&
+                Objects.equal(team1, trade.team1) &&
+                Objects.equal(team2, trade.team2) &&
+                Objects.equal(tradeElements, trade.tradeElements);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (int) (team1Id ^ (team1Id >>> 32));
-        result = 31 * result + (int) (team2Id ^ (team2Id >>> 32));
-        result = 31 * result + tradeDate.hashCode();
-        result = 31 * result + season;
-        return result;
+        return Objects.hashCode(super.hashCode(), team1Id, team2Id, proposedDateUTC, respondedDateUTC, season, tradeStatus, team1, team2, tradeElements);
     }
 
     @Override
@@ -56,10 +60,17 @@ public class Trade extends BaseObject {
         return "Trade{" +
                 "team1Id=" + team1Id +
                 ", team2Id=" + team2Id +
-                ", tradeDate=" + tradeDate +
+                ", proposedDateUTC=" + proposedDateUTC +
+                ", respondedDateUTC=" + respondedDateUTC +
                 ", season=" + season +
+                ", tradeStatus=" + tradeStatus +
+                ", team1=" + team1 +
+                ", team2=" + team2 +
+                ", tradeElements=" + tradeElements +
                 "} " + super.toString();
     }
+
+    // endregion
 
     public long getTeam1Id() {
         return team1Id;
@@ -77,12 +88,20 @@ public class Trade extends BaseObject {
         this.team2Id = team2Id;
     }
 
-    public DateTime getTradeDate() {
-        return tradeDate;
+    public DateTime getProposedDateUTC() {
+        return proposedDateUTC;
     }
 
-    public void setTradeDate(DateTime tradeDate) {
-        this.tradeDate = tradeDate;
+    public void setProposedDateUTC(DateTime proposedDateUTC) {
+        this.proposedDateUTC = proposedDateUTC;
+    }
+
+    public DateTime getRespondedDateUTC() {
+        return respondedDateUTC;
+    }
+
+    public void setRespondedDateUTC(DateTime respondedDateUTC) {
+        this.respondedDateUTC = respondedDateUTC;
     }
 
     public int getSeason() {
@@ -91,6 +110,14 @@ public class Trade extends BaseObject {
 
     public void setSeason(int season) {
         this.season = season;
+    }
+
+    public EventStatus getTradeStatus() {
+        return tradeStatus;
+    }
+
+    public void setTradeStatus(EventStatus tradeStatus) {
+        this.tradeStatus = tradeStatus;
     }
 
     public Team getTeam1() {

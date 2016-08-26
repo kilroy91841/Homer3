@@ -3,28 +3,18 @@ package com.homer.web;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
-import com.homer.auth.stormpath.StormpathAuthService;
-import com.homer.data.*;
 import com.homer.email.EmailRequest;
 import com.homer.email.HtmlObject;
 import com.homer.email.HtmlTag;
 import com.homer.email.IEmailService;
-import com.homer.email.aws.AWSEmailService;
 import com.homer.exception.LoginFailedException;
-import com.homer.external.common.IMLBClient;
-import com.homer.external.rest.espn.ESPNRestClient;
-import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.auth.IUserService;
 import com.homer.service.auth.User;
-import com.homer.service.auth.UserService;
 import com.homer.service.full.*;
-import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
 import com.homer.service.importer.IPlayerImporter;
-import com.homer.service.importer.PlayerImporter;
 import com.homer.service.schedule.IScheduler;
-import com.homer.service.schedule.Scheduler;
 import com.homer.type.*;
 import com.homer.type.view.*;
 import com.homer.util.LeagueUtil;
@@ -36,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -60,7 +49,6 @@ public class Resource {
     private ServiceFactory serviceFactory = ServiceFactory.getInstance();
 
     private IGatherer gatherer;
-    private IFullTradeService fullTradeService;
     private ITeamService teamService;
     private IPlayerService playerService;
     private IPlayerSeasonService playerSeasonService;
@@ -88,7 +76,6 @@ public class Resource {
         this.scheduler = serviceFactory.get(IScheduler.class);
         gatherer = serviceFactory.get(IGatherer.class);
         this.validator = serviceFactory.get(Validator.class);
-        fullTradeService = serviceFactory.get(IFullTradeService.class);
         playerImporter = serviceFactory.get(IPlayerImporter.class);
         minorLeagueDraftService = serviceFactory.get(IFullMinorLeagueDraftService.class);
         transactionService = serviceFactory.get(ITransactionService.class);
@@ -133,15 +120,6 @@ public class Resource {
         } catch (Exception e) {
             return new ApiResponse(e.getMessage(), null);
         }
-    }
-
-    @AuthRequired
-    @Path("trade")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @POST
-    public ApiResponse acceptTrade(Trade trade) {
-        return safelyDo(() -> fullTradeService.validateAndProcess(trade), (ignored) -> "Trade successful!");
     }
 
     @GET
