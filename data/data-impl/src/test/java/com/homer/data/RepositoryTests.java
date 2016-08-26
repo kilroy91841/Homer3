@@ -112,7 +112,7 @@ public class RepositoryTests {
         Trade trade = new Trade();
         trade.setTeam1Id(1);
         trade.setTeam2Id(2);
-        trade.setTradeDate(DateTime.now().withMillisOfSecond(0));
+        trade.setProposedDateUTC(DateTime.now().withMillisOfSecond(0));
 
         List<Consumer<Trade>> funcs = Lists.newArrayList();
 

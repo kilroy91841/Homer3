@@ -1,6 +1,9 @@
 package com.homer.service.full;
 
+import com.google.common.collect.Lists;
 import com.homer.type.Trade;
+import com.homer.type.view.TradesView;
+import com.homer.util.core.$;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,8 +13,14 @@ import java.util.List;
  */
 public interface IFullTradeService {
 
-    boolean validateAndProcess(Trade tradeView);
+    Trade proposeTrade(Trade inTrade);
+    Trade rejectTrade(long tradeId);
+    Trade acceptTrade(long tradeId);
+    Trade cancelTrade(long inTradeId);
 
-    List<Trade> getFullTrade(Collection<Long> tradeIds);
-
+    default Trade getFullTrade(long tradeId) {
+        return $.of(getFullTrades(Lists.newArrayList(tradeId))).first();
+    }
+    List<Trade> getFullTrades(Collection<Long> tradeIds);
+    TradesView getTradesForTeam(long teamId);
 }

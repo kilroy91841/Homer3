@@ -1,6 +1,9 @@
 package com.homer.service.full;
 
+import com.homer.email.IEmailService;
 import com.homer.service.*;
+import com.homer.service.auth.IUserService;
+import com.homer.service.gather.IGatherer;
 import com.homer.type.*;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.Tuple;
@@ -44,7 +47,8 @@ public class FullTradeServiceTest {
         when(minorLeaguePickService.transferPick(anyLong(), anyLong(), anyLong(), anyInt(), anyInt())).thenReturn(new MinorLeaguePick());
         when(minorLeaguePickService.transferSwapRights(anyLong(), anyLong(), anyLong(), anyInt(), anyInt())).thenReturn(new MinorLeaguePick());
 
-        fullTradeService = new FullTradeService(tradeService, minorLeaguePickService, draftDollarService, playerSeasonService, tradeElementService);
+        fullTradeService = new FullTradeService(tradeService, minorLeaguePickService, draftDollarService, playerSeasonService, tradeElementService,
+                mock(IGatherer.class), mock(IEmailService.class), mock(IUserService.class));
     }
 
     private void setupService(IIdService service) {
@@ -88,7 +92,7 @@ public class FullTradeServiceTest {
         tev2.setDraftDollar(dd);
         tv.getTradeElements().add(tev2);
 
-        assertTrue(fullTradeService.validateAndProcess(tv));
+        fullTradeService.proposeTrade(tv);
 
         verify(playerSeasonService, times(1)).switchTeam(anyLong(), anyInt(), anyLong(), anyLong());
         verify(minorLeaguePickService, times(1)).transferPick(anyLong(), anyLong(), anyLong(), anyInt(), anyInt());

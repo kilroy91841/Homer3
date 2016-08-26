@@ -79,12 +79,11 @@ public class Gatherer implements IGatherer {
         List<Player> players = playerService.getByIds($.of(playerSeasons).toList(PlayerSeason::getPlayerId));
         List<DraftDollar> draftDollars = draftDollarService.getDraftDollarsByTeams(teamIds);
         List<MinorLeaguePick> minorLeaguePicks = minorLeaguePickService.getMinorLeaguePicksByTeams(teamIds, false);
-        List<Trade> trades = tradeService.getTradesByTeamIds(teamIds);
 
         List<PlayerView> playerViews = hydratePlayerViews(players, playerSeasons);
         List<DraftDollarView> draftDollarViews = hydrateDraftDollarViews(draftDollars);
         List<MinorLeaguePickView> minorLeaguePickViews = hydrateMinorLeaguePickViews(minorLeaguePicks);
-        hydrateTrades(trades);
+        List<Trade> trades = gatherTradesByIds($.of(tradeService.getTradesByTeamIds(teamIds)).toIdList());
         Multimap<Long, PlayerView> teamToPlayers = Multimaps.index(playerViews, pv -> pv.getCurrentSeason().getTeamId());
         Multimap<Long, DraftDollarView> teamToDraftDollars = Multimaps.index(draftDollarViews, DraftDollarView::getTeamId);
         Multimap<Long, MinorLeaguePickView> teamToMinorLeaguePicks = Multimaps.index(minorLeaguePickViews, MinorLeaguePickView::getOwningTeamId);
@@ -108,6 +107,48 @@ public class Gatherer implements IGatherer {
             teamViews.add(tv);
         });
         return teamViews;
+    }
+
+    @Override
+    public List<Trade> gatherTradesByIds(Collection<Long> tradeIds) {
+        List<Trade> trades = tradeService.getByIds(tradeIds);
+        List<TradeElement> allTradeElements = tradeElementService.getTradeElementsByTradeIds($.of(trades).toIdList());
+        Multimap<Long, TradeElement> tradeElementMap = Multimaps.index(allTradeElements, TradeElement::getTradeId);
+
+        List<Player> players = playerService.getByIds(
+                $.of(allTradeElements).filter(t -> t.getPlayerId() != null).toList(TradeElement::getPlayerId));
+        List<MinorLeaguePick> minorLeaguePicks = minorLeaguePickService.getByIds(
+                $.of(allTradeElements).filter(t -> t.getMinorLeaguePickId() != null).toList(TradeElement::getMinorLeaguePickId));
+        List<DraftDollar> draftDollars = draftDollarService.getByIds(
+                $.of(allTradeElements).filter(t -> t.getDraftDollarId() != null).toList(TradeElement::getDraftDollarId));
+
+        Map<Long, Player> playerMap = $.of(players).toIdMap();
+        Map<Long, MinorLeaguePick> minorLeaguePickMap = $.of(minorLeaguePicks).toIdMap();
+        Map<Long, DraftDollar> draftDollarMap = $.of(draftDollars).toIdMap();
+
+        trades.forEach(t -> {
+            t.setTeam1(teamService.getFantasyTeamMap().get(t.getTeam1Id()));
+            t.setTeam2(teamService.getFantasyTeamMap().get(t.getTeam2Id()));
+
+            List<TradeElement> tradeElements = $.of(tradeElementMap.get(t.getId())).toList();
+            tradeElements.forEach(te -> {
+                if (playerMap.get(te.getPlayerId()) != null) {
+                    te.setPlayer(playerMap.get(te.getPlayerId()));
+                }
+                if (minorLeaguePickMap.get(te.getMinorLeaguePickId()) != null) {
+                    MinorLeaguePickView mlpv = MinorLeaguePickView.from(minorLeaguePickMap.get(te.getMinorLeaguePickId()));
+                    mlpv.setOriginalTeam(teamService.getFantasyTeamMap().get(mlpv.getOriginalTeamId()));
+                    te.setMinorLeaguePick(mlpv);
+                }
+                if (draftDollarMap.get(te.getDraftDollarId()) != null) {
+                    DraftDollarView ddv = DraftDollarView.from(draftDollarMap.get(te.getDraftDollarId()));
+                    ddv.setTeam(teamService.getFantasyTeamMap().get(ddv.getTeamId()));
+                    te.setDraftDollar(ddv);
+                }
+            });
+            t.getTradeElements().addAll(tradeElements);
+        });
+        return trades;
     }
 
     // region hydraters
@@ -165,34 +206,6 @@ public class Gatherer implements IGatherer {
             minorLeaguePickViews.add(mlpv);
         });
         return minorLeaguePickViews;
-    }
-
-    private void hydrateTrades(Collection<Trade> trades) {
-        List<TradeElement> allTradeElements = tradeElementService.getTradeElementsByTradeIds($.of(trades).toIdList());
-        Multimap<Long, TradeElement> tradeElementMap = Multimaps.index(allTradeElements, TradeElement::getTradeId);
-
-        List<Player> players = playerService.getByIds(
-                $.of(allTradeElements).filter(t -> t.getPlayerId() != null).toList(TradeElement::getPlayerId));
-        List<MinorLeaguePick> minorLeaguePicks = minorLeaguePickService.getByIds(
-                $.of(allTradeElements).filter(t -> t.getMinorLeaguePickId() != null).toList(TradeElement::getMinorLeaguePickId));
-        List<DraftDollar> draftDollars = draftDollarService.getByIds(
-                $.of(allTradeElements).filter(t -> t.getDraftDollarId() != null).toList(TradeElement::getDraftDollarId));
-
-        Map<Long, Player> playerMap = $.of(players).toIdMap();
-        Map<Long, MinorLeaguePick> minorLeaguePickMap = $.of(minorLeaguePicks).toIdMap();
-        Map<Long, DraftDollar> draftDollarMap = $.of(draftDollars).toIdMap();
-
-        trades.forEach(t -> {
-            t.setTeam1(teamService.getFantasyTeamMap().get(t.getTeam1Id()));
-            t.setTeam2(teamService.getFantasyTeamMap().get(t.getTeam2Id()));
-
-            List<TradeElement> tradeElements = $.of(tradeElementMap.get(t.getId())).toList();
-            tradeElements.forEach(te -> {
-                te.setPlayer(playerMap.get(te.getPlayerId()));
-                te.setMinorLeaguePick(minorLeaguePickMap.get(te.getMinorLeaguePickId()));
-                te.setDraftDollar(draftDollarMap.get(te.getDraftDollarId()));
-            });
-        });
     }
 
     // endregion

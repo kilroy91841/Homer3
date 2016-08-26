@@ -1,11 +1,8 @@
 package com.homer.service;
 
-import com.google.common.collect.Lists;
 import com.homer.service.full.IFullHistoryService;
 import com.homer.service.full.IFullTradeService;
-import com.homer.type.DraftDollar;
 import com.homer.type.Trade;
-import com.homer.type.TradeElement;
 import com.homer.type.history.HistoryDraftDollar;
 import com.homer.type.view.DraftDollarView;
 import com.homer.util.core.$;
@@ -35,7 +32,7 @@ public class FullHistoryService implements IFullHistoryService {
         DraftDollarView draftDollarView = DraftDollarView.from(draftDollarService.getById(draftDollarId));
         List<HistoryDraftDollar> historyDraftDollars = draftDollarService.getHistories(draftDollarId);
         List<Long> tradeIds = $.of(historyDraftDollars).filter(hdd -> hdd.getTradeId() != null).toList(HistoryDraftDollar::getTradeId);
-        Map<Long, Trade> trades = $.of(fullTradeService.getFullTrade(tradeIds)).toIdMap();
+        Map<Long, Trade> trades = $.of(fullTradeService.getFullTrades(tradeIds)).toIdMap();
 
         List<DraftDollarView> historyViews = $.of(historyDraftDollars)
                 .toList(hdd -> {
