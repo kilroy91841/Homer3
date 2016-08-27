@@ -1,6 +1,7 @@
 package com.homer.service.full;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.homer.email.EmailRequest;
 import com.homer.email.HtmlObject;
 import com.homer.email.HtmlTag;
@@ -23,6 +24,8 @@ import org.joda.time.DateTimeZone;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static com.homer.service.full.FullTeamService.calculateActiveSalary;
 
 /**
  * Created by arigolub on 3/20/16.
@@ -166,6 +169,8 @@ public class FullTradeService implements IFullTradeService {
                                       List<PlayerSeason> playersToUpdate,
                                       List<MinorLeaguePick> picksToUpdate,
                                       List<DraftDollar> dollarsToUpdate) {
+        Map<Long, List<PlayerSeason>> updatedPlayerSeasons = Maps.newHashMap();
+
         inTrade.getTradeElements().forEach(tev -> {
             long teamFromId = tev.getTeamFromId();
             long teamToId = tev.getTeamToId();
@@ -203,12 +208,44 @@ public class FullTradeService implements IFullTradeService {
                         teamFromId, teamToId);
                 playersToUpdate.add(updatedPlayer);
                 te.setPlayerId(updatedPlayer.getId());
+
+                List<PlayerSeason> teamToPlayers = updatedPlayerSeasons.getOrDefault(teamToId, Lists.newArrayList());
+                teamToPlayers.add(updatedPlayer);
+                updatedPlayerSeasons.put(teamToId, teamToPlayers);
             } else {
                 throw new IllegalArgumentException("Trade element had no tradable object");
             }
 
             tradeElements.add(te);
         });
+
+        if (updatedPlayerSeasons.keySet().size() > 0) {
+            long team1Id = inTrade.getTeam1().getId();
+            long team2Id = inTrade.getTeam2().getId();
+
+            Map<Long, List<PlayerSeason>> teamPlayerSeasons =
+                    $.of(playerSeasonService.getPlayerSeasonsByTeamIds(Lists.newArrayList(team1Id, team2Id), LeagueUtil.SEASON))
+                            .groupBy(PlayerSeason::getTeamId);
+
+            List<PlayerSeason> team1Players = teamPlayerSeasons.get(team1Id);
+            List<PlayerSeason> team2Players = teamPlayerSeasons.get(team2Id);
+            List<PlayerSeason> toTeam1Players = updatedPlayerSeasons.getOrDefault(team1Id, Lists.newArrayList());
+            List<PlayerSeason> toTeam2Players = updatedPlayerSeasons.getOrDefault(team2Id, Lists.newArrayList());
+
+            List<PlayerSeason> team1AfterTrade = $.of(team1Players).filterToList(ps -> !$.of(toTeam2Players).toList(PlayerSeason::getPlayerId).contains(ps.getPlayerId()));
+            team1AfterTrade.addAll(toTeam1Players);
+
+            List<PlayerSeason> team2AfterTrade = $.of(team2Players).filterToList(ps -> !$.of(toTeam1Players).toList(PlayerSeason::getPlayerId).contains(ps.getPlayerId()));
+            team2AfterTrade.addAll(toTeam2Players);
+
+            int team1Salary = calculateActiveSalary(team1AfterTrade);
+            int team2Salary = calculateActiveSalary(team2AfterTrade);
+
+            if (team1Salary > DraftDollarService.MLB_DRAFT_DOLLAR_MAX ||
+                    team2Salary > DraftDollarService.MLB_DRAFT_DOLLAR_MAX) {
+                throw new IllegalArgumentException("Cannot process trade as it would put one of the teams over the salary limit");
+            }
+        }
     }
 
     private void sendProposalEmail(Trade trade) {
