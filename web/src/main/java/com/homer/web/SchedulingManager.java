@@ -2,6 +2,7 @@ package com.homer.web;
 
 import com.homer.service.*;
 import com.homer.service.full.IFullPlayerService;
+import com.homer.service.full.IFullTeamService;
 import com.homer.service.full.IFullVultureService;
 import com.homer.service.importer.IPlayerImporter;
 import com.homer.type.MLBTeam;
@@ -42,6 +43,7 @@ public class SchedulingManager {
     private IFullPlayerService fullPlayerService;
     private ITransactionService transactionService;
     private IStandingService standingsService;
+    private IFullTeamService fullTeamService;
 
     public SchedulingManager() {
         envUtil = EnvironmentUtility.getInstance();
@@ -53,6 +55,7 @@ public class SchedulingManager {
         fullPlayerService = serviceFactory.get(IFullPlayerService.class);
         transactionService = serviceFactory.get(ITransactionService.class);
         standingsService = serviceFactory.get(IStandingService.class);
+        fullTeamService = serviceFactory.get(IFullTeamService.class);
     }
 
     public void run() {
@@ -68,6 +71,8 @@ public class SchedulingManager {
         processTransactions();
 
         updateStandings();
+
+        validateSalaries();
     }
 
     private ScheduledFuture processTransactions() {
@@ -91,6 +96,15 @@ public class SchedulingManager {
                 5,
                 1440,
                 TimeUnit.MINUTES);
+    }
+
+    private ScheduledFuture validateSalaries() {
+        Runnable runnable = validateSalariesRunnable(fullTeamService);
+        return scheduler.scheduleAtFixedRate(runnable,
+                0,
+                60,
+                TimeUnit.MINUTES
+                );
     }
 
     private void rescheduleVultures() {
@@ -226,6 +240,18 @@ public class SchedulingManager {
                 logger.info("END: updateStandings");
             } catch (Exception e) {
                 logger.error("ERROR: updateStandings", e);
+            }
+        };
+    }
+
+    public static Runnable validateSalariesRunnable(IFullTeamService fullTeamService) {
+        return () -> {
+            try {
+                logger.info("BEGIN: validateSalaries");
+                fullTeamService.checkSeasonSalaries();
+                logger.info("END: validateSalaries");
+            } catch (Exception e) {
+                logger.error("ERROR: validateSalaries");
             }
         };
     }

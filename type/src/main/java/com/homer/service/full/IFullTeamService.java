@@ -10,4 +10,5 @@ import java.util.List;
 public interface IFullTeamService {
 
     List<TeamView> getTeamSalaries();
+    void checkSeasonSalaries();
 }

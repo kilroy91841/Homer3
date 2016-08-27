@@ -57,14 +57,14 @@ public final class ServiceFactory {
         instanceMap.put(ITradeElementRepository.class, new TradeElementRepository());
         instanceMap.put(ITradeElementService.class, new TradeElementService(get(ITradeElementRepository.class)));
 
-        instanceMap.put(IFullTeamService.class, new FullTeamService(get(IPlayerSeasonService.class), get(ITeamService.class)));
-
-        instanceMap.put(IAuthService.class, StormpathAuthService.FACTORY.getInstance());
-
         instanceMap.put(ISessionTokenRepository.class, new SessionTokenRepository());
-
+        instanceMap.put(IAuthService.class, StormpathAuthService.FACTORY.getInstance());
         instanceMap.put(IUserService.class, new UserService(get(IAuthService.class), get(ISessionTokenRepository.class)));
         instanceMap.put(IEmailService.class, new AWSEmailService());
+
+        instanceMap.put(IFullTeamService.class, new FullTeamService(get(IPlayerSeasonService.class), get(ITeamService.class),
+                get(IUserService.class), get(IEmailService.class)));
+
         instanceMap.put(IScheduler.class, new Scheduler());
 
         instanceMap.put(IGatherer.class, new Gatherer(
