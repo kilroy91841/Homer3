@@ -103,6 +103,13 @@ public class Resource {
         return new ApiResponse("success", teamViews);
     }
 
+    @GET
+    @Path("team/draftDollars")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse getDraftDollars() {
+        return new ApiResponse("success", draftDollarService.getDraftDollarsBySeason(LeagueUtil.NEXT_SEASON));
+    }
+
     @Path("team")
     @Produces(MediaType.APPLICATION_JSON)
     @GET

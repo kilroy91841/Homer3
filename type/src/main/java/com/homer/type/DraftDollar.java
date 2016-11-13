@@ -18,7 +18,6 @@ import javax.persistence.Table;
 public class DraftDollar extends BaseObject {
 
     @Column(updatable = false)
-    @JsonIgnore
     private long teamId;
     @Column(updatable = false)
     private int season;
