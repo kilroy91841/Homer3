@@ -1,9 +1,11 @@
 package com.homer.service;
 
 import com.homer.type.PlayerDaily;
+import com.homer.type.SeptemberStanding;
 import com.homer.type.Standing;
 import org.joda.time.DateTime;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -18,4 +20,7 @@ public interface IStandingService extends IIdService<Standing> {
     List<Standing> computeStandingsBetweenDates(DateTime start, DateTime end);
 
     List<PlayerDaily> getActiveStatsForTeam(long teamId);
+    List<SeptemberStanding> getSeptemberStandingsByIds(Collection<Long> ids);
+    List<SeptemberStanding> getSeptemberStandings(int season);
+    List<SeptemberStanding> finalizeSeptemberStandings(int season);
 }

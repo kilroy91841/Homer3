@@ -119,6 +119,7 @@ public final class ServiceFactory {
         instanceMap.put(IPlayerDailyRepository.class, new PlayerDailyRepository());
         instanceMap.put(ITeamDailyRepository.class, new TeamDailyRepository());
         instanceMap.put(IStandingRepository.class, new StandingRepository());
+        instanceMap.put(ISeptemberStandingRepository.class, new SeptemberStandingRepository());
 
         instanceMap.put(IPlayerDailyService.class, new PlayerDailyService(
                 get(IPlayerDailyRepository.class),
@@ -136,7 +137,9 @@ public final class ServiceFactory {
         instanceMap.put(IStandingService.class, new StandingService(
                 get(IStandingRepository.class),
                 get(ITeamDailyService.class),
-                get(IPlayerDailyService.class)
+                get(IPlayerDailyService.class),
+                get(ISeptemberStandingRepository.class),
+                get(IDraftDollarService.class)
         ));
 
         instanceMap.put(IVultureRepository.class, new VultureRepository());
@@ -156,7 +159,8 @@ public final class ServiceFactory {
         instanceMap.put(IFullHistoryService.class, new FullHistoryService(
                 get(IDraftDollarService.class),
                 get(IFullTradeService.class),
-                get(ITeamService.class)
+                get(ITeamService.class),
+                get(IStandingService.class)
         ));
 
         instanceMap.put(IKeeperRepository.class, new KeeperRepository());

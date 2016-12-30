@@ -1,10 +1,7 @@
 package com.homer.type.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.homer.type.DraftDollar;
-import com.homer.type.Player;
-import com.homer.type.Team;
-import com.homer.type.Trade;
+import com.homer.type.*;
 import com.homer.type.history.HistoryDraftDollar;
 import com.homer.util.HomerBeanUtil;
 
@@ -22,6 +19,8 @@ public class DraftDollarView extends DraftDollar {
     @Nullable
     private Long historyId;
     private List<DraftDollarView> historyDraftDollars;
+    @Nullable
+    private SeptemberStanding septemberStanding;
 
     public DraftDollarView() { }
 
@@ -63,6 +62,15 @@ public class DraftDollarView extends DraftDollar {
 
     public void setHistoryId(@Nullable Long historyId) {
         this.historyId = historyId;
+    }
+
+    @Nullable
+    public SeptemberStanding getSeptemberStanding() {
+        return septemberStanding;
+    }
+
+    public void setSeptemberStanding(@Nullable SeptemberStanding septemberStanding) {
+        this.septemberStanding = septemberStanding;
     }
 
     @JsonProperty

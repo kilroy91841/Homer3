@@ -19,7 +19,7 @@ public class StormpathAuthServiceTest {
     private static final String FIRST_NAME = "Ari";
     private static final String LAST_NAME = "Golub";
 
-    private static final String PASSWORD = "Passwerd1";
+    private static final String PASSWORD = "Password1";
     private static final String PASSWORD_2 = "Passwerd2";
 
     private User user;

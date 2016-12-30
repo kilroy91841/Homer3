@@ -1,10 +1,9 @@
 package com.homer.service;
 
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.homer.data.common.ISeptemberStandingRepository;
 import com.homer.data.common.IStandingRepository;
-import com.homer.external.common.mlb.HittingStats;
-import com.homer.external.common.mlb.PitchingStats;
 import com.homer.service.utility.ESPNUtility;
 import com.homer.type.*;
 import com.homer.type.history.HistoryStanding;
@@ -15,15 +14,10 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.ToIntFunction;
 
 import static com.homer.service.utility.StatsUtility.calculateEra;
 import static com.homer.service.utility.StatsUtility.calculateOBP;
@@ -48,15 +42,20 @@ public class StandingService extends BaseVersionedIdService<Standing, HistorySta
     private static final String WHIP = "whip";
 
     private IStandingRepository standingRepo;
+    private ISeptemberStandingRepository septemberStandingRepo;
     private ITeamDailyService teamDailyService;
     private IPlayerDailyService playerDailyService;
+    private IDraftDollarService draftDollarService;
 
     public StandingService(IStandingRepository standingRepository, ITeamDailyService teamDailyService,
-                           IPlayerDailyService playerDailyService) {
+                           IPlayerDailyService playerDailyService, ISeptemberStandingRepository septemberStandingRepo,
+                           IDraftDollarService draftDollarService) {
         super(standingRepository);
         this.standingRepo = standingRepository;
         this.teamDailyService = teamDailyService;
         this.playerDailyService = playerDailyService;
+        this.septemberStandingRepo = septemberStandingRepo;
+        this.draftDollarService = draftDollarService;
     }
 
     @Override
@@ -200,6 +199,71 @@ public class StandingService extends BaseVersionedIdService<Standing, HistorySta
                 return 0;
             }
         });
+    }
+
+    @Override
+    public List<SeptemberStanding> getSeptemberStandingsByIds(Collection<Long> ids) {
+        return septemberStandingRepo.getByIds(ids);
+    }
+
+    @Override
+    public List<SeptemberStanding> getSeptemberStandings(int season) {
+        return septemberStandingRepo.getBySeason(season);
+    }
+
+    @Override
+    public List<SeptemberStanding> finalizeSeptemberStandings(int season) {
+        DateTime start = DateTime.parse("2016-09-01").withMillisOfDay(0);
+        DateTime end = DateTime.parse("2016-10-10").withMillisOfDay(0);
+        List<DraftDollar> draftDollars = $.of(draftDollarService.getDraftDollarsBySeason(season + 1))
+                .filterToList(draftDollar -> draftDollar.getDraftDollarType() == DraftDollarType.MLBAUCTION);
+        List<Standing> standings = computeStandingsBetweenDates(start, end);
+        List<Standing> yearEndStandings = getLatestStandings();
+        yearEndStandings.sort((s1, s2) -> Double.compare(s2.getTotalPoints(), s1.getTotalPoints()));
+        Set<Long> excludedTeamIds = Sets.newHashSet();
+        excludedTeamIds.add(yearEndStandings.get(0).getTeamId());
+        excludedTeamIds.add(yearEndStandings.get(1).getTeamId());
+        excludedTeamIds.add(yearEndStandings.get(2).getTeamId());
+        Map<Long, SeptemberStanding> existingSeptemberStandingsByTeamId = $.of(getSeptemberStandings(season)).toMap(SeptemberStanding::getTeamId);
+        int curPlace = 1;
+        for (int i = 0; i < standings.size(); i++)
+        {
+            Standing standing = standings.get(i);
+            SeptemberStanding septemberStanding = existingSeptemberStandingsByTeamId.get(standing.getTeamId());
+            if (septemberStanding == null)
+            {
+                septemberStanding = new SeptemberStanding();
+                septemberStanding.setTeamId(standing.getTeamId());
+                septemberStanding.setSeason(season);
+                existingSeptemberStandingsByTeamId.put(standing.getTeamId(), septemberStanding);
+            }
+            septemberStanding.setPoints(standing.getTotalPoints());
+
+            if (excludedTeamIds.contains(standing.getTeamId()))
+            {
+                septemberStanding.setPlace(null);
+                septemberStanding.setDollarsAwarded(null);
+            }
+            else
+            {
+                septemberStanding.setPlace(curPlace);
+                septemberStanding.setDollarsAwarded(9- curPlace);
+                curPlace++;
+            }
+        }
+        $.of(existingSeptemberStandingsByTeamId.values()).forEach(septemberStandingRepo::upsert);
+        List<DraftDollar> draftDollarsToUpsert = Lists.newArrayList();
+        $.of(draftDollars).forEach(draftDollar -> {
+            SeptemberStanding septemberStanding = existingSeptemberStandingsByTeamId.get(draftDollar.getTeamId());
+            if (septemberStanding.getDollarsAwarded() != null)
+            {
+                draftDollar.setSeptemberStandingId(septemberStanding.getId());
+                draftDollar.setAmount(draftDollar.getAmount() + septemberStanding.getDollarsAwarded());
+                draftDollarsToUpsert.add(draftDollar);
+            }
+        });
+        $.of(draftDollarsToUpsert).forEach(draftDollarService::upsert);
+        return $.of(existingSeptemberStandingsByTeamId.values()).toList();
     }
 
     // region helpers
