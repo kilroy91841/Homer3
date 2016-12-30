@@ -27,6 +27,6 @@ public class FullHistoryServiceTest {
     @Test
     public void test_draftDollarHistory() {
         DraftDollarView draftDollars = fullHistoryService.getDraftDollarHistory(DRAFT_DOLLAR_ID);
-        assertEquals(4, draftDollars.getHistoryDraftDollars().size());
+        assertEquals(5, draftDollars.getHistoryDraftDollars().size());
     }
 }

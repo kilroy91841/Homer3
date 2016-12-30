@@ -1,6 +1,7 @@
 package com.homer.service;
 
 import com.google.common.collect.Lists;
+import com.homer.data.common.ISeptemberStandingRepository;
 import com.homer.data.common.IStandingRepository;
 import com.homer.type.Standing;
 import org.junit.Before;
@@ -20,7 +21,8 @@ public class StandingServiceTest {
 
     @Before
     public void setup() {
-        service = new StandingService(mock(IStandingRepository.class), mock(ITeamDailyService.class), mock(IPlayerDailyService.class));
+        service = new StandingService(mock(IStandingRepository.class), mock(ITeamDailyService.class), mock(IPlayerDailyService.class),
+                mock(ISeptemberStandingRepository.class), mock(IDraftDollarService.class));
     }
 
     @Test
