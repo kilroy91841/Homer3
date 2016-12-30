@@ -13,6 +13,7 @@ import com.homer.service.ITransactionService;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
+import com.homer.type.Status;
 import com.homer.type.view.PlayerSeasonView;
 import com.homer.type.view.PlayerView;
 import com.homer.util.LeagueUtil;
@@ -62,7 +63,7 @@ public class FullPlayerService implements IFullPlayerService {
     @Override
     public List<PlayerView> updateMinorLeaguerStatusForPlayers() {
         logger.info("BEGIN: updateMinorLeaguerStatusForPlayers");
-        List<PlayerSeason> playersWithMinorLeaguerStatus = $.of(playerSeasonService.getActivePlayers()).filterToList(PlayerSeason::getIsMinorLeaguer);
+        List<PlayerSeason> playersWithMinorLeaguerStatus = $.of(playerSeasonService.getActivePlayers()).filterToList(playerSeason -> playerSeason.getIsMinorLeaguer() || playerSeason.getHasRookieStatus());
         logger.info("Found " + playersWithMinorLeaguerStatus.size() + " minor leaguers");
         List<Player> players = playerService.getByIds($.of(playersWithMinorLeaguerStatus).toList(PlayerSeason::getPlayerId));
         players = $.of(players).filterToList(player -> player.getMlbPlayerId() != null);
@@ -108,8 +109,10 @@ public class FullPlayerService implements IFullPlayerService {
         }
         boolean shouldUpdate = shouldUpdateFunction.apply(stats);
         if (shouldUpdate) {
-            playerSeasonService.updateMinorLeaguerStatus(player.getId(), false);
             PlayerSeason updatedPlayerSeason = playerSeasonService.updateHasRookieStatus(player.getId(), false);
+            if (updatedPlayerSeason.getIsMinorLeaguer() && updatedPlayerSeason.getMlbStatus() != Status.MINORS) {
+                updatedPlayerSeason = playerSeasonService.updateMinorLeaguerStatus(player.getId(), false);
+            }
             PlayerView playerView = PlayerView.from(player);
             playerView.setCurrentSeason(PlayerSeasonView.from(updatedPlayerSeason));
             logger.info(player.getName() + ": updated isMinorLeaguer=false, hasRookieStatus=false");

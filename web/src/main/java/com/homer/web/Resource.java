@@ -63,6 +63,7 @@ public class Resource {
     private Validator validator;
     private ITransactionService transactionService;
     private IFullHistoryService fullHistoryService;
+    private IFullPlayerService fullPlayerService;
 
     public Resource() {
         this.teamService = serviceFactory.get(ITeamService.class);
@@ -80,6 +81,7 @@ public class Resource {
         minorLeagueDraftService = serviceFactory.get(IFullMinorLeagueDraftService.class);
         transactionService = serviceFactory.get(ITransactionService.class);
         fullHistoryService = serviceFactory.get(IFullHistoryService.class);
+        fullPlayerService = serviceFactory.get(IFullPlayerService.class);
     }
 
     @GET
@@ -343,5 +345,12 @@ public class Resource {
         } catch (Exception e) {
             return new ApiResponse(e.getMessage(), null);
         }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("admin/updateMinorLeaguerStatus")
+    public ApiResponse updateMinorLeaguerStatusForPlayers() {
+        return RestUtility.safelyDo(() -> fullPlayerService.updateMinorLeaguerStatusForPlayers(), (ignored) -> "Success");
     }
 }
