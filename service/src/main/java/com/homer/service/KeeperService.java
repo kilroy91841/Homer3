@@ -13,6 +13,7 @@ import com.homer.util.core.$;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -47,43 +48,13 @@ public class KeeperService extends BaseVersionedIdService<Keeper, HistoryKeeper>
 
     @Override
     public List<Keeper> replaceKeepers(List<Keeper> newKeepers, long teamId) {
-        int majorLeagueKeepers = $.of(newKeepers).filter(keeper -> !keeper.getIsMinorLeaguer()).toList().size();
-        int minorLeagueKeepers = newKeepers.size() - majorLeagueKeepers;
-        if (majorLeagueKeepers > MAX_MAJOR_LEAGUE_KEEPERS) {
-            String message = "Too many major league keepers selected";
-            LOGGER.error(message);
-            throw new KeeperException.MajorLeagueCountExceeded(message);
-        }
-        if (minorLeagueKeepers > MAX_MINOR_LEAGUE_KEEPERS) {
-            String message = "Too many minor league keepers selected";
-            LOGGER.error(message);
-            throw new KeeperException.MinorLeagueCountExceeded(message);
-        }
+        checkKeeperSizes(newKeepers);
 
-        DraftDollar nextSeasonAvailableSalary =
-                $.of(draftDollarService.getDraftDollarsByTeam(teamId))
-                        .filter(dd -> dd.getSeason() == LeagueUtil.NEXT_SEASON &&
-                        dd.getDraftDollarType() == DraftDollarType.MLBAUCTION).first();
-        if (nextSeasonAvailableSalary == null) {
-            String message = "Could not find draft dollars for next season for team " + teamId;
-            LOGGER.error(message);
-            throw new NullPointerException(message);
-        }
-
-        List<Long> playerIds = $.of(newKeepers).toList(Keeper::getPlayerId);
-        Map<Long, PlayerSeason> currentPlayerSeasonMap = playerSeasonService.getCurrentPlayerSeasons(playerIds);
+        Map<Long, PlayerSeason> currentPlayerSeasonMap = playerSeasonService.getCurrentPlayerSeasons($.of(newKeepers).toList(Keeper::getPlayerId));
         for(Keeper keeper : newKeepers) {
             PlayerSeason currentPlayerSeason = currentPlayerSeasonMap.get(keeper.getPlayerId());
-            if (currentPlayerSeason.getTeamId() != teamId) {
-                String message = "A player selected as a keeper is not a member of the selected team";
-                LOGGER.error(message);
-                throw new KeeperException.IncorrectTeam(message);
-            }
-            if (!currentPlayerSeason.getHasRookieStatus() && keeper.getIsMinorLeaguer()) {
-                String message = "A player selected as a minor leaguer no longer has rookie status and can only be kept as a major leaguer";
-                LOGGER.error(message);
-                throw new KeeperException.IneligibleMinorLeaguer(message);
-            }
+            validatePlayer(teamId, currentPlayerSeason, keeper);
+
             int nextSalary = currentPlayerSeason.getSalary();
             int nextKeeperSeason = currentPlayerSeason.getKeeperSeason();
             if (!keeper.getIsMinorLeaguer()) {
@@ -101,13 +72,7 @@ public class KeeperService extends BaseVersionedIdService<Keeper, HistoryKeeper>
             keeper.setSeason(LeagueUtil.NEXT_SEASON);
         }
 
-        int totalKeeperSalaries = $.of(newKeepers).reduceToInt(Keeper::getSalary);
-        if (totalKeeperSalaries > (nextSeasonAvailableSalary.getAmount() - MINIMUM_DRAFT_DOLLARS)) {
-            String message = "Not enough funds to keep all of the selected players";
-            LOGGER.error(message);
-            throw new KeeperException.InsufficientFunds(message);
-        }
-
+        validateSufficientFunds(getNextSeasonAvailableSalary(teamId), newKeepers);
         List<Keeper> existingKeepers = repo.getForTeam(teamId, LeagueUtil.NEXT_SEASON);
         for (Keeper keeper : existingKeepers) {
             repo.delete(keeper.getId());
@@ -118,4 +83,94 @@ public class KeeperService extends BaseVersionedIdService<Keeper, HistoryKeeper>
         }
         return results;
     }
+
+    @Override
+    public void deselectKeeper(long playerId) {
+        Keeper keeper = repo.getByPlayerId(playerId, LeagueUtil.NEXT_SEASON);
+        if (keeper != null)
+        {
+            repo.delete(keeper.getId());
+        }
+    }
+
+    @Override
+    public List<PlayerSeason> finalizeKeepers(long teamId)
+    {
+        List<Keeper> keepers = repo.getForTeam(teamId, LeagueUtil.NEXT_SEASON);
+
+        checkKeeperSizes(keepers);
+
+        Map<Long, PlayerSeason> currentPlayerSeasonMap = playerSeasonService.getCurrentPlayerSeasons($.of(keepers).toList(Keeper::getPlayerId));
+        List<PlayerSeason> newPlayerSeasons = Lists.newArrayList();
+        for(Keeper keeper : keepers) {
+            PlayerSeason currentPlayerSeason = currentPlayerSeasonMap.get(keeper.getPlayerId());
+            validatePlayer(teamId, currentPlayerSeason, keeper);
+
+            newPlayerSeasons.add(playerSeasonService.createPlayerSeasonForKeeper(currentPlayerSeason, keeper));
+        }
+
+        DraftDollar nextSeasonAvailableSalary = getNextSeasonAvailableSalary(teamId);
+        int usedDraftDollars = validateSufficientFunds(nextSeasonAvailableSalary, keepers);
+        nextSeasonAvailableSalary.setAmount(nextSeasonAvailableSalary.getAmount() - usedDraftDollars);
+        draftDollarService.upsert(nextSeasonAvailableSalary);
+
+        return $.of(newPlayerSeasons).toList(playerSeasonService::upsert);
+    }
+
+    // region validation
+
+    private static void checkKeeperSizes(Collection<Keeper> keepers)
+    {
+        int majorLeagueKeepers = $.of(keepers).filter(keeper -> !keeper.getIsMinorLeaguer()).toList().size();
+        int minorLeagueKeepers = keepers.size() - majorLeagueKeepers;
+        if (majorLeagueKeepers > MAX_MAJOR_LEAGUE_KEEPERS) {
+            String message = "Too many major league keepers selected";
+            LOGGER.error(message);
+            throw new KeeperException.MajorLeagueCountExceeded(message);
+        }
+        if (minorLeagueKeepers > MAX_MINOR_LEAGUE_KEEPERS) {
+            String message = "Too many minor league keepers selected";
+            LOGGER.error(message);
+            throw new KeeperException.MinorLeagueCountExceeded(message);
+        }
+    }
+
+    private static void validatePlayer(long teamId, PlayerSeason playerSeason, Keeper keeper)
+    {
+        if (playerSeason.getTeamId() != teamId) {
+            String message = "A player selected as a keeper is not a member of the selected team";
+            LOGGER.error(message);
+            throw new KeeperException.IncorrectTeam(message);
+        }
+        if (!playerSeason.getHasRookieStatus() && keeper.getIsMinorLeaguer()) {
+            String message = "A player selected as a minor leaguer no longer has rookie status and can only be kept as a major leaguer";
+            LOGGER.error(message);
+            throw new KeeperException.IneligibleMinorLeaguer(message);
+        }
+    }
+
+    private static int validateSufficientFunds(DraftDollar nextSeasonAvailableSalary, Collection<Keeper> keepers) {
+        int totalKeeperSalaries = $.of(keepers).reduceToInt(Keeper::getSalary);
+        if (totalKeeperSalaries > (nextSeasonAvailableSalary.getAmount() - MINIMUM_DRAFT_DOLLARS)) {
+            String message = "Not enough funds to keep all of the selected players";
+            LOGGER.error(message);
+            throw new KeeperException.InsufficientFunds(message);
+        }
+        return totalKeeperSalaries;
+    }
+
+    private DraftDollar getNextSeasonAvailableSalary(long teamId)
+    {
+        DraftDollar nextSeasonAvailableSalary = $.of(draftDollarService.getDraftDollarsByTeam(teamId))
+                .filter(dd -> dd.getSeason() == LeagueUtil.NEXT_SEASON &&
+                        dd.getDraftDollarType() == DraftDollarType.MLBAUCTION).first();
+        if (nextSeasonAvailableSalary == null) {
+            String message = "Could not find draft dollars for next season for team " + teamId;
+            LOGGER.error(message);
+            throw new NullPointerException(message);
+        }
+        return nextSeasonAvailableSalary;
+    }
+
+    // endregion
 }

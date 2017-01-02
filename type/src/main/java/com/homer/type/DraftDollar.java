@@ -31,6 +31,8 @@ public class DraftDollar extends BaseObject {
     @Nullable
     @Column
     private Long septemberStandingId;
+    @Column
+    private boolean expired;
 
     // region equals/hashCode/toString
 
@@ -45,12 +47,13 @@ public class DraftDollar extends BaseObject {
                 amount == that.amount &&
                 draftDollarType == that.draftDollarType &&
                 Objects.equal(tradeId, that.tradeId) &&
-                Objects.equal(septemberStandingId, that.septemberStandingId);
+                Objects.equal(septemberStandingId, that.septemberStandingId) &&
+                Objects.equal(expired, that.expired);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), teamId, season, draftDollarType, amount, tradeId, septemberStandingId);
+        return Objects.hashCode(super.hashCode(), teamId, season, draftDollarType, amount, tradeId, septemberStandingId, expired);
     }
 
     @Override
@@ -62,6 +65,7 @@ public class DraftDollar extends BaseObject {
                 ", amount=" + amount +
                 ", tradeId=" + tradeId +
                 ", septemberStandingId=" + septemberStandingId +
+                ", expired=" + expired +
                 "} " + super.toString();
     }
 
@@ -115,5 +119,13 @@ public class DraftDollar extends BaseObject {
 
     public void setSeptemberStandingId(@Nullable Long septemberStandingId) {
         this.septemberStandingId = septemberStandingId;
+    }
+
+    public boolean getExpired() {
+        return expired;
+    }
+
+    public void setExpired(boolean expired) {
+        this.expired = expired;
     }
 }

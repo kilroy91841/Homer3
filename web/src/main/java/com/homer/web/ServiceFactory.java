@@ -1,6 +1,7 @@
 package com.homer.web;
 
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
 import com.homer.auth.stormpath.StormpathAuthService;
 import com.homer.data.*;
 import com.homer.data.common.*;
@@ -14,6 +15,7 @@ import com.homer.service.*;
 import com.homer.service.auth.IAuthService;
 import com.homer.service.auth.IUserService;
 import com.homer.service.auth.UserService;
+import com.homer.service.eventbus.PlayerSeasonChangeEventRecorder;
 import com.homer.service.full.*;
 import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
@@ -36,6 +38,8 @@ public final class ServiceFactory {
     }
 
     private void initialize() {
+        instanceMap.put(EventBus.class, new EventBus());
+
         instanceMap.put(ITeamRepository.class, new TeamRepository());
         instanceMap.put(ITeamService.class, new TeamService(get(ITeamRepository.class)));
 
@@ -43,7 +47,7 @@ public final class ServiceFactory {
         instanceMap.put(IPlayerService.class, new PlayerService(get(IPlayerRepository.class)));
 
         instanceMap.put(IPlayerSeasonRepository.class, new PlayerSeasonRepository());
-        instanceMap.put(IPlayerSeasonService.class, new PlayerSeasonService(get(IPlayerSeasonRepository.class)));
+        instanceMap.put(IPlayerSeasonService.class, new PlayerSeasonService(get(IPlayerSeasonRepository.class), get(EventBus.class)));
 
         instanceMap.put(IDraftDollarRepository.class, new DraftDollarRepository());
         instanceMap.put(IDraftDollarService.class, new DraftDollarService(get(IDraftDollarRepository.class)));
@@ -56,6 +60,12 @@ public final class ServiceFactory {
 
         instanceMap.put(ITradeElementRepository.class, new TradeElementRepository());
         instanceMap.put(ITradeElementService.class, new TradeElementService(get(ITradeElementRepository.class)));
+
+        instanceMap.put(IFreeAgentAuctionRepository.class, new FreeAgentAuctionRepository());
+        instanceMap.put(IFreeAgentAuctionService.class, new FreeAgentAuctionService(get(IFreeAgentAuctionRepository.class)));
+
+        instanceMap.put(IFreeAgentAuctionBidRepository.class, new FreeAgentAuctionBidRepository());
+        instanceMap.put(IFreeAgentAuctionBidService.class, new FreeAgentAuctionBidService(get(IFreeAgentAuctionBidRepository.class)));
 
         instanceMap.put(ISessionTokenRepository.class, new SessionTokenRepository());
         instanceMap.put(IAuthService.class, StormpathAuthService.FACTORY.getInstance());
@@ -168,6 +178,29 @@ public final class ServiceFactory {
                 get(IKeeperRepository.class),
                 get(IDraftDollarService.class),
                 get(IPlayerSeasonService.class)));
+
+        instanceMap.put(IFullFreeAgentAuctionService.class, new FullFreeAgentAuctionService(
+                get(IFreeAgentAuctionService.class),
+                get(IFreeAgentAuctionBidService.class),
+                get(IPlayerSeasonService.class),
+                get(IPlayerService.class),
+                get(IFullPlayerService.class),
+                get(IEmailService.class),
+                get(IDraftDollarService.class),
+                get(IMLBClient.class),
+                get(ITeamService.class),
+                get(IScheduler.class),
+                get(IUserService.class)
+        ));
+
+        instanceMap.put(PlayerSeasonChangeEventRecorder.class, new PlayerSeasonChangeEventRecorder(get(IKeeperService.class)));
+
+        registerEventBus();
+    }
+
+    private void registerEventBus() {
+        EventBus eventBus = get(EventBus.class);
+        eventBus.register(get(PlayerSeasonChangeEventRecorder.class));
     }
 
     public <T> T get(Class<T> clazz) {

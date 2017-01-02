@@ -43,4 +43,12 @@ public class KeeperResource {
                                    List<Keeper> keepers) {
         return safelyDo(() -> keeperService.replaceKeepers(keepers, teamId));
     }
+
+    @GET
+    @Path("/finalize/{teamId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse saveKeepers(@PathParam(value = "teamId") long teamId) {
+        return safelyDo(() -> keeperService.finalizeKeepers(teamId));
+    }
 }

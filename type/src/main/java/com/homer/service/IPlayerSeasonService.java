@@ -2,6 +2,7 @@ package com.homer.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.homer.type.Keeper;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.util.LeagueUtil;
@@ -53,6 +54,8 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
         return createPlayerSeason(playerId, season, false);
     }
     PlayerSeason createPlayerSeason(long playerId, int season, boolean isMinorLeaguer);
+
+    PlayerSeason createPlayerSeasonForKeeper(PlayerSeason previousPlayerSeason, Keeper keeper);
 
     PlayerSeason switchTeam(long playerId, int season, @Nullable Long oldTeamId, @Nullable Long newTeamId);
     PlayerSeason switchTeam(PlayerSeason existing, @Nullable Long oldTeamId, @Nullable Long newTeamId);

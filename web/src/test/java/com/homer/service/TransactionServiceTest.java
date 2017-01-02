@@ -1,5 +1,6 @@
 package com.homer.service;
 
+import com.google.common.eventbus.EventBus;
 import com.homer.data.PlayerRepository;
 import com.homer.data.PlayerSeasonRepository;
 import com.homer.data.TransactionRepository;
@@ -20,7 +21,7 @@ public class TransactionServiceTest {
         ITransactionService transactionService = new TransactionService(
                 new TransactionRepository(),
                 new PlayerService(new PlayerRepository()),
-                new PlayerSeasonService(new PlayerSeasonRepository()),
+                new PlayerSeasonService(new PlayerSeasonRepository(), new EventBus()),
                 new ESPNRestClient(),
                 new AWSEmailService());
         

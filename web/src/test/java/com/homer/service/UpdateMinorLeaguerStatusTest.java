@@ -1,5 +1,6 @@
 package com.homer.service;
 
+import com.google.common.eventbus.EventBus;
 import com.homer.data.PlayerRepository;
 import com.homer.data.PlayerSeasonRepository;
 import com.homer.external.rest.mlb.MLBRestClient;
@@ -16,7 +17,7 @@ public class UpdateMinorLeaguerStatusTest {
 
     public static void main(String[] args) {
         PlayerService playerService = new PlayerService(new PlayerRepository());
-        PlayerSeasonService playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
+        PlayerSeasonService playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository(), new EventBus());
         FullPlayerService fullPlayerService
                 = new FullPlayerService(playerService, playerSeasonService, new MLBRestClient());
 

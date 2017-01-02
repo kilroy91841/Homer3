@@ -40,6 +40,8 @@ public class PlayerSeason extends BaseObject {
     @Column
     private boolean hasRookieStatus;
 
+    private Long oldTeamId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -103,6 +105,7 @@ public class PlayerSeason extends BaseObject {
     }
 
     public void setTeamId(@Nullable Long teamId) {
+        setOldTeamId(getTeamId());
         this.teamId = teamId;
     }
 
@@ -170,5 +173,13 @@ public class PlayerSeason extends BaseObject {
 
     public void setHasRookieStatus(boolean hasRookieStatus) {
         this.hasRookieStatus = hasRookieStatus;
+    }
+
+    public Long getOldTeamId() {
+        return oldTeamId;
+    }
+
+    public void setOldTeamId(Long oldTeamId) {
+        this.oldTeamId = oldTeamId;
     }
 }

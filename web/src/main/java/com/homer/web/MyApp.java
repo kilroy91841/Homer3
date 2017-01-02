@@ -1,5 +1,6 @@
 package com.homer.web;
 
+import com.google.common.eventbus.EventBus;
 import com.homer.util.EnvironmentUtility;
 import com.homer.web.filter.AuthFilter;
 import com.homer.web.flyway.Migrate;
@@ -15,7 +16,6 @@ import java.net.URI;
 public class MyApp  {
 
     public static void main(String[] args) {
-
         EnvironmentUtility envUtil = EnvironmentUtility.getInstance();
         if (envUtil.shouldMigrate()) {
             Migrate.doWork();
@@ -29,6 +29,8 @@ public class MyApp  {
         GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), getResourceConfig());
 
         System.out.println("Exposing app at: " + uri);
+
+
     }
 
     static ResourceConfig getResourceConfig() {

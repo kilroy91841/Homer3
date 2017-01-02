@@ -6,6 +6,7 @@ import com.homer.type.Keeper;
 import com.homer.type.history.HistoryKeeper;
 import com.homer.util.data.BaseVersionedRepository;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,15 @@ public class KeeperRepository extends BaseVersionedRepository<Keeper, HistoryKee
         Map<String, Object> filters = Maps.newHashMap();
         filters.put("teamId", teamId);
         filters.put("season", season);
-        return getMany("teamId", teamId);
+        return getMany(filters);
+    }
+
+    @Nullable
+    @Override
+    public Keeper getByPlayerId(long playerId, int season) {
+        Map<String, Object> filters = Maps.newHashMap();
+        filters.put("playerId", playerId);
+        filters.put("season", season);
+        return get(filters);
     }
 }

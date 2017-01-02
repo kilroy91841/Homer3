@@ -1,6 +1,7 @@
 package com.homer.service;
 
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.EventBus;
 import com.homer.data.common.IPlayerSeasonRepository;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
@@ -45,7 +46,7 @@ public class PlayerSeasonServiceTest {
         when(repo.getMany(anyMap())).thenReturn(Lists.newArrayList(playerSeason));
         when(repo.upsert(any())).thenAnswer(x -> x.getArguments()[0]);
 
-        service = new PlayerSeasonService(repo);
+        service = new PlayerSeasonService(repo, mock(EventBus.class));
     }
 
     @Test

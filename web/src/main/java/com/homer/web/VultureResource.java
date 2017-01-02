@@ -30,31 +30,14 @@ import java.util.List;
 @Path("/vulture")
 public class VultureResource {
 
+    private ServiceFactory serviceFactory = ServiceFactory.getInstance();
+
     private IFullVultureService fullVultureService;
     private IGatherer gatherer;
 
     public VultureResource() {
-        ITeamService teamService = new TeamService(new TeamRepository());
-        IPlayerSeasonService playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
-        IPlayerService playerService = new PlayerService(new PlayerRepository());
-
-        this.fullVultureService = new FullVultureService(new VultureService(new VultureRepository()),
-                playerSeasonService,
-                teamService,
-                playerService,
-                new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository()),
-                new AWSEmailService(),
-                new Scheduler());
-
-        gatherer = new Gatherer(
-                playerService,
-                teamService,
-                playerSeasonService,
-                new DraftDollarService(new DraftDollarRepository()),
-                new MinorLeaguePickService(new MinorLeaguePickRepository()),
-                new TradeService(new TradeRepository()),
-                new TradeElementService(new TradeElementRepository())
-        );
+        this.fullVultureService = serviceFactory.get(IFullVultureService.class);
+        this.gatherer = serviceFactory.get(IGatherer.class);
     }
 
     @GET

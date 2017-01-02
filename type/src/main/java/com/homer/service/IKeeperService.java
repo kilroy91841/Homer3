@@ -1,6 +1,7 @@
 package com.homer.service;
 
 import com.homer.type.Keeper;
+import com.homer.type.PlayerSeason;
 
 import java.util.List;
 
@@ -10,4 +11,6 @@ import java.util.List;
 public interface IKeeperService {
     List<Keeper> getKeepers(long teamId);
     List<Keeper> replaceKeepers(List<Keeper> keepers, long teamId);
+    void deselectKeeper(long playerId);
+    List<PlayerSeason> finalizeKeepers(long teamId);
 }

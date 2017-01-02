@@ -2,6 +2,7 @@ package com.homer.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.eventbus.EventBus;
 import com.homer.data.common.IPlayerSeasonRepository;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.external.common.mlb.MLBPlayerStatus;
@@ -22,10 +23,19 @@ import java.util.stream.Collectors;
 public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, HistoryPlayerSeason> implements IPlayerSeasonService {
 
     private IPlayerSeasonRepository repo;
+    private EventBus eventBus;
 
-    public PlayerSeasonService(IPlayerSeasonRepository repo) {
+    public PlayerSeasonService(IPlayerSeasonRepository repo, EventBus eventBus) {
         super(repo);
         this.repo = repo;
+        this.eventBus = eventBus;
+    }
+
+    @Override
+    public PlayerSeason upsert(PlayerSeason obj) {
+        PlayerSeason playerSeason = super.upsert(obj);
+        eventBus.post(obj);
+        return playerSeason;
     }
 
     @Override
@@ -48,6 +58,29 @@ public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, Hi
         playerSeason.setMlbStatus(Status.UNKNOWN);
         playerSeason.setVulturable(false);
         return super.upsert(playerSeason);
+    }
+
+    @Override
+    public PlayerSeason createPlayerSeasonForKeeper(PlayerSeason previousPlayerSeason, Keeper keeper) {
+        PlayerSeason existingPlayerSeason = getPlayerSeason(keeper.getPlayerId(), keeper.getSeason());
+        if (existingPlayerSeason != null) {
+            throw new IllegalArgumentException(String.format("PlayerSeason already exists for playerId/season combo %s/%s",
+                    keeper.getPlayerId(), keeper.getSeason()));
+        }
+        PlayerSeason playerSeason = new PlayerSeason();
+        playerSeason.setPlayerId(keeper.getPlayerId());
+        playerSeason.setTeamId(keeper.getTeamId());
+        playerSeason.setOldTeamId(keeper.getTeamId());
+        playerSeason.setKeeperTeamId(keeper.getTeamId());
+        playerSeason.setFantasyPosition(previousPlayerSeason.getFantasyPosition());
+        playerSeason.setSeason(keeper.getSeason());
+        playerSeason.setKeeperSeason(keeper.getKeeperSeason());
+        playerSeason.setSalary(keeper.getSalary());
+        playerSeason.setIsMinorLeaguer(keeper.getIsMinorLeaguer());
+        playerSeason.setHasRookieStatus(previousPlayerSeason.getHasRookieStatus() && keeper.getIsMinorLeaguer());
+        playerSeason.setMlbStatus(Status.UNKNOWN);
+        playerSeason.setVulturable(false);
+        return playerSeason;
     }
 
     @Override

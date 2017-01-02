@@ -220,8 +220,8 @@ public class FullTradeService implements IFullTradeService {
         });
 
         if (updatedPlayerSeasons.keySet().size() > 0) {
-            long team1Id = inTrade.getTeam1().getId();
-            long team2Id = inTrade.getTeam2().getId();
+            long team1Id = inTrade.getTeam1Id();
+            long team2Id = inTrade.getTeam2Id();
 
             Map<Long, List<PlayerSeason>> teamPlayerSeasons =
                     $.of(playerSeasonService.getPlayerSeasonsByTeamIds(Lists.newArrayList(team1Id, team2Id), LeagueUtil.SEASON))

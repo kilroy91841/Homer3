@@ -32,30 +32,12 @@ import javax.ws.rs.core.MediaType;
 @Path("/freeAgentAuction")
 public class FreeAgentAuctionResource {
 
+    private ServiceFactory serviceFactory = ServiceFactory.getInstance();
+
     private IFullFreeAgentAuctionService fullFreeAgentAuctionService;
 
     public FreeAgentAuctionResource() {
-        IFreeAgentAuctionService freeAgentAuctionService = new FreeAgentAuctionService(new FreeAgentAuctionRepository());
-        IFreeAgentAuctionBidService freeAgentAuctionBidService = new FreeAgentAuctionBidService(new FreeAgentAuctionBidRepository());
-        IPlayerSeasonService playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository());
-        IPlayerService playerService = new PlayerService(new PlayerRepository());
-        IFullPlayerService fullPlayerService = new FullPlayerService(playerService, playerSeasonService, new MLBRestClient());
-        IEmailService emailService = new AWSEmailService();
-        IDraftDollarService draftDollarService = new DraftDollarService(new DraftDollarRepository());
-        IMLBClient mlbClient = new MLBRestClient();
-        ITeamService teamService = new TeamService(new TeamRepository());
-
-        this.fullFreeAgentAuctionService = new FullFreeAgentAuctionService(freeAgentAuctionService,
-                freeAgentAuctionBidService,
-                playerSeasonService,
-                playerService,
-                fullPlayerService,
-                emailService,
-                draftDollarService,
-                mlbClient,
-                teamService,
-                new Scheduler(),
-                new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository()));
+        this.fullFreeAgentAuctionService = serviceFactory.get(IFullFreeAgentAuctionService.class);
     }
 
     @GET
