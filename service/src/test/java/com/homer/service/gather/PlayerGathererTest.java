@@ -61,19 +61,19 @@ public class PlayerGathererTest {
         player3.setMlbTeamId(109);
         playerSeason1_2016 = new PlayerSeason();
         playerSeason1_2016.setPlayerId(player1.getId());
-        playerSeason1_2016.setSeason(2016);
+        playerSeason1_2016.setSeason(2017);
         playerSeason1_2016.setTeamId(1L);
         playerSeason1_2015 = new PlayerSeason();
         playerSeason1_2015.setPlayerId(player1.getId());
-        playerSeason1_2015.setSeason(2015);
+        playerSeason1_2015.setSeason(2016);
         playerSeason1_2015.setTeamId(2L);
         playerSeason2_2016 = new PlayerSeason();
         playerSeason2_2016.setPlayerId(player2.getId());
-        playerSeason2_2016.setSeason(2016);
+        playerSeason2_2016.setSeason(2017);
         playerSeason2_2016.setTeamId(2L);
         playerSeason3_2015 = new PlayerSeason();
         playerSeason3_2015.setPlayerId(player3.getId());
-        playerSeason3_2015.setSeason(2015);
+        playerSeason3_2015.setSeason(2016);
         playerSeason3_2015.setTeamId(1L);
 
         when(teamService.getTeams()).thenReturn(Lists.newArrayList(team1, team2));
