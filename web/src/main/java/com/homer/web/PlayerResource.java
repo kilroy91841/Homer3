@@ -1,18 +1,14 @@
 package com.homer.web;
 
-import com.homer.data.*;
-import com.homer.external.rest.mlb.MLBRestClient;
-import com.homer.service.*;
-import com.homer.service.full.FullPlayerService;
+import com.homer.service.IPlayerSeasonService;
+import com.homer.service.IPlayerService;
 import com.homer.service.full.IFullPlayerService;
-import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.type.view.PlayerView;
 import com.homer.util.EnumUtil;
-import com.homer.util.core.$;
 import com.homer.web.model.ApiResponse;
 
 import javax.annotation.Nullable;
@@ -28,26 +24,15 @@ import java.util.List;
 @Path("/player")
 public class PlayerResource {
 
-    private ServiceFactory serviceFactory = ServiceFactory.getInstance();
-
     private IGatherer gatherer;
-    private ITeamService teamService;
     private IPlayerService playerService;
     private IPlayerSeasonService playerSeasonService;
-    private ITradeService tradeService;
-    private ITradeElementService tradeElementService;
-    private IMinorLeaguePickService minorLeaguePickService;
-    private IDraftDollarService draftDollarService;
     private IFullPlayerService fullPlayerService;
 
     public PlayerResource() {
-        this.teamService = serviceFactory.get(ITeamService.class);
+        ServiceFactory serviceFactory = ServiceFactory.getInstance();
         this.playerService = serviceFactory.get(IPlayerService.class);
         this.playerSeasonService = serviceFactory.get(IPlayerSeasonService.class);
-        this.draftDollarService = serviceFactory.get(IDraftDollarService.class);
-        this.minorLeaguePickService = serviceFactory.get(IMinorLeaguePickService.class);
-        this.tradeService = serviceFactory.get(ITradeService.class);
-        this.tradeElementService = serviceFactory.get(ITradeElementService.class);
         this.fullPlayerService = serviceFactory.get(IFullPlayerService.class);
         this.gatherer = serviceFactory.get(IGatherer.class);
     }

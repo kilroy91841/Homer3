@@ -56,6 +56,7 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
     PlayerSeason createPlayerSeason(long playerId, int season, boolean isMinorLeaguer);
 
     PlayerSeason createPlayerSeasonForKeeper(PlayerSeason previousPlayerSeason, Keeper keeper);
+    PlayerSeason createPlayerSeasonForNonKeeper(PlayerSeason previousPlayerSeason);
 
     PlayerSeason switchTeam(long playerId, int season, @Nullable Long oldTeamId, @Nullable Long newTeamId);
     PlayerSeason switchTeam(PlayerSeason existing, @Nullable Long oldTeamId, @Nullable Long newTeamId);

@@ -106,10 +106,10 @@ public class Resource {
     }
 
     @GET
-    @Path("team/draftDollars")
+    @Path("team/draftDollars/{season}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ApiResponse getDraftDollars() {
-        return new ApiResponse("success", draftDollarService.getDraftDollarsBySeason(LeagueUtil.NEXT_SEASON));
+    public ApiResponse getDraftDollars(@PathParam(value = "season") int season) {
+        return new ApiResponse("success", draftDollarService.getDraftDollarsBySeason(season));
     }
 
     @Path("team")
@@ -352,5 +352,12 @@ public class Resource {
     @Path("admin/updateMinorLeaguerStatus")
     public ApiResponse updateMinorLeaguerStatusForPlayers() {
         return RestUtility.safelyDo(() -> fullPlayerService.updateMinorLeaguerStatusForPlayers(), (ignored) -> "Success");
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("admin/createPlayerSeasonsForNonKeepers")
+    public ApiResponse createPlayerSeasonsForNonKeepers() {
+        return RestUtility.safelyDo(() -> fullPlayerService.createPlayerSeasonForNonKeepers(), (ignored) -> "Success");
     }
 }

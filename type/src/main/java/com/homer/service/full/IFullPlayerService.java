@@ -1,6 +1,7 @@
 package com.homer.service.full;
 
 import com.homer.type.Player;
+import com.homer.type.PlayerSeason;
 import com.homer.type.view.PlayerView;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface IFullPlayerService {
     PlayerView createPlayer(Player player, boolean isMinorLeaguer);
 
     List<PlayerView> updateMinorLeaguerStatusForPlayers();
+
+    List<PlayerView> createPlayerSeasonForNonKeepers();
 }

@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -97,6 +99,33 @@ public class FullPlayerService implements IFullPlayerService {
         }
         logger.info("END: updateMinorLeaguerStatusForPlayers");
         return updatedPlayers;
+    }
+
+    @Override
+    public List<PlayerView> createPlayerSeasonForNonKeepers() {
+        List<PlayerSeason> allPlayerSeasons = playerSeasonService.getActivePlayers(LeagueUtil.SEASON);
+        List<Long> keeperPlayerIds = $.of(playerSeasonService.getActivePlayers(LeagueUtil.NEXT_SEASON)).toList(PlayerSeason::getPlayerId);
+        List<PlayerSeason> playerSeasonsToCreate = $.of(allPlayerSeasons).filterToList(playerSeason1 -> !keeperPlayerIds.contains(playerSeason1.getPlayerId()));
+
+        List<PlayerSeason> createdPlayerSeasons = Lists.newArrayList();
+        for (PlayerSeason playerSeason : playerSeasonsToCreate)
+        {
+            PlayerSeason createdPlayerSeason = playerSeasonService.createPlayerSeasonForNonKeeper(playerSeason);
+            createdPlayerSeason = playerSeasonService.upsert(createdPlayerSeason);
+            createdPlayerSeasons.add(createdPlayerSeason);
+        }
+        List<Player> players = playerService.getByIds($.of(createdPlayerSeasons).toList(PlayerSeason::getPlayerId));
+        Map<Long, Player> playerById = $.of(players).toIdMap();
+
+        List<PlayerView> playerSeasonViews = Lists.newArrayList();
+        for (PlayerSeason playerSeason : createdPlayerSeasons)
+        {
+            Player player = playerById.get(playerSeason.getPlayerId());
+            PlayerView playerView = PlayerView.from(player);
+            playerView.setCurrentSeason(PlayerSeasonView.from(playerSeason));
+            playerSeasonViews.add(playerView);
+        }
+        return playerSeasonViews;
     }
 
     @Nullable

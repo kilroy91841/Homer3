@@ -83,6 +83,28 @@ public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, Hi
         return playerSeason;
     }
 
+    public PlayerSeason createPlayerSeasonForNonKeeper(PlayerSeason previousPlayerSeason)
+    {
+        PlayerSeason existingPlayerSeason = getPlayerSeason(previousPlayerSeason.getPlayerId(), previousPlayerSeason.getSeason() + 1);
+        if (existingPlayerSeason != null) {
+            return existingPlayerSeason;
+        }
+        PlayerSeason playerSeason = new PlayerSeason();
+        playerSeason.setPlayerId(previousPlayerSeason.getPlayerId());
+        playerSeason.setTeamId(null);
+        playerSeason.setOldTeamId(null);
+        playerSeason.setKeeperTeamId(null);
+        playerSeason.setFantasyPosition(null);
+        playerSeason.setSeason(previousPlayerSeason.getSeason() + 1);
+        playerSeason.setKeeperSeason(0);
+        playerSeason.setSalary(0);
+        playerSeason.setIsMinorLeaguer(previousPlayerSeason.getIsMinorLeaguer());
+        playerSeason.setHasRookieStatus(previousPlayerSeason.getHasRookieStatus());
+        playerSeason.setMlbStatus(Status.UNKNOWN);
+        playerSeason.setVulturable(false);
+        return playerSeason;
+    }
+
     @Override
     public List<PlayerSeason> getPlayerSeasons(Collection<Long> playerIds) {
         Map<String, Object> filters = Maps.newHashMap();
