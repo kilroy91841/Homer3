@@ -1,0 +1,140 @@
+package com.homer.web;
+
+import com.homer.data.common.IMajorLeaguePickRepository;
+import com.homer.service.IDraftDollarService;
+import com.homer.service.IPlayerSeasonService;
+import com.homer.service.IPlayerService;
+import com.homer.service.gather.IGatherer;
+import com.homer.type.*;
+import com.homer.type.view.PlayerSeasonView;
+import com.homer.type.view.PlayerView;
+import com.homer.util.LeagueUtil;
+import com.homer.util.core.$;
+import com.homer.web.model.ApiResponse;
+import com.homer.web.model.MajorLeagueDraftView;
+
+import javax.inject.Singleton;
+import javax.ws.rs.*;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.homer.web.RestUtility.safelyDo;
+
+/**
+ * Created by arigolub on 2/25/17.
+ */
+@Singleton
+@Path("/majorLeagueDraft")
+public class DraftResource {
+
+    @Context
+    private ContainerRequestContext requestContext;
+
+    private IPlayerSeasonService playerSeasonService;
+    private IDraftDollarService draftDollarService;
+    private IPlayerService playerService;
+    private IMajorLeaguePickRepository majorLeaguePickRepo;
+    private IGatherer gatherer;
+
+    public DraftResource()
+    {
+        ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        this.playerSeasonService = serviceFactory.get(IPlayerSeasonService.class);
+        this.draftDollarService = serviceFactory.get(IDraftDollarService.class);
+        this.playerService = serviceFactory.get(IPlayerService.class);
+        this.gatherer = serviceFactory.get(IGatherer.class);
+        this.majorLeaguePickRepo = serviceFactory.get(IMajorLeaguePickRepository.class);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ApiResponse draftPlayer(MajorLeagueDraftView majorLeagueDraftView)
+    {
+        return safelyDo(() ->
+        {
+            long playerId = majorLeagueDraftView.getPlayerId();
+            long teamId = majorLeagueDraftView.getTeamId();
+            int salary = majorLeagueDraftView.getSalary();
+            PlayerSeason playerSeason = checkNotNull(playerSeasonService.getCurrentPlayerSeason(playerId));
+            playerSeason.setTeamId(teamId);
+            playerSeason.setDraftTeamId(teamId);
+            playerSeason.setSalary(salary);
+            playerSeason.setFantasyPosition(Position.BENCH);
+            playerSeason = playerSeasonService.upsert(playerSeason);
+
+            DraftDollar draftDollar = $.of(draftDollarService.getDraftDollarsBySeason(LeagueUtil.SEASON)).first(dd -> dd.getTeamId() == teamId);
+            draftDollar.setAmount(draftDollar.getAmount() - salary);
+            draftDollar.setTradeId(null);
+            draftDollar.setDraftedPlayerId(playerId);
+            draftDollar = draftDollarService.upsert(draftDollar);
+
+            MajorLeaguePick majorLeaguePick = new MajorLeaguePick();
+            majorLeaguePick.setAmount(salary);
+            majorLeaguePick.setPlayerId(playerId);
+            majorLeaguePick.setTeamId(teamId);
+            majorLeaguePick.setSeason(LeagueUtil.SEASON);
+            majorLeaguePickRepo.upsertNoHistory(majorLeaguePick);
+
+            Player player = playerService.getById(playerId);
+            PlayerView playerView = PlayerView.from(player);
+            playerView.setCurrentSeason(PlayerSeasonView.from(playerSeason));
+            return playerView;
+        });
+    }
+
+    @GET
+    @Path("/draftDollars")
+    public ApiResponse getDraftDollars()
+    {
+        return safelyDo(() -> $.of(draftDollarService.getDraftDollarsBySeason(LeagueUtil.SEASON))
+                .filterToList(draftDollar -> draftDollar.getDraftDollarType() == DraftDollarType.MLBAUCTION));
+    }
+
+    @Path("/players")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse getFreeAgents()
+    {
+        return safelyDo(() -> {
+            List<PlayerSeason> players = playerSeasonService.getActivePlayers();
+            List<Long> freeAgentPlayerIds = $.of(players)
+                    .filter(playerSeason -> playerSeason.getTeamId() == null)
+                    .toList(PlayerSeason::getPlayerId);
+            List<Long> playerIds = $.of(players)
+                    .filter(playerSeason -> playerSeason.getTeamId() != null)
+                    .toList(PlayerSeason::getPlayerId);
+            MajorLeagueDraftView view = new MajorLeagueDraftView();
+            view.setFreeAgents(gatherer.gatherPlayersByIds(freeAgentPlayerIds));
+            List<PlayerView> playerViews = gatherer.gatherPlayersByIds(playerIds);
+            view.setPlayers(playerViews);
+            view.setCurrentPlayer(currentPlayer);
+            Map<Long, PlayerView> playerViewMap = $.of(playerViews).toIdMap();
+            List<MajorLeaguePick> majorLeaguePicks = majorLeaguePickRepo.getAll();
+            for (MajorLeaguePick majorLeaguePick : majorLeaguePicks)
+            {
+                majorLeaguePick.setPlayerView(playerViewMap.get(majorLeaguePick.getPlayerId()));
+                view.getPicks().add(majorLeaguePick);
+            }
+            return view;
+        });
+    }
+
+    private static Player currentPlayer = null;
+
+    @Path("/currentPlayer/{playerId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse setCurrentPlayer(@PathParam(value = "playerId") long playerId)
+    {
+        return safelyDo(() -> {
+            currentPlayer = playerService.getById(playerId);
+            return currentPlayer;
+        });
+    }
+}

@@ -13,33 +13,35 @@ import java.util.LinkedHashMap;
 @SuppressWarnings("SpellCheckingInspection")
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Position implements IIntEnum<Position> {
-    UTILITY(12, "U", null, null),
-    MIDDLEINFIELD(10, "2B/SS", UTILITY, null),
-    CORNERINFIELD(11, "1B/3B", UTILITY, null),
-    PITCHER(1, "P", null, null),
-    CATCHER(2, "C", UTILITY, null),
-    FIRSTBASE(3, "1B", CORNERINFIELD, UTILITY),
-    SECONDBASE(4, "2B", MIDDLEINFIELD, UTILITY),
-    THIRDBASE(5, "3B", CORNERINFIELD, UTILITY),
-    SHORTSTOP(6, "SS", MIDDLEINFIELD, UTILITY),
-    OUTFIELD(7, "OF", UTILITY, null),
-    DESIGNATEDHITTER(8, "DH", UTILITY, null),
-    RELIEFPITCHER(9, "RP", null, null),
-    DISABLEDLIST(13, "DL", null, null),
-    MINORLEAGUES(14, "MIN", null, null),
-    BENCH(15, "BENCH", null, null),
+    UTILITY(12, "U", null, null, 9),
+    MIDDLEINFIELD(10, "2B/SS", UTILITY, null, 6),
+    CORNERINFIELD(11, "1B/3B", UTILITY, null, 7),
+    PITCHER(1, "P", null, null, 10),
+    CATCHER(2, "C", UTILITY, null, 1),
+    FIRSTBASE(3, "1B", CORNERINFIELD, UTILITY, 2),
+    SECONDBASE(4, "2B", MIDDLEINFIELD, UTILITY, 3),
+    THIRDBASE(5, "3B", CORNERINFIELD, UTILITY, 4),
+    SHORTSTOP(6, "SS", MIDDLEINFIELD, UTILITY, 5),
+    OUTFIELD(7, "OF", UTILITY, null, 8),
+    DESIGNATEDHITTER(8, "DH", UTILITY, null, 9),
+    RELIEFPITCHER(9, "RP", null, null, 10),
+    DISABLEDLIST(13, "DL", null, null, 12),
+    MINORLEAGUES(14, "MIN", null, null, 13),
+    BENCH(15, "BENCH", null, null, 11),
     ;
 
     private final int id;
     private final String name;
     private final Position grants1;
     private final Position grants2;
+    private final int sort;
 
-    private Position(int id, String name, Position grants1, Position grants2) {
+    private Position(int id, String name, Position grants1, Position grants2, int sort) {
         this.id = id;
         this.name = name;
         this.grants1 = grants1;
         this.grants2 = grants2;
+        this.sort = sort;
     }
 
     @Override
@@ -58,6 +60,10 @@ public enum Position implements IIntEnum<Position> {
 
     public Position getGrants2() {
         return grants2;
+    }
+
+    public int getSort() {
+        return sort;
     }
 
     @JsonCreator

@@ -61,6 +61,8 @@ public final class ServiceFactory {
         instanceMap.put(ITradeElementRepository.class, new TradeElementRepository());
         instanceMap.put(ITradeElementService.class, new TradeElementService(get(ITradeElementRepository.class)));
 
+        instanceMap.put(IMajorLeaguePickRepository.class, new MajorLeaguePickRepository());
+
         instanceMap.put(IFreeAgentAuctionRepository.class, new FreeAgentAuctionRepository());
         instanceMap.put(IFreeAgentAuctionService.class, new FreeAgentAuctionService(get(IFreeAgentAuctionRepository.class)));
 

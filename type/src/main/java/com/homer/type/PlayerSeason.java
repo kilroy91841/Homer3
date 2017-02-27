@@ -27,6 +27,8 @@ public class PlayerSeason extends BaseObject {
     @Column
     @Nullable
     private Long keeperTeamId;
+    @Nullable
+    private Long draftTeamId;
     @Column
     private int keeperSeason;
     @Column
@@ -58,12 +60,13 @@ public class PlayerSeason extends BaseObject {
                 fantasyPosition == that.fantasyPosition &&
                 Objects.equal(keeperTeamId, that.keeperTeamId) &&
                 hasRookieStatus == that.hasRookieStatus &&
-                mlbStatus == that.mlbStatus;
+                mlbStatus == that.mlbStatus &&
+                Objects.equal(draftTeamId, that.draftTeamId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), season, playerId, teamId, fantasyPosition, keeperTeamId, keeperSeason, salary, isMinorLeaguer, mlbStatus, vulturable, hasRookieStatus);
+        return Objects.hashCode(super.hashCode(), season, playerId, teamId, fantasyPosition, keeperTeamId, keeperSeason, salary, isMinorLeaguer, mlbStatus, vulturable, hasRookieStatus, draftTeamId);
     }
 
     @Override
@@ -80,6 +83,7 @@ public class PlayerSeason extends BaseObject {
                 ", mlbStatus=" + mlbStatus +
                 ", hasRookieStatus=" + hasRookieStatus +
                 ", vulturable=" + vulturable +
+                ", draftTeamId=" + draftTeamId +
                 "} " + super.toString();
     }
 
@@ -181,5 +185,14 @@ public class PlayerSeason extends BaseObject {
 
     public void setOldTeamId(Long oldTeamId) {
         this.oldTeamId = oldTeamId;
+    }
+
+    @Nullable
+    public Long getDraftTeamId() {
+        return draftTeamId;
+    }
+
+    public void setDraftTeamId(@Nullable Long draftTeamId) {
+        this.draftTeamId = draftTeamId;
     }
 }

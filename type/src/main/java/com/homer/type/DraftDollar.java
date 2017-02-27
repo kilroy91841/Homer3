@@ -31,6 +31,9 @@ public class DraftDollar extends BaseObject {
     @Nullable
     @Column
     private Long septemberStandingId;
+    @Nullable
+    @Column
+    private Long draftedPlayerId;
     @Column
     private boolean expired;
 
@@ -48,12 +51,13 @@ public class DraftDollar extends BaseObject {
                 draftDollarType == that.draftDollarType &&
                 Objects.equal(tradeId, that.tradeId) &&
                 Objects.equal(septemberStandingId, that.septemberStandingId) &&
-                Objects.equal(expired, that.expired);
+                Objects.equal(expired, that.expired) &&
+                Objects.equal(draftedPlayerId, that.draftedPlayerId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), teamId, season, draftDollarType, amount, tradeId, septemberStandingId, expired);
+        return Objects.hashCode(super.hashCode(), teamId, season, draftDollarType, amount, tradeId, septemberStandingId, expired, draftedPlayerId);
     }
 
     @Override
@@ -66,6 +70,7 @@ public class DraftDollar extends BaseObject {
                 ", tradeId=" + tradeId +
                 ", septemberStandingId=" + septemberStandingId +
                 ", expired=" + expired +
+                ", draftedPlayerId=" + draftedPlayerId +
                 "} " + super.toString();
     }
 
@@ -127,5 +132,14 @@ public class DraftDollar extends BaseObject {
 
     public void setExpired(boolean expired) {
         this.expired = expired;
+    }
+
+    @Nullable
+    public Long getDraftedPlayerId() {
+        return draftedPlayerId;
+    }
+
+    public void setDraftedPlayerId(@Nullable Long draftedPlayerId) {
+        this.draftedPlayerId = draftedPlayerId;
     }
 }

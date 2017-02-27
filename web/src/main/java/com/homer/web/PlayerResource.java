@@ -9,6 +9,7 @@ import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.type.view.PlayerView;
 import com.homer.util.EnumUtil;
+import com.homer.util.core.$;
 import com.homer.web.model.ApiResponse;
 
 import javax.annotation.Nullable;
@@ -16,6 +17,8 @@ import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+
+import static com.homer.web.RestUtility.safelyDo;
 
 /**
  * Created by arigolub on 4/30/16.
