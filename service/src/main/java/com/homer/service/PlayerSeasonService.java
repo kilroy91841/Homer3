@@ -187,12 +187,8 @@ public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, Hi
     @Override
     public void updateVulturable(PlayerSeason playerSeason) {
         Boolean isVulturable = Vulture.isPlayerVulturable(playerSeason);
-        if (isVulturable == null) {
-            return;
-        } else if (isVulturable) {
-            playerSeason.setVulturable(true);
-        } else {
-            playerSeason.setVulturable(false);
+        if (isVulturable != null) {
+            playerSeason.setVulturable(isVulturable);
         }
     }
 

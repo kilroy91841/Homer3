@@ -44,6 +44,7 @@ public class DraftDollarService extends BaseVersionedIdService<DraftDollar, Hist
     public List<DraftDollar> getDraftDollarsByTeams(Collection<Long> teamIds) {
         Map<String, Object> filters = Maps.newHashMap();
         filters.put("teamId", teamIds);
+        filters.put("expired", 0);
         return repo.getMany(filters);
     }
 

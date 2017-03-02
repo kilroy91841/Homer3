@@ -61,14 +61,46 @@ public class DraftResource {
             long playerId = majorLeagueDraftView.getPlayerId();
             long teamId = majorLeagueDraftView.getTeamId();
             int salary = majorLeagueDraftView.getSalary();
+
+            if (salary == 0)
+            {
+                throw new RuntimeException("Salary must be greater than 0");
+            }
+            if (teamId == 0)
+            {
+                throw new RuntimeException("Must select a team");
+            }
+            if (playerId == 0)
+            {
+                throw new RuntimeException("Must select a player");
+            }
+
+            List<PlayerSeason> playerSeasons = playerSeasonService.getPlayerSeasonsByTeamId(teamId, LeagueUtil.SEASON);
+            int rosteredPlayers = $.of(playerSeasons).filterToList(playerSeason1 -> playerSeason1.getFantasyPosition() != Position.MINORLEAGUES).size();
+            if (rosteredPlayers >= 23)
+            {
+                throw new RuntimeException("Roster is full");
+            }
+
+            DraftDollar draftDollar = $.of(draftDollarService.getDraftDollarsBySeason(LeagueUtil.SEASON)).first(dd -> dd.getTeamId() == teamId);
+            int playersLeft = 23 - rosteredPlayers;
+            if (draftDollar.getAmount() < (salary + playersLeft - 1))
+            {
+                throw new RuntimeException("Insufficient funds");
+            }
+
             PlayerSeason playerSeason = checkNotNull(playerSeasonService.getCurrentPlayerSeason(playerId));
+            if (playerSeason.getTeamId() != null)
+            {
+                throw new RuntimeException("Player already on a team");
+            }
+
             playerSeason.setTeamId(teamId);
             playerSeason.setDraftTeamId(teamId);
             playerSeason.setSalary(salary);
             playerSeason.setFantasyPosition(Position.BENCH);
             playerSeason = playerSeasonService.upsert(playerSeason);
 
-            DraftDollar draftDollar = $.of(draftDollarService.getDraftDollarsBySeason(LeagueUtil.SEASON)).first(dd -> dd.getTeamId() == teamId);
             draftDollar.setAmount(draftDollar.getAmount() - salary);
             draftDollar.setTradeId(null);
             draftDollar.setDraftedPlayerId(playerId);
