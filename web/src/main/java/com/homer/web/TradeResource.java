@@ -58,6 +58,18 @@ public class TradeResource {
         return safelyDo(() -> fullTradeService.rejectTrade(tradeId), (ignored) -> "Trade Rejected!");
     }
 
+    @AuthRequired
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    @Path("/admin/force")
+    public ApiResponse forceTrade(Trade trade) {
+        return safelyDo(() -> {
+            Trade proposeTrade = fullTradeService.proposeTrade(trade);
+            return acceptTrade(proposeTrade.getId());
+        }, (ignored) -> "Trade Forced!");
+    }
+
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{tradeId}/cancel")
     @POST

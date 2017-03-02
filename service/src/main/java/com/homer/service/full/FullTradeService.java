@@ -58,6 +58,8 @@ public class FullTradeService implements IFullTradeService {
     @Override
     public Trade proposeTrade(Trade inTrade) {
         List<TradeElement> tradeElements = Lists.newArrayList();
+        inTrade.setTeam1Id(inTrade.getTeam1().getId());
+        inTrade.setTeam2Id(inTrade.getTeam2().getId());
         inspectTradeElements(inTrade, tradeElements, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
 
         Trade trade = new Trade();
@@ -207,7 +209,7 @@ public class FullTradeService implements IFullTradeService {
                 PlayerSeason updatedPlayer = playerSeasonService.switchTeam(tev.getPlayerId(), LeagueUtil.SEASON,
                         teamFromId, teamToId);
                 playersToUpdate.add(updatedPlayer);
-                te.setPlayerId(updatedPlayer.getId());
+                te.setPlayerId(updatedPlayer.getPlayerId());
 
                 List<PlayerSeason> teamToPlayers = updatedPlayerSeasons.getOrDefault(teamToId, Lists.newArrayList());
                 teamToPlayers.add(updatedPlayer);
