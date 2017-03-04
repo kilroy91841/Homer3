@@ -27,6 +27,7 @@ public class PlayerSeason extends BaseObject {
     @Column
     @Nullable
     private Long keeperTeamId;
+    @Column
     @Nullable
     private Long draftTeamId;
     @Column

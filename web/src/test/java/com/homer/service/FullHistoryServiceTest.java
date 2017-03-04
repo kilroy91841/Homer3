@@ -4,6 +4,7 @@ import com.homer.service.full.IFullHistoryService;
 import com.homer.type.view.DraftDollarView;
 import com.homer.web.ServiceFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class FullHistoryServiceTest {
         fullHistoryService = ServiceFactory.getInstance().get(IFullHistoryService.class);
     }
 
+    @Ignore
     @Test
     public void test_draftDollarHistory() {
         DraftDollarView draftDollars = fullHistoryService.getDraftDollarHistory(DRAFT_DOLLAR_ID);
