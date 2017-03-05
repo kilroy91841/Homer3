@@ -28,7 +28,7 @@ public class ESPNRestClient implements IESPNClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(ESPNRestClient.class);
 
-    private static final int SEASON = 2016;
+    private static final int SEASON = 2017;
 
     private static final String URL_LEAGUEROSTERS   = "http://games.espn.go.com/flb/leaguerosters";
     private static final String URL_TRANSACTIONS    = "http://games.espn.go.com/flb/recentactivity";

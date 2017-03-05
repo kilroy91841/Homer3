@@ -3,6 +3,7 @@ package com.homer.external.rest.mlb;
 import com.homer.external.common.mlb.MLBPlayer;
 import com.homer.external.common.mlb.Stats;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by arigolub on 4/18/16.
  */
+@Ignore
 public class MLBRestClientTest {
 
     private MLBRestClient client;

@@ -3,6 +3,7 @@ package com.homer.type;
 import com.google.common.base.Objects;
 import com.homer.type.view.PlayerView;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
 
@@ -24,6 +25,10 @@ public class MajorLeaguePick extends BaseObject {
     @Column(updatable = false)
     private int amount;
 
+    @Nullable
+    @Column
+    private Position fantasyPosition;
+
     private PlayerView playerView;
 
     @Override
@@ -35,12 +40,13 @@ public class MajorLeaguePick extends BaseObject {
         return season == that.season &&
                 teamId == that.teamId &&
                 playerId == that.playerId &&
-                amount == that.amount;
+                amount == that.amount &&
+                Objects.equal(fantasyPosition, that.fantasyPosition);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), season, teamId, playerId, amount);
+        return Objects.hashCode(super.hashCode(), season, teamId, playerId, amount, fantasyPosition);
     }
 
     @Override
@@ -50,6 +56,7 @@ public class MajorLeaguePick extends BaseObject {
                 ", teamId=" + teamId +
                 ", playerId=" + playerId +
                 ", amount=" + amount +
+                ", fantasyPosition=" + fantasyPosition +
                 "} " + super.toString();
     }
 
@@ -91,5 +98,14 @@ public class MajorLeaguePick extends BaseObject {
 
     public void setPlayerView(PlayerView playerView) {
         this.playerView = playerView;
+    }
+
+    @Nullable
+    public Position getFantasyPosition() {
+        return fantasyPosition;
+    }
+
+    public void setFantasyPosition(@Nullable Position fantasyPosition) {
+        this.fantasyPosition = fantasyPosition;
     }
 }

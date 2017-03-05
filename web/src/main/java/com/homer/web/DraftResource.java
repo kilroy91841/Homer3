@@ -134,17 +134,17 @@ public class DraftResource {
     public ApiResponse getFreeAgents()
     {
         return safelyDo(() -> {
+            MajorLeagueDraftView view = new MajorLeagueDraftView();
             List<PlayerSeason> players = playerSeasonService.getActivePlayers();
+            List<PlayerView> playerViews = gatherer.gatherPlayersByIds($.of(players).toList(PlayerSeason::getPlayerId));
             List<Long> freeAgentPlayerIds = $.of(players)
                     .filter(playerSeason -> playerSeason.getTeamId() == null)
                     .toList(PlayerSeason::getPlayerId);
             List<Long> playerIds = $.of(players)
                     .filter(playerSeason -> playerSeason.getTeamId() != null)
                     .toList(PlayerSeason::getPlayerId);
-            MajorLeagueDraftView view = new MajorLeagueDraftView();
-            view.setFreeAgents(gatherer.gatherPlayersByIds(freeAgentPlayerIds));
-            List<PlayerView> playerViews = gatherer.gatherPlayersByIds(playerIds);
-            view.setPlayers(playerViews);
+            view.setFreeAgents($.of(playerViews).filterToList(playerView -> freeAgentPlayerIds.contains(playerView.getId())));
+            view.setPlayers($.of(playerViews).filterToList(playerView -> playerIds.contains(playerView.getId())));
             view.setCurrentPlayer(currentPlayer);
             Map<Long, PlayerView> playerViewMap = $.of(playerViews).toIdMap();
             List<MajorLeaguePick> majorLeaguePicks = majorLeaguePickRepo.getAll();
