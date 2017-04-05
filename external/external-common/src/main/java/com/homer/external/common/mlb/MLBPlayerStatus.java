@@ -12,6 +12,8 @@ public enum MLBPlayerStatus {
     FREEAGENT("Free Agent", "FA", null),
     UNKNOWN("Unknown", "UNK", null),
     INACTIVE("Inactive", "I", null),
+    DL7("7-Day Disabled List", "D7", DISABLEDLIST),
+    DL10("10-Day Disabled List", "D10", DISABLEDLIST),
     DL15("15-Day Disabled List", "D15", DISABLEDLIST),
     DL50("60-Day Disabled List", "D60", DISABLEDLIST),
     REASSIGNED("Re-assigned", "RM", MINORS),
