@@ -45,6 +45,11 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
     }
 
     @Override
+    public List<Player> getPlayersByEspnPlayerIds(Collection<Integer> espnPlayerIds) {
+        return repo.getMany("espnPlayerId", espnPlayerIds);
+    }
+
+    @Override
     public List<Player> searchPlayersByName(String name) {
         Map<String, Object> map = Maps.newHashMap();
         map.put("nameMatcher", new Matcher("name", name));

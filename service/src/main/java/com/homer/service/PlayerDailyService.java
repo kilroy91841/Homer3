@@ -109,6 +109,8 @@ public class PlayerDailyService extends BaseVersionedIdService<PlayerDaily, Hist
         logger.info("Found " + espnPlayers.size() + " ESPN players");
         Map<String, Player> homerPlayers =
                 $.of(playerService.getPlayersByNames($.of(espnPlayers).toList(ESPNPlayer::getName))).toMap(Player::getName);
+        Map<Long, Player> homerPlayersByEspnPlayerId =
+                $.of(playerService.getPlayersByEspnPlayerIds($.of(espnPlayers).toList(ESPNPlayer::getEspnPlayerId))).toMap(Player::getEspnPlayerId);
         logger.info("Found " + homerPlayers.keySet().size() + " Homer players");
         List<Callable<List<PlayerDaily>>> callables = $.of(espnPlayers).toList(espnPlayer ->
                 () ->
@@ -116,9 +118,12 @@ public class PlayerDailyService extends BaseVersionedIdService<PlayerDaily, Hist
             try {
                 Player player = homerPlayers.get(espnPlayer.getName());
                 if (player == null) {
-                    String message = "No Homer player for ESPN player with name " + espnPlayer.getName();
-                    logger.error(message);
-                    throw new PlayerDailyException(message, new RuntimeException());
+                    player = homerPlayersByEspnPlayerId.get(new Long(espnPlayer.getEspnPlayerId()));
+                    if (player == null) {
+                        String message = "No Homer player for ESPN player with name " + espnPlayer.getName();
+                        logger.error(message);
+                        throw new PlayerDailyException(message, new RuntimeException());
+                    }
                 }
                 if (player.getEspnPlayerId() == null) {
                     logger.info("Saving new ESPN player id for " + player.getName() + ", espnPlayerId: " + espnPlayer.getEspnPlayerId());

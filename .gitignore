@@ -1,6 +1,7 @@
 /target
 **/target
 /logs
+testFile.log
 /.idea
 /client/node_modules
 npm-debug.log

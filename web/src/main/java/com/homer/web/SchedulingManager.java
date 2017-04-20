@@ -70,7 +70,7 @@ public class SchedulingManager {
 
         processTransactions();
 
-//        updateStandings();
+        updateStandings();
 
         validateSalaries();
     }

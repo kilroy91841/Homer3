@@ -21,6 +21,8 @@ public interface IPlayerService extends IIdService<Player> {
         return $.of(getPlayersByNames(Lists.newArrayList(name))).first();
     }
 
+    List<Player> getPlayersByEspnPlayerIds(Collection<Integer> espnPlayerIds);
+
     @Nullable
     Player getPlayerByMLBPlayerId(long mlbPlayerId);
 
