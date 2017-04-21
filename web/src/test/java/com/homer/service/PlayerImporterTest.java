@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.homer.data.PlayerRepository;
 import com.homer.data.PlayerSeasonRepository;
 import com.homer.external.rest.mlb.MLBRestClient;
+import com.homer.service.full.FullPlayerService;
 import com.homer.service.importer.PlayerImporter;
 import com.homer.type.MLBTeam;
 import com.homer.type.Player;
@@ -21,10 +22,12 @@ public class PlayerImporterTest {
 
         PlayerService playerService = new PlayerService(new PlayerRepository());
         PlayerSeasonService playerSeasonService = new PlayerSeasonService(new PlayerSeasonRepository(), new EventBus());
+        MLBRestClient mlbClient = new MLBRestClient();
         PlayerImporter playerImporter = new PlayerImporter(
-                new PlayerService(new PlayerRepository()),
+                playerService,
                 playerSeasonService,
-                new MLBRestClient()
+                mlbClient,
+                new FullPlayerService(playerService, playerSeasonService, mlbClient)
         );
 
 //        List<PlayerSeason> playerSeasons = playerSeasonService.getActivePlayers();

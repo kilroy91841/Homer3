@@ -96,14 +96,14 @@ public final class ServiceFactory {
                 get(IEmailService.class), get(IUserService.class)));
         instanceMap.put(IMLBClient.class, new MLBRestClient());
 
-        instanceMap.put(IPlayerImporter.class, new PlayerImporter(get(IPlayerService.class), get(IPlayerSeasonService.class),
-                get(IMLBClient.class)));
-
         instanceMap.put(IFullPlayerService.class, new FullPlayerService(
                 get(IPlayerService.class),
                 get(IPlayerSeasonService.class),
                 get(IMLBClient.class)
         ));
+
+        instanceMap.put(IPlayerImporter.class, new PlayerImporter(get(IPlayerService.class), get(IPlayerSeasonService.class),
+                get(IMLBClient.class), get(IFullPlayerService.class)));
 
         instanceMap.put(IFullMinorLeagueDraftService.class, new FullMinorLeagueDraftService(
                 get(IGatherer.class),

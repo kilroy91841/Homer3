@@ -34,7 +34,7 @@ public class JSONPlayerParser extends JSONParser {
         JsonPlayer jsonPlayer = new JsonPlayer();
         copyPropertiesFromJson(jsonPlayer, jsonObject);
 
-        logger.info("Creating player from JSON for " + jsonPlayer.getNameDisplayFirstLast());
+        logger.debug("Creating player from JSON for " + jsonPlayer.getNameDisplayFirstLast());
 
         MLBPlayer player = new MLBPlayer();
         player.setName(jsonPlayer.getNameDisplayFirstLast());

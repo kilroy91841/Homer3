@@ -2,17 +2,14 @@ package com.homer.service.full;
 
 import com.google.common.collect.Lists;
 import com.homer.external.common.IMLBClient;
-import com.homer.external.common.espn.IESPNClient;
 import com.homer.external.common.mlb.BaseStats;
 import com.homer.external.common.mlb.HittingStats;
 import com.homer.external.common.mlb.PitchingStats;
 import com.homer.external.common.mlb.Stats;
 import com.homer.service.IPlayerSeasonService;
 import com.homer.service.IPlayerService;
-import com.homer.service.ITransactionService;
 import com.homer.type.Player;
 import com.homer.type.PlayerSeason;
-import com.homer.type.Position;
 import com.homer.type.Status;
 import com.homer.type.view.PlayerSeasonView;
 import com.homer.type.view.PlayerView;
@@ -24,10 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Created by arigolub on 4/17/16.

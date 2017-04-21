@@ -52,6 +52,7 @@ public class PlayerResource {
     @PUT
     public ApiResponse addPlayer(Player player) {
         try {
+            player.setName(player.getFirstName() + " " + player.getLastName());
             player = fullPlayerService.createPlayer(player);
             return new ApiResponse(String.format("Created %s", player.getName()), gatherer.gatherPlayerById(player.getId()));
         } catch (Exception e) {

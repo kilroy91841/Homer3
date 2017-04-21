@@ -36,12 +36,9 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
         return repo.getMany(map);
     }
 
-    @Nullable
     @Override
-    public Player getPlayerByMLBPlayerId(long mlbPlayerId) {
-        Map<String, Object> map = Maps.newHashMap();
-        map.put("mlbPlayerId", mlbPlayerId);
-        return repo.get(map);
+    public List<Player> getPlayersByMLBPlayerIds(Collection<Long> mlbPlayerIds) {
+        return repo.getMany("mlbPlayerId", mlbPlayerIds);
     }
 
     @Override
@@ -59,10 +56,11 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
     @Override
     public Player createPlayer(Player player) {
         if (player.getFirstName() == null || player.getFirstName().isEmpty() ||
-                player.getLastName() == null || player.getLastName().isEmpty()) {
+                player.getLastName() == null || player.getLastName().isEmpty() ||
+                player.getName() == null || player.getName().isEmpty()) {
             throw new IllegalArgumentException(
-                    String.format("Player was missing first name or last name, supplied %s and %s", player.getFirstName(),
-                            player.getLastName()));
+                    String.format("Player was missing first name or last name or name, supplied %s and %s and %s", player.getFirstName(),
+                            player.getLastName(), player.getName()));
         }
         if (player.getMlbTeamId() == 0) {
             throw new IllegalArgumentException("Player was missing mlb team id");
@@ -71,7 +69,6 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
             throw new IllegalArgumentException("Player was missing position");
         }
 
-        player.setName(player.getFirstName() + " " + player.getLastName());
         Player existingPlayer = getPlayerByName(player.getName());
         if (existingPlayer != null) {
             throw new IllegalArgumentException(String.format("Player with name %s already exists", existingPlayer.getName()));

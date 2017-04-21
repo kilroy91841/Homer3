@@ -129,6 +129,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
                 if (mlbPlayer != null) {
                     player.setFirstName(mlbPlayer.getFirstName());
                     player.setLastName(mlbPlayer.getLastName());
+                    player.setName(mlbPlayer.getName());
                     player.setPosition(EnumUtil.from(Position.class, mlbPlayer.getPositionId()));
                     player.setMlbTeamId(mlbPlayer.getTeamId());
                 } else {
