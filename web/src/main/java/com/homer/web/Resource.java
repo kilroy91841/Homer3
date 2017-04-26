@@ -302,7 +302,7 @@ public class Resource {
     }
 
     @GET
-    @Path("draftDollar/{teamId}")
+    @Path("draftDollar/freeAgentAuction/{teamId}")
     public ApiResponse getFreeAgentAuctionDollars(@PathParam(value = "teamId") long teamId) {
         try {
             DraftDollar draftDollar = $.of(draftDollarService.getDraftDollarsByTeam(teamId))
