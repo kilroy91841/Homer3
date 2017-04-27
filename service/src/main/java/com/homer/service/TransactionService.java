@@ -98,7 +98,21 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                 PlayerSeason playerSeason = null;
                 if (t.getTransactionType() == TransactionType.ADD) {
                     playerSeason = playerSeasonService.switchTeam(t.getPlayerId(), LeagueUtil.SEASON, null, t.getTeamId());
-                    playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, null, Position.BENCH);
+                    try {
+                        playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, null, Position.BENCH);
+                    }
+                    catch (IllegalArgumentException iae)
+                    {
+                        try {
+                            //Try Minors
+                            playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, Position.MINORLEAGUES, Position.BENCH);
+                        }
+                        catch (IllegalArgumentException iae1)
+                        {
+                            //Try DL
+                            playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, Position.DISABLEDLIST, Position.BENCH);
+                        }
+                    }
                 } else if (t.getTransactionType() == TransactionType.DROP) {
                     playerSeason = playerSeasonService.switchTeam(t.getPlayerId(), LeagueUtil.SEASON, t.getTeamId(), null);
                 } else if (t.getTransactionType() == TransactionType.MOVE) {
