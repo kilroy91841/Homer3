@@ -4,6 +4,7 @@ import com.homer.auth.stormpath.StormpathAuthService;
 import com.homer.data.*;
 import com.homer.email.IEmailService;
 import com.homer.email.aws.AWSEmailService;
+import com.homer.exception.FreeAgentAuctionBidException;
 import com.homer.external.common.IMLBClient;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
@@ -24,6 +25,8 @@ import com.homer.web.model.ApiResponse;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
+import static com.homer.web.RestUtility.safelyDo;
 
 /**
  * Created by arigolub on 6/13/16.
@@ -82,5 +85,19 @@ public class FreeAgentAuctionResource {
         } catch (Exception e) {
             return new ApiResponse(e.getMessage(), null);
         }
+    }
+
+    @Path("/end/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @GET
+    public ApiResponse endFreeAgentAuction(@PathParam(value = "id") long id) {
+        return safelyDo(() -> {
+            try {
+                return fullFreeAgentAuctionService.endFreeAgentAuction(id);
+            } catch (FreeAgentAuctionBidException e) {
+                return "there was an error ending this auction";
+            }
+        });
     }
 }
