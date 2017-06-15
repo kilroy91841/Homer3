@@ -12,11 +12,8 @@ import com.homer.service.auth.IUserService;
 import com.homer.service.schedule.IScheduler;
 import com.homer.service.schedule.Scheduler;
 import com.homer.type.*;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.ScheduledFuture;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -142,7 +139,7 @@ public class FullVultureServiceTest {
         assertEquals(teamId, (Long)vulture.getTeamId());
         assertTrue(vulture.getIsCommisionerVulture());
         assertEquals(EventStatus.IN_PROGRESS, vulture.getVultureStatus());
-        assertNotNull(vulture.getDeadlineUTC());
+        assertNotNull(vulture.getDeadlineUtc());
 
         verify(scheduler, times(1)).schedule(eq(vulture), any(Runnable.class));
     }

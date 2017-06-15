@@ -1,6 +1,5 @@
 package com.homer.service.schedule;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.homer.util.core.$;
 import com.homer.util.core.IId;
@@ -62,7 +61,7 @@ public class Scheduler implements IScheduler {
 
     public <T extends IId & ISchedulable> void schedule(T obj, Runnable runnable) {
         ScheduledFuture future = SCHEDULER.schedule(runnable,
-                obj.getDeadlineUTC().getMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-        MAP.put(new SchedulingKey(obj.getClass(), obj.getId()), new SchedulingValue(future, obj.getDeadlineUTC()));
+                obj.getDeadlineUtc().getMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        MAP.put(new SchedulingKey(obj.getClass(), obj.getId()), new SchedulingValue(future, obj.getDeadlineUtc()));
     }
 }

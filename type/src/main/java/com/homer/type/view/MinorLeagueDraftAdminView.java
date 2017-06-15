@@ -24,7 +24,7 @@ public class MinorLeagueDraftAdminView {
 
     //for "reschedulePick"
     @Nullable
-    private DateTime deadlineUTC;
+    private DateTime deadlineUtc;
     //for "assignPlayerToPick"
     @Nullable
     private Long playerId;
@@ -67,12 +67,12 @@ public class MinorLeagueDraftAdminView {
     }
 
     @Nullable
-    public DateTime getDeadlineUTC() {
-        return deadlineUTC;
+    public DateTime getDeadlineUtc() {
+        return deadlineUtc;
     }
 
-    public void setDeadlineUTC(@Nullable DateTime deadlineUTC) {
-        this.deadlineUTC = deadlineUTC;
+    public void setDeadlineUtc(@Nullable DateTime deadlineUtc) {
+        this.deadlineUtc = deadlineUtc;
     }
 
     @Nullable

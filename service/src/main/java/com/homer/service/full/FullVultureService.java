@@ -1,7 +1,6 @@
 package com.homer.service.full;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.homer.email.EmailRequest;
 import com.homer.email.HtmlObject;
 import com.homer.email.HtmlTag;
@@ -29,10 +28,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by arigolub on 5/5/16.
@@ -88,7 +83,7 @@ public class FullVultureService implements IFullVultureService {
         vulture.setPlayerId(playerId);
         vulture.setDropPlayerId(dropPlayerId);
         vulture.setTeamId(vultureTeamId);
-        vulture.setDeadlineUTC(
+        vulture.setDeadlineUtc(
                 DateTime.now(DateTimeZone.UTC).plusMinutes(
                         EnvironmentUtility.getInstance().getVultureExpirationMinutes()));
         vulture.setVultureStatus(EventStatus.IN_PROGRESS);

@@ -94,11 +94,11 @@ public class Vulture extends BaseObject implements ISchedulable {
         this.teamId = teamId;
     }
 
-    public DateTime getDeadlineUTC() {
+    public DateTime getDeadlineUtc() {
         return deadlineUTC;
     }
 
-    public void setDeadlineUTC(DateTime deadlineUTC) {
+    public void setDeadlineUtc(DateTime deadlineUTC) {
         this.deadlineUTC = deadlineUTC;
     }
 

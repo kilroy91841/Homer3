@@ -141,7 +141,7 @@ public class RepositoryTests {
         vulture.setTeamId(1);
         vulture.setPlayerId(1);
         vulture.setDropPlayerId(2L);
-        vulture.setDeadlineUTC(DateTime.now().withMillisOfSecond(0));
+        vulture.setDeadlineUtc(DateTime.now().withMillisOfSecond(0));
         vulture.setVultureStatus(EventStatus.IN_PROGRESS);
 
         List<Consumer<Vulture>> funcs = Lists.newArrayList(v -> v.setVultureStatus(EventStatus.COMPLETE));
@@ -152,7 +152,7 @@ public class RepositoryTests {
     public void testFreeAgentAuctionCRUD() throws Exception {
         FreeAgentAuction freeAgentAuction = new FreeAgentAuction();
         freeAgentAuction.setPlayerId(1L);
-        freeAgentAuction.setDeadlineUTC(DateTime.now().withMillisOfSecond(0));
+        freeAgentAuction.setDeadlineUtc(DateTime.now().withMillisOfSecond(0));
         freeAgentAuction.setAuctionStatus(EventStatus.IN_PROGRESS);
         freeAgentAuction.setSeason(LeagueUtil.SEASON);
         freeAgentAuction.setRequestingTeamId(1);

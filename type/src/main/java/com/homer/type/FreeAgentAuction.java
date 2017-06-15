@@ -82,11 +82,11 @@ public class FreeAgentAuction extends BaseObject implements ISchedulable {
         this.playerId = playerId;
     }
 
-    public DateTime getDeadlineUTC() {
+    public DateTime getDeadlineUtc() {
         return deadlineUTC;
     }
 
-    public void setDeadlineUTC(DateTime deadlineUTC) {
+    public void setDeadlineUtc(DateTime deadlineUTC) {
         this.deadlineUTC = deadlineUTC;
     }
 
