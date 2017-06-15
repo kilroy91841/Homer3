@@ -98,7 +98,11 @@ public class Gatherer implements IGatherer {
             int salary = $.of(tv.getMajorLeaguers())
                     .filter(pv -> pv.getCurrentSeason().getFantasyPosition() != Position.DISABLEDLIST)
                     .reduceToInt(pv -> pv.getCurrentSeason().getSalary());
+            int disabledListSalary = $.of(tv.getMajorLeaguers())
+                    .filter(pv -> pv.getCurrentSeason().getFantasyPosition() == Position.DISABLEDLIST)
+                    .reduceToInt(pv -> pv.getCurrentSeason().getSalary());
             tv.setSalary(salary);
+            tv.setDisabledListSalary(disabledListSalary);
             tv.setDraftDollars($.of(teamToDraftDollars.get(t.getId())).toList());
             tv.setMinorLeaguePicks($.of(teamToMinorLeaguePicks.get(t.getId())).toList());
             List<Trade> teamTrades = $.of(team1ToTrades.get(t.getId())).toList();

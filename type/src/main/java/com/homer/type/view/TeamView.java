@@ -18,6 +18,7 @@ public class TeamView extends Team {
     private List<PlayerView> majorLeaguers = Lists.newArrayList();
     private List<PlayerView> minorLeaguers = Lists.newArrayList();
     private int salary;
+    private int disabledListSalary;
 
     private List<PlayerView> catcher = Lists.newArrayList();
     private List<PlayerView> firstBase = Lists.newArrayList();
@@ -95,6 +96,14 @@ public class TeamView extends Team {
 
     public void setSalary(int salary) {
         this.salary = salary;
+    }
+    
+    public int getDisabledListSalary() {
+        return disabledListSalary;
+    }
+    
+    public void setDisabledListSalary(int disabledListSalary) {
+        this.disabledListSalary = disabledListSalary;
     }
 
     public List<PlayerView> getCatcher() {
