@@ -177,7 +177,7 @@ public class FullFreeAgentAuctionServiceTest {
         FreeAgentAuction faa = new FreeAgentAuction();
         faa.setId(1);
         faa.setAuctionStatus(EventStatus.IN_PROGRESS);
-        faa.setDeadlineUtc(DateTime.now().plusHours(3));
+        faa.setDeadlineUTC(DateTime.now().plusHours(3));
         when(freeAgentAuctionService.getById(faa.getId())).thenReturn(faa);
         when(freeAgentAuctionBidService.getForFreeAgentAuction(faa.getId())).thenReturn(Lists.newArrayList());
         FreeAgentAuction freeAgentAuction = service.endFreeAgentAuction(faa.getId());
@@ -200,7 +200,7 @@ public class FullFreeAgentAuctionServiceTest {
         FreeAgentAuction faa = new FreeAgentAuction();
         faa.setId(1);
         faa.setAuctionStatus(EventStatus.IN_PROGRESS);
-        faa.setDeadlineUtc(DateTime.now().plusHours(3));
+        faa.setDeadlineUTC(DateTime.now().plusHours(3));
         when(freeAgentAuctionService.getById(faa.getId())).thenReturn(faa);
         when(freeAgentAuctionBidService.getForFreeAgentAuction(faa.getId())).thenReturn(Lists.newArrayList(faab1, faab2));
         FreeAgentAuction freeAgentAuction = service.endFreeAgentAuction(faa.getId());
@@ -265,7 +265,7 @@ public class FullFreeAgentAuctionServiceTest {
         faa.setId(1);
         faa.setPlayerId(playerId);
         faa.setAuctionStatus(EventStatus.IN_PROGRESS);
-        faa.setDeadlineUtc(DateTime.now().plusHours(3));
+        faa.setDeadlineUTC(DateTime.now().plusHours(3));
         when(freeAgentAuctionService.getById(faa.getId())).thenReturn(faa);
 
         FreeAgentAuctionBid faab1 = new FreeAgentAuctionBid();
@@ -302,7 +302,7 @@ public class FullFreeAgentAuctionServiceTest {
         long freeAgentAuctionId = 1;
         FreeAgentAuction faa = new FreeAgentAuction();
         faa.setAuctionStatus(EventStatus.COMPLETE);
-        faa.setDeadlineUtc(DateTime.now().plusHours(3));
+        faa.setDeadlineUTC(DateTime.now().plusHours(3));
         when(freeAgentAuctionService.getById(freeAgentAuctionId)).thenReturn(faa);
 
         service.bidOnFreeAgentAuction(freeAgentAuctionId, 1, 0);
@@ -315,7 +315,7 @@ public class FullFreeAgentAuctionServiceTest {
         int amount = 50;
         FreeAgentAuction faa = new FreeAgentAuction();
         faa.setAuctionStatus(EventStatus.IN_PROGRESS);
-        faa.setDeadlineUtc(DateTime.now().plusHours(3));
+        faa.setDeadlineUTC(DateTime.now().plusHours(3));
         when(freeAgentAuctionService.getById(freeAgentAuctionId)).thenReturn(faa);
 
         DraftDollar draftDollar = new DraftDollar();
@@ -335,7 +335,7 @@ public class FullFreeAgentAuctionServiceTest {
         int newAmount = amount + 1;
         FreeAgentAuction faa = new FreeAgentAuction();
         faa.setAuctionStatus(EventStatus.IN_PROGRESS);
-        faa.setDeadlineUtc(DateTime.now().plusHours(3));
+        faa.setDeadlineUTC(DateTime.now().plusHours(3));
         when(freeAgentAuctionService.getById(freeAgentAuctionId)).thenReturn(faa);
 
         DraftDollar draftDollar = new DraftDollar();
@@ -363,7 +363,7 @@ public class FullFreeAgentAuctionServiceTest {
         int amount = 50;
         FreeAgentAuction faa = new FreeAgentAuction();
         faa.setAuctionStatus(EventStatus.IN_PROGRESS);
-        faa.setDeadlineUtc(DateTime.now().plusHours(3));
+        faa.setDeadlineUTC(DateTime.now().plusHours(3));
         when(freeAgentAuctionService.getById(freeAgentAuctionId)).thenReturn(faa);
 
         DraftDollar draftDollar = new DraftDollar();

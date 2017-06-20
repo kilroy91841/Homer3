@@ -187,7 +187,7 @@ public class FullFreeAgentAuctionService implements IFullFreeAgentAuctionService
     public FreeAgentAuction startFreeAgentAuction(long freeAgentAuctionId) {
         FreeAgentAuction freeAgentAuction = findFreeAgentAuctionOrThrow(freeAgentAuctionId);
         freeAgentAuction.setAuctionStatus(EventStatus.IN_PROGRESS);
-        freeAgentAuction.setDeadlineUtc(DateTime.now(DateTimeZone.UTC).plusMinutes(EnvironmentUtility.getInstance().getFreeAgentAuctionExpirationMinutes()));
+        freeAgentAuction.setDeadlineUTC(DateTime.now(DateTimeZone.UTC).plusMinutes(EnvironmentUtility.getInstance().getFreeAgentAuctionExpirationMinutes()));
 
         scheduleFreeAgentAuction(freeAgentAuction);
 
@@ -282,7 +282,7 @@ public class FullFreeAgentAuctionService implements IFullFreeAgentAuctionService
     @Override
     public FreeAgentAuctionBid bidOnFreeAgentAuction(long freeAgentAuctionId, long teamId, int amount) throws FreeAgentAuctionBidException {
         FreeAgentAuction freeAgentAuction = findFreeAgentAuctionOrThrow(freeAgentAuctionId);
-        if (freeAgentAuction.getAuctionStatus() != EventStatus.IN_PROGRESS || DateTime.now().isAfter(freeAgentAuction.getDeadlineUtc())) {
+        if (freeAgentAuction.getAuctionStatus() != EventStatus.IN_PROGRESS || DateTime.now().isAfter(freeAgentAuction.getDeadlineUTC())) {
             throw new FreeAgentAuctionBidException.AuctionNotInProgress("This auction is not in progress");
         }
 
@@ -380,7 +380,7 @@ public class FullFreeAgentAuctionService implements IFullFreeAgentAuctionService
         HtmlObject htmlObject = HtmlObject.of(HtmlTag.DIV)
                 .child(HtmlObject.of(HtmlTag.P).body("A new free agent auction has started for " + player.getName() + ". " +
                 "The deadline for the auction is " +
-                        freeAgentAuction.getDeadlineUtc().withZone(DateTimeZone.getDefault()).toString(dateTimeFormatter)))
+                        freeAgentAuction.getDeadlineUTC().withZone(DateTimeZone.getDefault()).toString(dateTimeFormatter)))
                 .child(
                         HtmlObject.of(HtmlTag.A).withProperty("href", EnvironmentUtility.getInstance().getUrl() + "/freeAgentAuction").body("Click here to see it in the app")
                 );

@@ -1,5 +1,6 @@
 package com.homer.service.schedule;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.homer.util.core.$;
 import com.homer.util.core.IId;
@@ -41,7 +42,11 @@ public class Scheduler implements IScheduler {
 
     @Override
     public boolean cancel(SchedulingKey key) {
-        SchedulingValue future = MAP.remove(key);
+        return cancel(key, true);
+    }
+
+    boolean cancel(SchedulingKey key, boolean remove) {
+        SchedulingValue future = remove ? MAP.remove(key) : MAP.get(key);
         if (future != null) {
             return future.getFuture().cancel(false);
         }
@@ -51,17 +56,23 @@ public class Scheduler implements IScheduler {
     @Override
     public boolean cancelAll(Class<?> clazz) {
         boolean success = true;
+        List<SchedulingKey> keys = Lists.newArrayList();
         for (SchedulingKey key :MAP.keySet()) {
             if (key.getClazz().equals(clazz)) {
-                success = success && cancel(key);
+                success = success && cancel(key, false);
+                keys.add(key);
             }
+        }
+        for (SchedulingKey key : keys)
+        {
+            MAP.remove(key);
         }
         return success;
     }
 
     public <T extends IId & ISchedulable> void schedule(T obj, Runnable runnable) {
         ScheduledFuture future = SCHEDULER.schedule(runnable,
-                obj.getDeadlineUtc().getMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-        MAP.put(new SchedulingKey(obj.getClass(), obj.getId()), new SchedulingValue(future, obj.getDeadlineUtc()));
+                obj.getDeadlineUTC().getMillis() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        MAP.put(new SchedulingKey(obj.getClass(), obj.getId()), new SchedulingValue(future, obj.getDeadlineUTC()));
     }
 }

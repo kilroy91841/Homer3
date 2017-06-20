@@ -207,7 +207,7 @@ public class PlayerDailyService extends BaseVersionedIdService<PlayerDaily, Hist
         HtmlObject htmlObject = HtmlObject.of(HtmlTag.DIV).child(HtmlObject.of(HtmlTag.P).body(e.getMessage()));
         EmailRequest emailRequest = new EmailRequest(Lists.newArrayList(IEmailService.COMMISSIONER_EMAIL),
                 "Player Daily Exception", htmlObject);
-        emailService.sendEmail(emailRequest);
+        //emailService.sendEmail(emailRequest);
     }
 
     private static List<BaseStats> getStatsOnDate(Stats<BaseStats> stats, DateTime date) {

@@ -83,7 +83,7 @@ public class FullVultureService implements IFullVultureService {
         vulture.setPlayerId(playerId);
         vulture.setDropPlayerId(dropPlayerId);
         vulture.setTeamId(vultureTeamId);
-        vulture.setDeadlineUtc(
+        vulture.setDeadlineUTC(
                 DateTime.now(DateTimeZone.UTC).plusMinutes(
                         EnvironmentUtility.getInstance().getVultureExpirationMinutes()));
         vulture.setVultureStatus(EventStatus.IN_PROGRESS);

@@ -139,7 +139,7 @@ public class FullVultureServiceTest {
         assertEquals(teamId, (Long)vulture.getTeamId());
         assertTrue(vulture.getIsCommisionerVulture());
         assertEquals(EventStatus.IN_PROGRESS, vulture.getVultureStatus());
-        assertNotNull(vulture.getDeadlineUtc());
+        assertNotNull(vulture.getDeadlineUTC());
 
         verify(scheduler, times(1)).schedule(eq(vulture), any(Runnable.class));
     }

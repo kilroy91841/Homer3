@@ -6,6 +6,6 @@ import org.joda.time.DateTime;
  * Created by arigolub on 6/18/16.
  */
 public interface ISchedulable {
-    DateTime getDeadlineUtc();
-    void setDeadlineUtc(DateTime deadlineUTC);
+    DateTime getDeadlineUTC();
+    void setDeadlineUTC(DateTime deadlineUTC);
 }

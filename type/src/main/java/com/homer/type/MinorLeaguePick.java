@@ -51,7 +51,7 @@ public class MinorLeaguePick extends BaseObject implements ISchedulable {
 
     @Nullable
     @Column
-    private DateTime deadlineUtc;
+    private DateTime deadlineUTC;
 
     @Override
     public boolean equals(Object o) {
@@ -68,12 +68,12 @@ public class MinorLeaguePick extends BaseObject implements ISchedulable {
                 Objects.equal(playerId, that.playerId) &&
                 Objects.equal(isSkipped, that.isSkipped) &&
                 Objects.equal(note, that.note) &&
-                Objects.equal(deadlineUtc, that.deadlineUtc);
+                Objects.equal(deadlineUTC, that.deadlineUTC);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), season, originalTeamId, owningTeamId, swapTeamId, round, overallPick, playerId, isSkipped, note, deadlineUtc);
+        return Objects.hashCode(super.hashCode(), season, originalTeamId, owningTeamId, swapTeamId, round, overallPick, playerId, isSkipped, note, deadlineUTC);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class MinorLeaguePick extends BaseObject implements ISchedulable {
                 ", playerId=" + playerId +
                 ", isSkipped=" + isSkipped +
                 ", note='" + note + '\'' +
-                ", deadlineUtc=" + deadlineUtc +
+                ", deadlineUTC=" + deadlineUTC +
                 "} " + super.toString();
     }
 
@@ -161,12 +161,12 @@ public class MinorLeaguePick extends BaseObject implements ISchedulable {
     }
 
     @Nullable
-    public DateTime getDeadlineUtc() {
-        return deadlineUtc;
+    public DateTime getDeadlineUTC() {
+        return deadlineUTC;
     }
 
-    public void setDeadlineUtc(@Nullable  DateTime deadlineUtc) {
-        this.deadlineUtc = deadlineUtc;
+    public void setDeadlineUTC(@Nullable  DateTime deadlineUtc) {
+        this.deadlineUTC = deadlineUtc;
     }
 
     @Nullable

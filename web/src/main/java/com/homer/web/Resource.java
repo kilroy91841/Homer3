@@ -360,4 +360,19 @@ public class Resource {
     public ApiResponse createPlayerSeasonsForNonKeepers() {
         return RestUtility.safelyDo(() -> fullPlayerService.createPlayerSeasonForNonKeepers(), (ignored) -> "Success");
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("schedule")
+    public ApiResponse getSchedule() {
+        return RestUtility.safelyDo(() -> scheduler.getAll(), (ignored) -> "Success");
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("schedule/minorLeaguePick/{id}")
+    public ApiResponse cancelMinorLeaguePick(@PathParam(value = "id") long id)
+    {
+        return RestUtility.safelyDo(() -> scheduler.cancel(MinorLeaguePick.class, id), (ignored) -> "Success");
+    }
 }
