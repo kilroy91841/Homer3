@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>com.homer</groupId>
-            <artifactId>auth-stormpath</artifactId>
+            <artifactId>auth-fake</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

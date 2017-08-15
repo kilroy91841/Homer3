@@ -1,6 +1,6 @@
 package com.homer.web.filter;
 
-import com.homer.auth.stormpath.StormpathAuthService;
+import com.homer.auth.fake.FakeAuthService;
 import com.homer.data.SessionTokenRepository;
 import com.homer.service.auth.IUserService;
 import com.homer.service.auth.UserService;
@@ -31,7 +31,7 @@ public class AuthFilter implements ContainerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthFilter.class);
     private static final String ERROR_MESSAGE = "No Method matched for UriInfo %s";
 
-    private IUserService userService = new UserService(StormpathAuthService.FACTORY.getInstance(), new SessionTokenRepository());
+    private IUserService userService = new UserService(FakeAuthService.FACTORY.getInstance(), new SessionTokenRepository());
 
     @Override
     public void filter(ContainerRequestContext context) throws IOException {

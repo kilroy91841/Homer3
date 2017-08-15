@@ -212,6 +212,7 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         nextPick.setDeadlineUTC(DateTime.now(DateTimeZone.UTC).plusMinutes(EnvironmentUtility.getInstance().getDraftPickExpirationMinutes()));
         nextPick = minorLeaguePickService.upsert(nextPick);
 
+        scheduler.cancelAll(MinorLeaguePick.class);
         scheduler.schedule(nextPick, getRunnable(nextPick));
 
         MinorLeaguePickView nextPickView = MinorLeaguePickView.from(nextPick);

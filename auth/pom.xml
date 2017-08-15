@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>auth-stormpath</module>
+        <module>auth-fake</module>
     </modules>
 
 

@@ -2,7 +2,7 @@ package com.homer.web;
 
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
-import com.homer.auth.stormpath.StormpathAuthService;
+import com.homer.auth.fake.FakeAuthService;
 import com.homer.data.*;
 import com.homer.data.common.*;
 import com.homer.email.IEmailService;
@@ -70,7 +70,7 @@ public final class ServiceFactory {
         instanceMap.put(IFreeAgentAuctionBidService.class, new FreeAgentAuctionBidService(get(IFreeAgentAuctionBidRepository.class)));
 
         instanceMap.put(ISessionTokenRepository.class, new SessionTokenRepository());
-        instanceMap.put(IAuthService.class, StormpathAuthService.FACTORY.getInstance());
+        instanceMap.put(IAuthService.class, FakeAuthService.FACTORY.getInstance());
         instanceMap.put(IUserService.class, new UserService(get(IAuthService.class), get(ISessionTokenRepository.class)));
         instanceMap.put(IEmailService.class, new AWSEmailService());
 

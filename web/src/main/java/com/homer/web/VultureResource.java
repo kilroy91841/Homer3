@@ -1,16 +1,7 @@
 package com.homer.web;
 
-import com.homer.auth.stormpath.StormpathAuthService;
-import com.homer.data.*;
-import com.homer.email.aws.AWSEmailService;
-import com.homer.service.*;
-import com.homer.service.auth.UserService;
-import com.homer.service.full.FullPlayerService;
-import com.homer.service.full.FullVultureService;
 import com.homer.service.full.IFullVultureService;
-import com.homer.service.gather.Gatherer;
 import com.homer.service.gather.IGatherer;
-import com.homer.service.schedule.Scheduler;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Vulture;
 import com.homer.type.view.PlayerView;

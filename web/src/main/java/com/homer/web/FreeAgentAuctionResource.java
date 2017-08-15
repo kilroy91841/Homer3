@@ -1,22 +1,7 @@
 package com.homer.web;
 
-import com.homer.auth.stormpath.StormpathAuthService;
-import com.homer.data.*;
-import com.homer.email.IEmailService;
-import com.homer.email.aws.AWSEmailService;
 import com.homer.exception.FreeAgentAuctionBidException;
-import com.homer.external.common.IMLBClient;
-import com.homer.external.rest.mlb.MLBRestClient;
-import com.homer.service.*;
-import com.homer.service.auth.IAuthService;
-import com.homer.service.auth.UserService;
-import com.homer.service.full.FullFreeAgentAuctionService;
-import com.homer.service.full.FullPlayerService;
 import com.homer.service.full.IFullFreeAgentAuctionService;
-import com.homer.service.full.IFullPlayerService;
-import com.homer.service.gather.Gatherer;
-import com.homer.service.gather.IGatherer;
-import com.homer.service.schedule.Scheduler;
 import com.homer.type.view.FreeAgentAuctionAdminView;
 import com.homer.type.view.FreeAgentAuctionBidView;
 import com.homer.type.view.FreeAgentAuctionView;
