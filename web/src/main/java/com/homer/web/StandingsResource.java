@@ -98,6 +98,6 @@ public class StandingsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/finalizeSeptember")
     public ApiResponse finalizeSeptemberStandings() {
-        return RestUtility.safelyDo(() -> standingService.finalizeSeptemberStandings(2016));
+        return RestUtility.safelyDo(() -> standingService.finalizeSeptemberStandings(2017));
     }
 }

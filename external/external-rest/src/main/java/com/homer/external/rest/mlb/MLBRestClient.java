@@ -43,7 +43,7 @@ public class MLBRestClient implements IMLBClient {
     private static final String VALUE_SPORTCODE     = "'mlb'";
     private static final int    VALUE_GAMECOUNT     = 200;
     private static final String VALUE_GAMETYPE      = "'R'";
-    private static final int    VALUE_SEASON        = 2017;
+    private static final int    VALUE_SEASON        = 2018;
 
     /**
      * Get MLB Player created from JSON retrieved from MLB using Unirest client

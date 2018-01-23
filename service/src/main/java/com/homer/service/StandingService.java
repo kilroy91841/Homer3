@@ -213,8 +213,8 @@ public class StandingService extends BaseVersionedIdService<Standing, HistorySta
 
     @Override
     public List<SeptemberStanding> finalizeSeptemberStandings(int season) {
-        DateTime start = DateTime.parse("2016-09-01").withMillisOfDay(0);
-        DateTime end = DateTime.parse("2016-10-10").withMillisOfDay(0);
+        DateTime start = DateTime.parse("2017-09-01").withMillisOfDay(0);
+        DateTime end = DateTime.parse("2017-10-10").withMillisOfDay(0);
         List<DraftDollar> draftDollars = $.of(draftDollarService.getDraftDollarsBySeason(season + 1))
                 .filterToList(draftDollar -> draftDollar.getDraftDollarType() == DraftDollarType.MLBAUCTION);
         List<Standing> standings = computeStandingsBetweenDates(start, end);
@@ -255,7 +255,7 @@ public class StandingService extends BaseVersionedIdService<Standing, HistorySta
         List<DraftDollar> draftDollarsToUpsert = Lists.newArrayList();
         $.of(draftDollars).forEach(draftDollar -> {
             SeptemberStanding septemberStanding = existingSeptemberStandingsByTeamId.get(draftDollar.getTeamId());
-            if (septemberStanding.getDollarsAwarded() != null)
+            if (septemberStanding.getDollarsAwarded() != null && septemberStanding.getDollarsAwarded() > 0)
             {
                 draftDollar.setSeptemberStandingId(septemberStanding.getId());
                 draftDollar.setAmount(draftDollar.getAmount() + septemberStanding.getDollarsAwarded());
