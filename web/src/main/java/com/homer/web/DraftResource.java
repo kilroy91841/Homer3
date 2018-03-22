@@ -147,7 +147,7 @@ public class DraftResource {
             view.setPlayers($.of(playerViews).filterToList(playerView -> playerIds.contains(playerView.getId())));
             view.setCurrentPlayer(currentPlayer);
             Map<Long, PlayerView> playerViewMap = $.of(playerViews).toIdMap();
-            List<MajorLeaguePick> majorLeaguePicks = majorLeaguePickRepo.getAll();
+            List<MajorLeaguePick> majorLeaguePicks = majorLeaguePickRepo.getBySeason(LeagueUtil.SEASON);
             for (MajorLeaguePick majorLeaguePick : majorLeaguePicks)
             {
                 majorLeaguePick.setPlayerView(playerViewMap.get(majorLeaguePick.getPlayerId()));

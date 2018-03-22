@@ -5,6 +5,6 @@ package com.homer.util;
  */
 public class LeagueUtil {
 
-    public static final int SEASON = 2017;
-    public static final int NEXT_SEASON = 2018;
+    public static final int SEASON = 2018;
+    public static final int NEXT_SEASON = 2019;
 }
