@@ -25,19 +25,7 @@ public interface IPlayerSeasonService extends IIdService<PlayerSeason> {
 
     @Nullable
     default PlayerSeason getCurrentPlayerSeason(long playerId) {
-        return getCurrentPlayerSeason(this.getPlayerSeasons(playerId));
-    }
-    default PlayerSeason getCurrentPlayerSeason(Collection<? extends PlayerSeason> playerSeasons) {
-        return $.of(playerSeasons).filter(ps -> LeagueUtil.SEASON == ps.getSeason()).first();
-    }
-    default Map<Long, PlayerSeason> getCurrentPlayerSeasons(Collection<Long> playerIds) {
-        Map<Long, PlayerSeason> currentPlayerSeasons = Maps.newHashMap();
-        Map<Long, List<PlayerSeason>> playerSeasonMap = $.of(getPlayerSeasons(playerIds)).groupBy(PlayerSeason::getPlayerId);
-        for(long playerId : playerSeasonMap.keySet()) {
-            PlayerSeason currentPlayerSeason = getCurrentPlayerSeason(playerSeasonMap.get(playerId));
-            currentPlayerSeasons.put(playerId, currentPlayerSeason);
-        }
-        return currentPlayerSeasons;
+        return $.of(this.getPlayerSeasons(playerId)).filter(ps -> LeagueUtil.SEASON == ps.getSeason()).first();
     }
 
     List<PlayerSeason> getPlayerSeasonsByTeamIds(Collection<Long> teamIds, int season);

@@ -1,11 +1,9 @@
 package com.homer.service;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.homer.data.common.IPlayerSeasonRepository;
 import com.homer.exception.ObjectNotFoundException;
-import com.homer.external.common.mlb.MLBPlayerStatus;
 import com.homer.type.*;
 import com.homer.type.history.HistoryPlayerSeason;
 import com.homer.util.LeagueUtil;
@@ -15,7 +13,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * Created by arigolub on 3/12/16.
@@ -129,11 +127,11 @@ public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, Hi
 
     @Override
     public PlayerSeason switchTeam(long playerId, int season, @Nullable Long oldTeamId, @Nullable Long newTeamId) {
-        if (oldTeamId == newTeamId) {
+        if (Objects.equals(oldTeamId, newTeamId)) {
             throw new IllegalArgumentException("Old team and new team must be different");
         }
         PlayerSeason existing = getPlayerSeasonOrThrow(playerId, season);
-        if (newTeamId == existing.getTeamId()) {
+        if (Objects.equals(newTeamId, existing.getTeamId())) {
             return existing;
         }
         return switchTeam(existing, oldTeamId, newTeamId);
@@ -141,7 +139,7 @@ public class PlayerSeasonService extends BaseVersionedIdService<PlayerSeason, Hi
 
     @Override
     public PlayerSeason switchTeam(PlayerSeason existing, @Nullable Long oldTeamId, @Nullable Long newTeamId) {
-        if (oldTeamId != existing.getTeamId()) {
+        if (!Objects.equals(oldTeamId, existing.getTeamId())) {
             throw new IllegalArgumentException("Supplied old team does not match existing team");
         }
         existing.setTeamId(newTeamId);

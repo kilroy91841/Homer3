@@ -1,6 +1,7 @@
 package com.homer.service;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.homer.data.common.IKeeperRepository;
 import com.homer.exception.KeeperException;
 import com.homer.type.DraftDollar;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by arigolub on 8/14/16.
@@ -50,7 +52,7 @@ public class KeeperService extends BaseVersionedIdService<Keeper, HistoryKeeper>
     public List<Keeper> replaceKeepers(List<Keeper> newKeepers, long teamId) {
         checkKeeperSizes(newKeepers);
 
-        Map<Long, PlayerSeason> currentPlayerSeasonMap = playerSeasonService.getCurrentPlayerSeasons($.of(newKeepers).toList(Keeper::getPlayerId));
+        Map<Long, PlayerSeason> currentPlayerSeasonMap = currentPlayerSeasonMap(newKeepers);
         for(Keeper keeper : newKeepers) {
             PlayerSeason currentPlayerSeason = currentPlayerSeasonMap.get(keeper.getPlayerId());
             validatePlayer(teamId, currentPlayerSeason, keeper);
@@ -100,7 +102,7 @@ public class KeeperService extends BaseVersionedIdService<Keeper, HistoryKeeper>
 
         checkKeeperSizes(keepers);
 
-        Map<Long, PlayerSeason> currentPlayerSeasonMap = playerSeasonService.getCurrentPlayerSeasons($.of(keepers).toList(Keeper::getPlayerId));
+        Map<Long, PlayerSeason> currentPlayerSeasonMap = currentPlayerSeasonMap(keepers);
         List<PlayerSeason> newPlayerSeasons = Lists.newArrayList();
         for(Keeper keeper : keepers) {
             PlayerSeason currentPlayerSeason = currentPlayerSeasonMap.get(keeper.getPlayerId());
@@ -118,6 +120,17 @@ public class KeeperService extends BaseVersionedIdService<Keeper, HistoryKeeper>
     }
 
     // region validation
+
+    private Map<Long, PlayerSeason> currentPlayerSeasonMap(Collection<Keeper> keepers)
+    {
+        List<Long> playerIds = $.of(keepers).toList(Keeper::getPlayerId);
+        Map<Long, PlayerSeason> currentPlayerSeasonMap = Maps.newHashMap();
+        for(long playerId : playerIds) {
+            PlayerSeason currentPlayerSeason = playerSeasonService.getCurrentPlayerSeason(playerId);
+            currentPlayerSeasonMap.put(playerId, currentPlayerSeason);
+        }
+        return currentPlayerSeasonMap;
+    }
 
     private static void checkKeeperSizes(Collection<Keeper> keepers)
     {
@@ -137,7 +150,7 @@ public class KeeperService extends BaseVersionedIdService<Keeper, HistoryKeeper>
 
     private static void validatePlayer(long teamId, PlayerSeason playerSeason, Keeper keeper)
     {
-        if (playerSeason.getTeamId() != teamId) {
+        if (!Objects.equals(playerSeason.getTeamId(), teamId)) {
             String message = "A player selected as a keeper is not a member of the selected team";
             LOGGER.error(message);
             throw new KeeperException.IncorrectTeam(message);

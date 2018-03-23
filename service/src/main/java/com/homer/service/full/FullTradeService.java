@@ -206,8 +206,7 @@ public class FullTradeService implements IFullTradeService {
                 te.setDraftDollarId(pair.getLeft().getId());
                 te.setDraftDollarAmount(tev.getDraftDollarAmount());
             } else if (tev.getPlayerId() != null) {
-                PlayerSeason updatedPlayer = playerSeasonService.switchTeam(tev.getPlayerId(), LeagueUtil.SEASON,
-                        teamFromId, teamToId);
+                PlayerSeason updatedPlayer = playerSeasonService.switchTeam(tev.getPlayerId(), LeagueUtil.SEASON, teamFromId, teamToId);
                 playersToUpdate.add(updatedPlayer);
                 te.setPlayerId(updatedPlayer.getPlayerId());
 
