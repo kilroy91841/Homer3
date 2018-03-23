@@ -6,6 +6,7 @@ import com.homer.exception.ObjectNotFoundException;
 import com.homer.type.DraftDollar;
 import com.homer.type.DraftDollarType;
 import com.homer.type.history.HistoryDraftDollar;
+import com.homer.util.LeagueUtil;
 import com.homer.util.core.Tuple;
 
 import javax.annotation.Nullable;
@@ -63,7 +64,7 @@ public class DraftDollarService extends BaseVersionedIdService<DraftDollar, Hist
         toDollar.setAmount(toDollar.getAmount() + amount);
 
         if (DraftDollarType.MLBAUCTION.equals(draftDollarType)) {
-            if (MLB_DRAFT_DOLLAR_MIN > fromDollar.getAmount()) {
+            if (MLB_DRAFT_DOLLAR_MIN > fromDollar.getAmount() && season != LeagueUtil.SEASON) {
                 throw new IllegalArgumentException(String.format("Attempt to transfer %s dollar(s) from teamId %s failed due" +
                 " to going below dollar floor (new value: %s)", amount, fromTeamId, fromDollar.getAmount()));
             }
