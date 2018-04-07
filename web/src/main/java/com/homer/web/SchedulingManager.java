@@ -68,7 +68,7 @@ public class SchedulingManager {
 
         updateMinorLeaguerStatusForPlayers();
 
-        processTransactions();
+//        processTransactions();
 
         updateStandings();
 
