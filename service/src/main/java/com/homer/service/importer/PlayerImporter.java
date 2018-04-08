@@ -7,10 +7,7 @@ import com.homer.external.common.mlb.MLBPlayerStatus;
 import com.homer.service.IPlayerSeasonService;
 import com.homer.service.IPlayerService;
 import com.homer.service.full.IFullPlayerService;
-import com.homer.type.Player;
-import com.homer.type.PlayerSeason;
-import com.homer.type.Position;
-import com.homer.type.Status;
+import com.homer.type.*;
 import com.homer.type.view.PlayerSeasonView;
 import com.homer.type.view.PlayerView;
 import com.homer.util.EnumUtil;
@@ -126,7 +123,7 @@ public class PlayerImporter implements IPlayerImporter {
         Status newStatus = fromStatus(mlbPlayer.getMlbPlayerStatus());
         if (newStatus != currentSeason.getMlbStatus()) {
             currentSeason.setMlbStatus(newStatus);
-            playerSeasonService.updateVulturable(currentSeason);
+            PlayerElf.updateVulturable(currentSeason);
             playerSeasonService.upsert(currentSeason);
         }
 

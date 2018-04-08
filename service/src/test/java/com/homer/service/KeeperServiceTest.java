@@ -6,6 +6,7 @@ import com.homer.data.common.IKeeperRepository;
 import com.homer.exception.KeeperException;
 import com.homer.type.*;
 import com.homer.util.LeagueUtil;
+import com.homer.util.core.$;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -86,7 +87,7 @@ public class KeeperServiceTest {
         keepers.add(setupKeeper(19, 0, true, 0, TEAM_1, playerIds, playerSeasons));
         keepers.add(setupKeeper(20, 0, true, 0, TEAM_1, playerIds, playerSeasons));
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
 
         List<Keeper> savedKeepers = service.replaceKeepers(keepers, TEAM_1);
 
@@ -116,7 +117,7 @@ public class KeeperServiceTest {
         Keeper newKeeper1 = setupKeeper(3, 1, false, 0, TEAM_1, playerIds, playerSeasons);
         Keeper newKeeper2 = setupKeeper(4, 1, false, 0, TEAM_1, playerIds, playerSeasons);
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
 
         List<Keeper> keepers = Lists.newArrayList();
         keepers.add(existingKeeper1);
@@ -150,7 +151,7 @@ public class KeeperServiceTest {
         keepers.add(setupKeeper(10, 1, false, 0, TEAM_1, playerIds, playerSeasons));
         keepers.add(setupKeeper(11, 1, false, 0, TEAM_1, playerIds, playerSeasons));
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
 
         service.replaceKeepers(keepers, TEAM_1);
     }
@@ -172,7 +173,7 @@ public class KeeperServiceTest {
         keepers.add(setupKeeper(20, 0, true, 0, TEAM_1, playerIds, playerSeasons));
         keepers.add(setupKeeper(21, 0, true, 0, TEAM_1, playerIds, playerSeasons));
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
 
         service.replaceKeepers(keepers, TEAM_1);
     }
@@ -184,7 +185,7 @@ public class KeeperServiceTest {
         List<Keeper> keepers = Lists.newArrayList();
         keepers.add(setupKeeper(1, TEAM_1_AMOUNT - 15, false, 0, TEAM_1, playerIds, playerSeasons));
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
 
         service.replaceKeepers(keepers, TEAM_1);
     }
@@ -197,7 +198,7 @@ public class KeeperServiceTest {
         keepers.add(setupKeeper(1, 100, false, 0, TEAM_1, playerIds, playerSeasons));
         keepers.add(setupKeeper(2, 100, false, 3, TEAM_1, playerIds, playerSeasons));
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
 
         service.replaceKeepers(keepers, TEAM_1);
     }
@@ -211,7 +212,7 @@ public class KeeperServiceTest {
         keepers.add(setupKeeper(playerId, 100, true, 0, TEAM_1, playerIds, playerSeasons));
         playerSeasons.get(playerId).setHasRookieStatus(false);
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
 
         service.replaceKeepers(keepers, TEAM_1);
     }
@@ -229,7 +230,7 @@ public class KeeperServiceTest {
         playerSeasons.get(playerId).setHasRookieStatus(true);
         playerSeasons.get(playerId).setIsMinorLeaguer(true);
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
         when(repo.upsert(any(Keeper.class))).thenAnswer(x -> x.getArguments()[0]);
 
         List<Keeper> results = service.replaceKeepers(keepers, TEAM_1);
@@ -246,7 +247,7 @@ public class KeeperServiceTest {
         List<Keeper> keepers = Lists.newArrayList();
         keepers.add(setupKeeper(1, 100, false, 0, 2, playerIds, playerSeasons));
 
-        when(playerSeasonService.getCurrentPlayerSeasons(playerIds)).thenReturn(playerSeasons);
+        when(playerSeasonService.getCurrentPlayerSeason(anyLong())).thenAnswer(x -> $.of(playerSeasons.values()).first(p -> p.getPlayerId() == x.getArgumentAt(0, Long.class)));
 
         service.replaceKeepers(keepers, TEAM_1);
     }

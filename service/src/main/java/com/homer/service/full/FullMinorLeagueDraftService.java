@@ -16,10 +16,7 @@ import com.homer.service.auth.IUserService;
 import com.homer.service.auth.User;
 import com.homer.service.gather.IGatherer;
 import com.homer.service.schedule.IScheduler;
-import com.homer.type.MinorLeaguePick;
-import com.homer.type.Player;
-import com.homer.type.PlayerSeason;
-import com.homer.type.Position;
+import com.homer.type.*;
 import com.homer.type.view.*;
 import com.homer.util.EnumUtil;
 import com.homer.util.EnvironmentUtility;
@@ -159,8 +156,8 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
             throw new IllegalMinorLeagueDraftPickException(String.format("%s is already on a team and cannot be drafted", existingPlayer.getName()));
         }
 
-        currentPlayerSeason = playerSeasonService.switchTeam(currentPlayerSeason, currentPlayerSeason.getTeamId(), minorLeaguePick.getOwningTeamId());
-        currentPlayerSeason = playerSeasonService.switchFantasyPosition(currentPlayerSeason, currentPlayerSeason.getFantasyPosition(), Position.MINORLEAGUES);
+        PlayerElf.switchTeam(currentPlayerSeason, minorLeaguePick.getOwningTeamId());
+        PlayerElf.switchFantasyPosition(currentPlayerSeason, currentPlayerSeason.getFantasyPosition(), Position.MINORLEAGUES);
         currentPlayerSeason = playerSeasonService.upsert(currentPlayerSeason);
 
         minorLeaguePick.setPlayerId(currentPlayerSeason.getPlayerId());
@@ -244,8 +241,8 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
                 if (playerSeason == null) {
                     throw new IllegalArgumentException("Could not find player season for playerId " + minorLeaguePick.getPlayerId());
                 }
-                playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, playerSeason.getFantasyPosition(), null);
-                playerSeason = playerSeasonService.switchTeam(playerSeason, playerSeason.getTeamId(), null);
+                PlayerElf.switchFantasyPosition(playerSeason, playerSeason.getFantasyPosition(), null);
+                PlayerElf.switchTeam(playerSeason, null);
                 playerSeasonService.upsert(playerSeason);
             }
 

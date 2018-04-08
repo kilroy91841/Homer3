@@ -24,7 +24,9 @@ import org.joda.time.DateTimeZone;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.homer.service.full.FullTeamService.calculateActiveSalary;
 
 /**
@@ -206,12 +208,18 @@ public class FullTradeService implements IFullTradeService {
                 te.setDraftDollarId(pair.getLeft().getId());
                 te.setDraftDollarAmount(tev.getDraftDollarAmount());
             } else if (tev.getPlayerId() != null) {
-                PlayerSeason updatedPlayer = playerSeasonService.switchTeam(tev.getPlayerId(), LeagueUtil.SEASON, teamFromId, teamToId);
-                playersToUpdate.add(updatedPlayer);
-                te.setPlayerId(updatedPlayer.getPlayerId());
+                PlayerSeason playerSeason = playerSeasonService.getCurrentPlayerSeason(tev.getPlayerId());
+                checkNotNull(playerSeason);
+                if (Objects.equals(playerSeason.getTeamId(), teamFromId))
+                {
+                       throw new IllegalArgumentException("One or more of the involved players was no longer on the trading team");
+                }
+                PlayerElf.switchTeam(playerSeason, teamToId);
+                playersToUpdate.add(playerSeason);
+                te.setPlayerId(playerSeason.getPlayerId());
 
                 List<PlayerSeason> teamToPlayers = updatedPlayerSeasons.getOrDefault(teamToId, Lists.newArrayList());
-                teamToPlayers.add(updatedPlayer);
+                teamToPlayers.add(playerSeason);
                 updatedPlayerSeasons.put(teamToId, teamToPlayers);
             } else {
                 throw new IllegalArgumentException("Trade element had no tradable object");

@@ -150,7 +150,7 @@ public class FullVultureServiceTest {
         assertEquals(VULTURE_NOT_VULTURABLE_PLAYER, (Long)resolvedVulture.getId());
         assertEquals(EventStatus.FIXED, resolvedVulture.getVultureStatus());
 
-        verify(playerSeasonService, never()).switchTeam(anyLong(), anyInt(), any(), any());
+        verify(playerSeasonService, never()).switchTeam(any(PlayerSeason.class), any(), any());
         verify(scheduler, times(1)).cancel(Vulture.class, VULTURE_NOT_VULTURABLE_PLAYER);
     }
 

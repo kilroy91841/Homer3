@@ -22,7 +22,7 @@ public class DraftDollarService extends BaseVersionedIdService<DraftDollar, Hist
     private IDraftDollarRepository repo;
 
     public static final int MLB_DRAFT_DOLLAR_MIN = 220;
-    public static final int MLB_DRAFT_DOLLAR_MAX = 350;
+    public static final int MLB_DRAFT_DOLLAR_MAX = 325;
 
     public DraftDollarService(IDraftDollarRepository repo) {
         super(repo);
