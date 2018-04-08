@@ -5,6 +5,7 @@ import com.homer.service.IPlayerService;
 import com.homer.service.full.IFullPlayerService;
 import com.homer.service.gather.IGatherer;
 import com.homer.type.Player;
+import com.homer.type.PlayerElf;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.type.view.PlayerView;
@@ -18,6 +19,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.homer.web.RestUtility.safelyDo;
 
 /**
@@ -120,7 +122,8 @@ public class PlayerResource {
         }
         PlayerSeason updated;
         try {
-            updated = playerSeasonService.switchTeam(playerId, season, oldTeamId, newTeamId);
+            updated = playerSeasonService.getCurrentPlayerSeason(playerId);
+            PlayerElf.switchTeam(updated, newTeamId);
         } catch (Exception e) {
             e.printStackTrace();
             return new ApiResponse(e.getMessage(), null);
@@ -136,20 +139,21 @@ public class PlayerResource {
     @Produces(MediaType.APPLICATION_JSON)
     @POST
     public ApiResponse switchPosition(@PathParam(value = "id") long playerId,
-                                      @PathParam(value = "newPosition") int newPositionId,
-                                      PlayerSeason playerSeason) {
-        int season = playerSeason.getSeason();
-        Position oldPosition = playerSeason.getFantasyPosition();
-        Position newPosition = EnumUtil.from(Position.class, newPositionId);
-        PlayerSeason updated;
-        try {
-            updated = playerSeasonService.switchFantasyPosition(playerId, season, oldPosition, newPosition);
+                                      @PathParam(value = "newPosition") int newPositionId) {
+        try
+        {
+            Position newPosition = EnumUtil.from(Position.class, newPositionId);
+            checkNotNull(newPosition, "New position %s not found", newPosition);
+            PlayerSeason currentPlayerSeason = playerSeasonService.getCurrentPlayerSeason(playerId);
+            checkNotNull(currentPlayerSeason, "Could not find player season for %s", playerId);
+            Position oldPosition = currentPlayerSeason.getFantasyPosition();
+            PlayerElf.switchFantasyPosition(currentPlayerSeason, oldPosition, newPosition);
+            PlayerSeason updated = checkNotNull(playerSeasonService.upsert(currentPlayerSeason));
+            String message = String.format("Moved %s from position %s to position %s", updated.getPlayerId(), oldPosition != null ? oldPosition.getName() : "none", newPosition.getName());
+            return new ApiResponse(message, gatherer.gatherPlayerById(playerId));
         } catch (Exception e) {
             e.printStackTrace();
             return new ApiResponse(e.getMessage(), null);
         }
-        updated = playerSeasonService.upsert(updated);
-        return new ApiResponse(String.format("Moved %s from position %s to position %s", updated.getPlayerId(),
-                oldPosition != null ? oldPosition.getName() : "none", newPosition.getName()), gatherer.gatherPlayerById(playerId));
     }
 }

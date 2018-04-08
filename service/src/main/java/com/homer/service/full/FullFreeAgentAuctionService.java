@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Created by arigolub on 5/8/16.
  */
@@ -143,6 +145,7 @@ public class FullFreeAgentAuctionService implements IFullFreeAgentAuctionService
             }
         } else {
             PlayerSeason currentPlayerSeason = playerSeasonService.getCurrentPlayerSeason(existingPlayer.getId());
+            checkNotNull(currentPlayerSeason);
             if (currentPlayerSeason.getTeamId() != null && currentPlayerSeason.getTeamId() > 0) {
                 throw new FreeAgentAuctionBidException.BadAuctionRequest("Requested player is not a free agent");
             }
@@ -357,8 +360,8 @@ public class FullFreeAgentAuctionService implements IFullFreeAgentAuctionService
         draftDollar.setAmount(draftDollar.getAmount() - winningBid.getAmount());
         draftDollarService.upsert(draftDollar);
 
-        PlayerSeason playerSeason = playerSeasonService.switchTeam(freeAgentAuction.getPlayerId(), LeagueUtil.SEASON, null, winningBid.getTeamId());
-
+        PlayerSeason playerSeason = checkNotNull(playerSeasonService.getCurrentPlayerSeason(freeAgentAuction.getPlayerId()));
+        PlayerElf.switchTeam(playerSeason, winningBid.getTeamId());
         playerSeasonService.upsert(playerSeason);
 
         return getWinningBidEmail(freeAgentAuction, winningBid);

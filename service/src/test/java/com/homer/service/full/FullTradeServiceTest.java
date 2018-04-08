@@ -41,7 +41,7 @@ public class FullTradeServiceTest {
         setupService(minorLeaguePickService);
         setupService(tradeService);
 
-        when(playerSeasonService.switchTeam(anyLong(), anyInt(), anyLong(), anyLong())).thenReturn(new PlayerSeason());
+        when(playerSeasonService.switchTeam(any(PlayerSeason.class), anyLong(), anyLong())).thenReturn(new PlayerSeason());
         when(draftDollarService.transferMoney(anyLong(), anyLong(), anyInt(), any(DraftDollarType.class), anyInt()))
                 .thenReturn(new Tuple<>(new DraftDollar(), new DraftDollar()));
         when(minorLeaguePickService.transferPick(anyLong(), anyLong(), anyLong(), anyInt(), anyInt())).thenReturn(new MinorLeaguePick());

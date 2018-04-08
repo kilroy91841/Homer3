@@ -15,6 +15,7 @@ import com.homer.service.IVultureService;
 import com.homer.service.auth.IUserService;
 import com.homer.service.auth.User;
 import com.homer.service.schedule.IScheduler;
+import com.homer.type.PlayerElf;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Vulture;
 import com.homer.type.EventStatus;
@@ -28,13 +29,16 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by arigolub on 5/5/16.
  */
 public class FullVultureService implements IFullVultureService {
 
-    final static Logger logger = LoggerFactory.getLogger(FullVultureService.class);
+    private final static Logger logger = LoggerFactory.getLogger(FullVultureService.class);
 
     private ITeamService teamService;
     private IPlayerService playerService;
@@ -174,8 +178,7 @@ public class FullVultureService implements IFullVultureService {
 
     private void movePlayersForSuccessfulVulture(Vulture vulture, PlayerSeason playerSeason) {
         long teamId = vulture.getTeamId();
-        playerSeason = playerSeasonService.switchTeam(playerSeason, playerSeason.getTeamId(), teamId);
-
+        PlayerElf.switchTeam(playerSeason, teamId);
         Long dropPlayerId = vulture.getDropPlayerId();
         PlayerSeason dropPlayerSeason = null;
         if (dropPlayerId != null) {
@@ -184,7 +187,10 @@ public class FullVultureService implements IFullVultureService {
                 markVultureAsErrorAndThrow(vulture, "Could not find player season for " + dropPlayerId);
             }
             try {
-                dropPlayerSeason = playerSeasonService.switchTeam(dropPlayerSeason, teamId, null);
+                if (Objects.equals(checkNotNull(dropPlayerSeason).getTeamId(), teamId))
+                {
+                    PlayerElf.switchTeam(dropPlayerSeason, null);
+                }
             } catch (IllegalArgumentException e) {
                 throw new IllegalVultureDropPlayerException(e.getMessage());
             }

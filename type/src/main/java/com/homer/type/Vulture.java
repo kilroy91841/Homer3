@@ -142,33 +142,4 @@ public class Vulture extends BaseObject implements ISchedulable {
     public void setVultureTeam(Team vultureTeam) {
         this.vultureTeam = vultureTeam;
     }
-
-    /**
-     * Is a player vulturable or not
-     * @param playerSeason
-     * @return true if the player is vulturable, false if the player is not vulturable, null if the status is unknown
-     */
-    @Nullable
-    public static Boolean isPlayerVulturable(PlayerSeason playerSeason) {
-        if (playerSeason.getMlbStatus() == Status.UNKNOWN) {
-            return null;
-        }
-
-        Position fantasyPosition = playerSeason.getFantasyPosition();
-
-        if (playerSeason.getIsMinorLeaguer()) {
-            return false;
-        }
-
-        if (
-                (fantasyPosition != Position.DISABLEDLIST && playerSeason.getMlbStatus() == Status.DISABLEDLIST) ||
-                (fantasyPosition != Position.MINORLEAGUES && playerSeason.getMlbStatus() == Status.MINORS) ||
-                (fantasyPosition == Position.DISABLEDLIST && playerSeason.getMlbStatus() != Status.DISABLEDLIST) ||
-                (fantasyPosition == Position.MINORLEAGUES && playerSeason.getMlbStatus() != Status.MINORS && !playerSeason.getIsMinorLeaguer())
-                )
-        {
-            return true;
-        }
-        return false;
-    }
 }

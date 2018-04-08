@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.homer.service.utility.ESPNUtility.translateESPNPosition;
@@ -95,28 +96,23 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                     logger.info("Already encountered transaction: " + t);
                     continue;
                 }
-                PlayerSeason playerSeason = null;
+                PlayerSeason playerSeason = playerSeasonService.getCurrentPlayerSeason(t.getPlayerId());
+                checkNotNull(playerSeason);
                 if (t.getTransactionType() == TransactionType.ADD) {
-                    playerSeason = playerSeasonService.switchTeam(t.getPlayerId(), LeagueUtil.SEASON, null, t.getTeamId());
-                    try {
-                        playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, null, Position.BENCH);
-                    }
-                    catch (IllegalArgumentException iae)
+                    if (playerSeason.getTeamId() != null && playerSeason.getTeamId() != t.getTeamId())
                     {
-                        try {
-                            //Try Minors
-                            playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, Position.MINORLEAGUES, Position.BENCH);
-                        }
-                        catch (IllegalArgumentException iae1)
-                        {
-                            //Try DL
-                            playerSeason = playerSeasonService.switchFantasyPosition(playerSeason, Position.DISABLEDLIST, Position.BENCH);
-                        }
+                        throw new IllegalArgumentException(String.format("%s was added to %s but is on %s", playerSeason.getPlayerId(), t.getTeamId(), playerSeason.getTeamId()));
                     }
+                    PlayerElf.switchTeam(playerSeason, t.getTeamId());
+                    PlayerElf.switchFantasyPosition(playerSeason, playerSeason.getFantasyPosition(), Position.BENCH);
                 } else if (t.getTransactionType() == TransactionType.DROP) {
-                    playerSeason = playerSeasonService.switchTeam(t.getPlayerId(), LeagueUtil.SEASON, t.getTeamId(), null);
+                    if (Objects.equals(playerSeason.getTeamId(), t.getTeamId()))
+                    {
+                        throw new IllegalArgumentException("Supplied old team does not match existing team");
+                    }
+                    PlayerElf.switchTeam(playerSeason, null);
                 } else if (t.getTransactionType() == TransactionType.MOVE) {
-                    playerSeason = playerSeasonService.switchFantasyPosition(t.getPlayerId(), LeagueUtil.SEASON, t.getOldPosition(), t.getNewPosition());
+                    PlayerElf.switchFantasyPosition(playerSeason, t.getOldPosition(), t.getNewPosition());
                 }
                 checkNotNull(playerSeason, "PlayerSeason was null after applying transaction");
                 playerSeasonService.upsert(playerSeason);

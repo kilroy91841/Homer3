@@ -9,6 +9,7 @@ import com.homer.external.common.mlb.Stats;
 import com.homer.service.IPlayerSeasonService;
 import com.homer.service.IPlayerService;
 import com.homer.type.Player;
+import com.homer.type.PlayerElf;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Status;
 import com.homer.type.view.PlayerSeasonView;
@@ -22,6 +23,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Created by arigolub on 4/17/16.
@@ -132,12 +135,15 @@ public class FullPlayerService implements IFullPlayerService {
         }
         boolean shouldUpdate = shouldUpdateFunction.apply(stats);
         if (shouldUpdate) {
-            PlayerSeason updatedPlayerSeason = playerSeasonService.updateHasRookieStatus(player.getId(), false);
-            if (updatedPlayerSeason.getIsMinorLeaguer() && updatedPlayerSeason.getMlbStatus() != Status.MINORS) {
-                updatedPlayerSeason = playerSeasonService.updateMinorLeaguerStatus(player.getId(), false);
+            PlayerSeason playerSeason = checkNotNull(playerSeasonService.getCurrentPlayerSeason(player.getId()));
+            playerSeason.setHasRookieStatus(false);
+            if (playerSeason.getIsMinorLeaguer() && playerSeason.getMlbStatus() != Status.MINORS) {
+                playerSeason.setIsMinorLeaguer(false);
             }
+            PlayerElf.updateVulturable(playerSeason);
+            playerSeason = playerSeasonService.upsert(playerSeason);
             PlayerView playerView = PlayerView.from(player);
-            playerView.setCurrentSeason(PlayerSeasonView.from(updatedPlayerSeason));
+            playerView.setCurrentSeason(PlayerSeasonView.from(playerSeason));
             logger.info(player.getName() + ": updated isMinorLeaguer=false, hasRookieStatus=false");
             return playerView;
         }

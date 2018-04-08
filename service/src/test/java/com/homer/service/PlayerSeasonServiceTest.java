@@ -3,17 +3,13 @@ package com.homer.service;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.homer.data.common.IPlayerSeasonRepository;
-import com.homer.type.Player;
+import com.homer.type.PlayerElf;
 import com.homer.type.PlayerSeason;
 import com.homer.type.Position;
 import com.homer.type.Status;
-import com.homer.util.HomerBeanUtil;
 import com.homer.util.LeagueUtil;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyMap;
@@ -78,63 +74,42 @@ public class PlayerSeasonServiceTest {
 
     @Test
     public void test_SwitchTeam() {
-        PlayerSeason playerSeason = service.switchTeam(PLAYER_ID, LeagueUtil.SEASON, TEAM1, TEAM2);
+        PlayerSeason playerSeason = new PlayerSeason();
+        playerSeason.setPlayerId(PLAYER_ID);
+        playerSeason.setSeason(LeagueUtil.SEASON);
+        PlayerElf.switchTeam(playerSeason, TEAM2);
         assertEquals(TEAM2, playerSeason.getTeamId());
         assertNotNull(playerSeason.getFantasyPosition());
 
-        playerSeason = service.switchTeam(PLAYER_ID, LeagueUtil.SEASON, TEAM2, null);
+        PlayerElf.switchTeam(playerSeason, null);
         assertEquals(null, playerSeason.getTeamId());
         assertNull(playerSeason.getFantasyPosition());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void test_CannotMoveToExistingTeam() {
-        service.switchTeam(PLAYER_ID, LeagueUtil.SEASON, TEAM1, TEAM1);
-    }
-
-    @Test
-    public void test_PlayerAlreadyMoved() {
-        PlayerSeason movedPlayerSeason = new PlayerSeason();
-        HomerBeanUtil.copyProperties(movedPlayerSeason, playerSeason);
-        movedPlayerSeason.setTeamId(TEAM2);
-        when(repo.getMany(anyMap())).thenReturn(Lists.newArrayList(movedPlayerSeason));
-        PlayerSeason updatedPlayer = service.switchTeam(PLAYER_ID, LeagueUtil.SEASON, TEAM1, TEAM2);
-        assertEquals(TEAM2, updatedPlayer.getTeamId());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void test_PlayerMovedToOtherTeam() {
-        PlayerSeason movedPlayerSeason = new PlayerSeason();
-        HomerBeanUtil.copyProperties(movedPlayerSeason, playerSeason);
-        movedPlayerSeason.setTeamId(TEAM3);
-        when(repo.getMany(anyMap())).thenReturn(Lists.newArrayList(movedPlayerSeason));
-        service.switchTeam(PLAYER_ID, LeagueUtil.SEASON, TEAM1, TEAM2);
     }
 
     @Test
     public void test_SwitchFantasyPosition() {
         playerSeason.setFantasyPosition(Position.FIRSTBASE);
-        PlayerSeason playerSeason = service.switchFantasyPosition(PLAYER_ID, LeagueUtil.SEASON, Position.FIRSTBASE, Position.CATCHER);
+        PlayerElf.switchFantasyPosition(playerSeason, Position.FIRSTBASE, Position.CATCHER);
         assertEquals(Position.CATCHER, playerSeason.getFantasyPosition());
         assertFalse(playerSeason.getIsMinorLeaguer());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void test_CannotSwitchToExistingPosition() {
-        service.switchFantasyPosition(PLAYER_ID, LeagueUtil.SEASON, Position.CATCHER, Position.CATCHER);
+        PlayerElf.switchFantasyPosition(playerSeason, Position.CATCHER, Position.CATCHER);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void test_PlayerSwitchedToOtherPosition() {
         playerSeason.setFantasyPosition(Position.THIRDBASE);
-        service.switchFantasyPosition(PLAYER_ID, LeagueUtil.SEASON, Position.CATCHER, Position.SECONDBASE);
+        PlayerElf.switchFantasyPosition(playerSeason, Position.CATCHER, Position.SECONDBASE);
     }
 
     @Test
     public void test_PlayerAlreadySwitchedPosition() {
         playerSeason.setFantasyPosition(Position.THIRDBASE);
-        PlayerSeason updatedPlayerSeason = service.switchFantasyPosition(PLAYER_ID, LeagueUtil.SEASON, Position.CATCHER, Position.THIRDBASE);
-        assertEquals(Position.THIRDBASE, updatedPlayerSeason.getFantasyPosition());
+        PlayerElf.switchFantasyPosition(playerSeason, Position.CATCHER, Position.THIRDBASE);
+        assertEquals(Position.THIRDBASE, playerSeason.getFantasyPosition());
     }
 
     @Test
@@ -143,10 +118,10 @@ public class PlayerSeasonServiceTest {
         playerSeason.setFantasyPosition(Position.MINORLEAGUES);
         playerSeason.setIsMinorLeaguer(true);
         playerSeason.setVulturable(true);
-        PlayerSeason updatedPlayerSeason = service.switchFantasyPosition(PLAYER_ID, LeagueUtil.SEASON, Position.MINORLEAGUES, Position.THIRDBASE);
-        assertEquals(Position.THIRDBASE, updatedPlayerSeason.getFantasyPosition());
-        assertFalse(updatedPlayerSeason.getIsMinorLeaguer());
-        assertFalse(updatedPlayerSeason.getVulturable());
+        PlayerElf.switchFantasyPosition(playerSeason, Position.MINORLEAGUES, Position.THIRDBASE);
+        assertEquals(Position.THIRDBASE, playerSeason.getFantasyPosition());
+        assertFalse(playerSeason.getIsMinorLeaguer());
+        assertFalse(playerSeason.getVulturable());
     }
 
     @Test
@@ -155,7 +130,7 @@ public class PlayerSeasonServiceTest {
         playerSeason.setFantasyPosition(Position.CATCHER);
         playerSeason.setMlbStatus(Status.ACTIVE);
         playerSeason.setVulturable(true);
-        service.updateVulturable(playerSeason);
+        PlayerElf.updateVulturable(playerSeason);
         assertFalse(playerSeason.getVulturable());
     }
 
@@ -165,7 +140,7 @@ public class PlayerSeasonServiceTest {
         playerSeason.setFantasyPosition(Position.DISABLEDLIST);
         playerSeason.setMlbStatus(Status.DISABLEDLIST);
         playerSeason.setVulturable(true);
-        service.updateVulturable(playerSeason);
+        PlayerElf.updateVulturable(playerSeason);
         assertFalse(playerSeason.getVulturable());
     }
 
@@ -176,14 +151,14 @@ public class PlayerSeasonServiceTest {
         playerSeason.setMlbStatus(Status.MINORS);
         playerSeason.setVulturable(false);
         playerSeason.setVulturable(true);
-        service.updateVulturable(playerSeason);
+        PlayerElf.updateVulturable(playerSeason);
         assertFalse(playerSeason.getVulturable());
 
         playerSeason.setFantasyPosition(Position.MINORLEAGUES);
         playerSeason.setMlbStatus(Status.ACTIVE);
         playerSeason.setIsMinorLeaguer(true);
         playerSeason.setVulturable(true);
-        service.updateVulturable(playerSeason);
+        PlayerElf.updateVulturable(playerSeason);
         assertFalse(playerSeason.getVulturable());
     }
 
@@ -193,13 +168,13 @@ public class PlayerSeasonServiceTest {
         playerSeason.setFantasyPosition(Position.CATCHER);
         playerSeason.setMlbStatus(Status.DISABLEDLIST);
         playerSeason.setVulturable(false);
-        service.updateVulturable(playerSeason);
+        PlayerElf.updateVulturable(playerSeason);
         assertTrue(playerSeason.getVulturable());
 
         playerSeason.setFantasyPosition(Position.CATCHER);
         playerSeason.setMlbStatus(Status.MINORS);
         playerSeason.setVulturable(false);
-        service.updateVulturable(playerSeason);
+        PlayerElf.updateVulturable(playerSeason);
         assertTrue(playerSeason.getVulturable());
     }
 
@@ -209,7 +184,7 @@ public class PlayerSeasonServiceTest {
         playerSeason.setFantasyPosition(Position.DISABLEDLIST);
         playerSeason.setMlbStatus(Status.ACTIVE);
         playerSeason.setVulturable(false);
-        service.updateVulturable(playerSeason);
+        PlayerElf.updateVulturable(playerSeason);
         assertTrue(playerSeason.getVulturable());
     }
 
@@ -220,7 +195,7 @@ public class PlayerSeasonServiceTest {
         playerSeason.setMlbStatus(Status.ACTIVE);
         playerSeason.setIsMinorLeaguer(false);
         playerSeason.setVulturable(false);
-        service.updateVulturable(playerSeason);
+        PlayerElf.updateVulturable(playerSeason);
         assertTrue(playerSeason.getVulturable());
     }
 }
