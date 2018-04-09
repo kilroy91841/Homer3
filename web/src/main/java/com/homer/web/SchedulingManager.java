@@ -64,11 +64,11 @@ public class SchedulingManager {
 
         rescheduleVultures();
 
-//        validateRosters();
+        validateRosters();
 
         updateMinorLeaguerStatusForPlayers();
 
-//        processTransactions();
+        processTransactions();
 
         updateStandings();
 
