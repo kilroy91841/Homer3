@@ -43,6 +43,13 @@
     "admin":false
   },
   {
+    "email":"michael.pollack2@gmail.com",
+    "firstName":"Michael",
+    "lastName":"Pollack",
+    "teamId":6,
+    "admin":false
+  },
+  {
     "email":"jshap2000@gmail.com",
     "firstName":"Josh",
     "lastName":"Shapiro",
