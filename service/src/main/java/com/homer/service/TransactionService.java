@@ -106,7 +106,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                     PlayerElf.switchTeam(playerSeason, t.getTeamId());
                     PlayerElf.switchFantasyPosition(playerSeason, playerSeason.getFantasyPosition(), Position.BENCH);
                 } else if (t.getTransactionType() == TransactionType.DROP) {
-                    if (Objects.equals(playerSeason.getTeamId(), t.getTeamId()))
+                    if (!Objects.equals(playerSeason.getTeamId(), t.getTeamId()))
                     {
                         throw new IllegalArgumentException("Supplied old team does not match existing team");
                     }
