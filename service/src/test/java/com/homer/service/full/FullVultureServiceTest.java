@@ -61,12 +61,12 @@ public class FullVultureServiceTest {
             }
             return ps;
         });
-        when(playerSeasonService.switchTeam(any(PlayerSeason.class), any(Long.class), any(Long.class))).thenAnswer(x -> {
-            PlayerSeason ps = (PlayerSeason)x.getArguments()[0];
-            Long newTeamId = (Long)x.getArguments()[2];
-            ps.setTeamId(newTeamId);
-            return ps;
-        });
+//        when(playerSeasonService.switchTeam(any(PlayerSeason.class), any(Long.class), any(Long.class))).thenAnswer(x -> {
+//            PlayerSeason ps = (PlayerSeason)x.getArguments()[0];
+//            Long newTeamId = (Long)x.getArguments()[2];
+//            ps.setTeamId(newTeamId);
+//            return ps;
+//        });
         when(playerSeasonService.upsert(any(PlayerSeason.class))).thenAnswer(x -> x.getArguments()[0]);
 
         vultureService = mock(IVultureService.class);
@@ -150,7 +150,6 @@ public class FullVultureServiceTest {
         assertEquals(VULTURE_NOT_VULTURABLE_PLAYER, (Long)resolvedVulture.getId());
         assertEquals(EventStatus.FIXED, resolvedVulture.getVultureStatus());
 
-        verify(playerSeasonService, never()).switchTeam(any(PlayerSeason.class), any(), any());
         verify(scheduler, times(1)).cancel(Vulture.class, VULTURE_NOT_VULTURABLE_PLAYER);
     }
 

@@ -250,7 +250,6 @@ public class FullFreeAgentAuctionServiceTest {
         verify(draftDollarService, times(1)).upsert(draftDollar);
         verify(freeAgentAuctionService, times(1)).upsert(freeAgentAuction);
         verify(emailService, times(1)).sendEmail(any(EmailRequest.class));
-        verify(playerSeasonService, times(1)).switchTeam(any(PlayerSeason.class), null, winningTeamId);
         verify(playerSeasonService, times(1)).upsert(any(PlayerSeason.class));
     }
 
@@ -293,7 +292,6 @@ public class FullFreeAgentAuctionServiceTest {
         verify(draftDollarService, times(1)).upsert(draftDollar);
         verify(freeAgentAuctionService, times(1)).upsert(freeAgentAuction);
         verify(emailService, times(1)).sendEmail(any(EmailRequest.class));
-        verify(playerSeasonService, times(1)).switchTeam(any(PlayerSeason.class), null, winningTeamId);
         verify(playerSeasonService, times(1)).upsert(any(PlayerSeason.class));
     }
 

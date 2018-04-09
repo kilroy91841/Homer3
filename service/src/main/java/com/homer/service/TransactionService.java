@@ -112,7 +112,7 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                     }
                     PlayerElf.switchTeam(playerSeason, null);
                 } else if (t.getTransactionType() == TransactionType.MOVE) {
-                    PlayerElf.switchFantasyPosition(playerSeason, t.getOldPosition(), t.getNewPosition());
+                    PlayerElf.switchFantasyPosition(playerSeason, playerSeason.getFantasyPosition(), t.getNewPosition());
                 }
                 checkNotNull(playerSeason, "PlayerSeason was null after applying transaction");
                 playerSeasonService.upsert(playerSeason);
