@@ -37,6 +37,13 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
     }
 
     @Override
+    public List<Player> getPlayersByEspnNames(Collection<String> names) {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("espnName", names);
+        return repo.getMany(map);
+    }
+
+    @Override
     public List<Player> getPlayersByMLBPlayerIds(Collection<Long> mlbPlayerIds) {
         return repo.getMany("mlbPlayerId", mlbPlayerIds);
     }
@@ -88,7 +95,8 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
         if (Objects.equals(player.getFirstName(), existingPlayer.getFirstName()) &&
                 Objects.equals(player.getLastName(), existingPlayer.getLastName()) &&
                 Objects.equals(player.getMlbPlayerId(), existingPlayer.getMlbPlayerId()) &&
-                Objects.equals(player.getPosition(), existingPlayer.getPosition())) {
+                Objects.equals(player.getPosition(), existingPlayer.getPosition()) &&
+                Objects.equals(player.getEspnName(), existingPlayer.getEspnName())) {
             return existingPlayer;
         }
 
@@ -97,6 +105,7 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
         existingPlayer.setName(player.getFirstName() + " " + player.getLastName());
         existingPlayer.setMlbPlayerId(player.getMlbPlayerId());
         existingPlayer.setPosition(player.getPosition());
+        existingPlayer.setEspnName(player.getEspnName());
 
         return super.upsert(existingPlayer);
     }

@@ -136,12 +136,18 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
         List<ESPNTransaction> errorTransactions = Lists.newArrayList();
         List<String> playerNames = $.of(espnTransactions).toList(espnTrans -> espnTrans.getPlayerName().replace("*", ""));
         Map<String, Player> playersByName = $.of(playerService.getPlayersByNames(playerNames)).toMap(Player::getName);
+        Map<String, Player> playersByEspnName = $.of(playerService.getPlayersByEspnNames(playerNames)).toMap(Player::getEspnName);
         for (ESPNTransaction espnTrans : espnTransactions) {
-            if (!playersByName.containsKey(espnTrans.getPlayerName())) {
+            Player player = playersByName.get(espnTrans.getPlayerName());
+            if (player == null)
+            {
+                player = playersByEspnName.get(espnTrans.getPlayerName());
+            }
+            if (player == null) {
                 errorTransactions.add(espnTrans);
                 continue;
             }
-            long playerId = playersByName.get(espnTrans.getPlayerName()).getId();
+            long playerId = player.getId();
             Transaction transaction = new Transaction();
             transaction.setText(espnTrans.getText());
             transaction.setNewPosition(translateESPNPosition(espnTrans.getNewPosition()));

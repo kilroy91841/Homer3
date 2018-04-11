@@ -16,6 +16,7 @@ public interface IPlayerService extends IIdService<Player> {
     List<Player> getPlayers();
 
     List<Player> getPlayersByNames(Collection<String> names);
+    List<Player> getPlayersByEspnNames(Collection<String> names);
     @Nullable
     default Player getPlayerByName(String name) {
         return $.of(getPlayersByNames(Lists.newArrayList(name))).first();
