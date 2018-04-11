@@ -8,15 +8,15 @@ import com.homer.email.HtmlTag;
 import com.homer.email.IEmailService;
 import com.homer.external.common.espn.ESPNTransaction;
 import com.homer.external.common.espn.IESPNClient;
+import com.homer.service.auth.IUserService;
+import com.homer.service.auth.User;
 import com.homer.type.*;
-import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
 import com.homer.util.core.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,18 +37,24 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
     private IPlayerSeasonService playerSeasonService;
     private IESPNClient espnClient;
     private IEmailService emailService;
+    private IUserService userService;
+    private ITeamService teamService;
 
     public TransactionService(ITransactionRepository transactionRepo,
                               IPlayerService playerService,
                               IPlayerSeasonService playerSeasonService,
                               IESPNClient espnClient,
-                              IEmailService emailService) {
+                              IEmailService emailService,
+                              IUserService userService,
+                              ITeamService teamService) {
         super(transactionRepo);
         this.transactionRepo = transactionRepo;
         this.playerService = playerService;
         this.playerSeasonService = playerSeasonService;
         this.espnClient = espnClient;
         this.emailService = emailService;
+        this.userService = userService;
+        this.teamService = teamService;
     }
 
     @Override
@@ -62,21 +68,25 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
         return $.of(transactions).anyMatch(t -> t.getTransactionDate().equals(transaction.getTransactionDate()));
     }
 
-    @Override
-    public List<Transaction> getDailyTransactions() {
+    private String getToday()
+    {
         DateTime now = DateTime.now().minusHours(8);
         int year = now.getYear();
         int month = now.getMonthOfYear();
         int day = now.getDayOfMonth();
         String monthStr = month < 10 ? "0" + month : "" + month;
         String dayStr = day < 10 ? "0" + day : "" + day;
-        String today = "" + year + monthStr + dayStr;
-        logger.info("Getting transactions for " + today);
+        return "" + year + monthStr + dayStr;
+    }
+
+    private List<Transaction> getTransactions(String date)
+    {
+        logger.info("Getting transactions for " + date);
         List<Transaction> allTransactions = Lists.newArrayList();
         List<ESPNTransaction> espnTransactions = Lists.newArrayList();
-        espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.ADD, today, today));
-        espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.DROP, today, today));
-        espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.MOVE, today, today));
+        espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.ADD, date, date));
+        espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.DROP, date, date));
+        espnTransactions.addAll(espnClient.getTransactions(ESPNTransaction.Type.MOVE, date, date));
         Pair<List<Transaction>, List<ESPNTransaction>> pair = translateESPNTransactions(espnTransactions);
         allTransactions.addAll(pair.getFirst());
 
@@ -87,7 +97,14 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
 
     @Override
     public List<Transaction> processDailyTransactions() {
-        List<Transaction> transactions = getDailyTransactions();
+        String today = getToday();
+        return processTransactions(today, true);
+    }
+
+    @Override
+    public List<Transaction> processTransactions(String date, boolean commitAndEmail)
+    {
+        List<Transaction> transactions = getTransactions(date);
         List<Transaction> createdTransactions = Lists.newArrayList();
         List<String> erroredTransactions = Lists.newArrayList();
         for (Transaction t : transactions) {
@@ -101,6 +118,10 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                 if (t.getTransactionType() == TransactionType.ADD) {
                     if (playerSeason.getTeamId() != null && playerSeason.getTeamId() != t.getTeamId())
                     {
+                        if (playerSeason.getFantasyPosition() == Position.MINORLEAGUES)
+                        {
+                            handleIllegalMinorLeagueAdd(playerSeason, t, commitAndEmail);
+                        }
                         throw new IllegalArgumentException(String.format("%s was added to %s but is on %s", playerSeason.getPlayerId(), t.getTeamId(), playerSeason.getTeamId()));
                     }
                     PlayerElf.switchTeam(playerSeason, t.getTeamId());
@@ -116,15 +137,25 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
                 }
                 checkNotNull(playerSeason, "PlayerSeason was null after applying transaction");
                 playerSeasonService.upsert(playerSeason);
-                Transaction createdTransaction = upsert(t);
-                checkNotNull(createdTransaction, "Attempt to save transaction returned null for transaction");
-                createdTransactions.add(createdTransaction);
+                if (commitAndEmail)
+                {
+                    Transaction createdTransaction = upsert(t);
+                    checkNotNull(createdTransaction, "Attempt to save transaction returned null for transaction");
+                    createdTransactions.add(createdTransaction);
+                }
+                else
+                {
+                    createdTransactions.add(t);
+                }
             } catch (Exception e) {
                 logger.error("Encountered an error processing transaction: " + t, e);
                 erroredTransactions.add(t.getText() + ": " + e.getMessage());
             }
         }
-        handleErrorTransactions("Errors processing the following transactions", erroredTransactions);
+        if (commitAndEmail)
+        {
+            handleErrorTransactions("Errors processing the following transactions", erroredTransactions);
+        }
         return createdTransactions;
     }
 
@@ -175,5 +206,26 @@ public class TransactionService extends BaseIdService<Transaction> implements IT
 
         EmailRequest emailRequest = new EmailRequest(Lists.newArrayList(IEmailService.COMMISSIONER_EMAIL), subject, htmlObj);
         emailService.sendEmail(emailRequest);
+    }
+
+    private void handleIllegalMinorLeagueAdd(PlayerSeason playerSeason, Transaction transaction, boolean commitAndEmail)
+    {
+        Player player = checkNotNull(playerService.getById(playerSeason.getPlayerId()));
+        List<Long> teamIds = Lists.newArrayList(transaction.getTeamId(), playerSeason.getTeamId());
+        Map<Long, Team> teamMap = $.of(teamService.getByIds(teamIds)).toMap(Team::getId);
+        List<User> users = userService.getUsersForTeams(teamIds);
+        String offendingTeamName = teamMap.get(transaction.getTeamId()).getName();
+        String subject = String.format("Illegal add of %s by %s", player.getName(), offendingTeamName);
+        String body = String.format("%s cannot add %s because that player is on %s's minor league roster. %s should drop the player on ESPN and Ari will refund the transaction.",
+                offendingTeamName, player.getName(), teamMap.get(playerSeason.getTeamId()).getName(), offendingTeamName);
+        HtmlObject htmlObj = HtmlObject.of(HtmlTag.DIV);
+        htmlObj.child(HtmlObject.of(HtmlTag.P).body(body));
+        List<String> emails = $.of(users).toList(User::getEmail);
+        emails.add(IEmailService.COMMISSIONER_EMAIL);
+        if (commitAndEmail) {
+            EmailRequest emailRequest = new EmailRequest(emails, subject, htmlObj);
+            emailService.sendEmail(emailRequest);
+            upsert(transaction);
+        }
     }
 }

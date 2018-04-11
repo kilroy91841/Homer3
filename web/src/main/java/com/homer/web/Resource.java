@@ -338,6 +338,19 @@ public class Resource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("processTransactions/{date}")
+    public ApiResponse processTransactionsForDate(@PathParam("date") String date,
+                                                  @QueryParam("commitAndEmail") boolean commitAndEmail)
+    {
+        try {
+            return new ApiResponse("success", transactionService.processTransactions(date, commitAndEmail));
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("transactions")
     public ApiResponse getTransactions() {
         try {

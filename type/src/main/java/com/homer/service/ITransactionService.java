@@ -16,6 +16,5 @@ public interface ITransactionService extends IIdService<Transaction> {
     boolean doesTransactionExist(Transaction transaction);
 
     List<Transaction> processDailyTransactions();
-
-    List<Transaction> getDailyTransactions();
+    List<Transaction> processTransactions(String date, boolean commitAndEmail);
 }

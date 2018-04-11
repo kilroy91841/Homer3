@@ -126,7 +126,9 @@ public final class ServiceFactory {
                 get(IPlayerService.class),
                 get(IPlayerSeasonService.class),
                 get(IESPNClient.class),
-                get(IEmailService.class)));
+                get(IEmailService.class),
+                get(IUserService.class),
+                get(ITeamService.class)));
 
         instanceMap.put(IPlayerDailyRepository.class, new PlayerDailyRepository());
         instanceMap.put(ITeamDailyRepository.class, new TeamDailyRepository());
