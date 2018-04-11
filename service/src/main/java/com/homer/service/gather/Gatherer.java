@@ -74,7 +74,7 @@ public class Gatherer implements IGatherer {
     public List<TeamView> gatherTeamsByIds(Collection<Long> teamIds) {
         List<TeamView> teamViews = Lists.newArrayList();
 
-        List<Team> teams = $.of(teamService.getFantasyTeamMap().values()).filterToList(t -> teamIds.contains(t.getId()));
+        List<Team> teams = teamService.getByIds(teamIds);
         List<PlayerSeason> playerSeasons = playerSeasonService.getPlayerSeasonsByTeamIds(teamIds, LeagueUtil.SEASON);
         List<Player> players = playerService.getByIds($.of(playerSeasons).toList(PlayerSeason::getPlayerId));
         List<DraftDollar> draftDollars = draftDollarService.getDraftDollarsByTeams(teamIds);
