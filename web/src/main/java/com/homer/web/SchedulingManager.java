@@ -83,9 +83,16 @@ public class SchedulingManager {
     }
 
     private ScheduledFuture validateRosters() {
+        long delayMinutes;
+        DateTime now = DateTime.now();
+        if (now.getHourOfDay() <= 13) {
+            delayMinutes = 720 - now.getMinuteOfDay();
+        } else {
+            delayMinutes = 1440 - (now.getMinuteOfDay() - 720);
+        }
         Runnable runnable = validateRostersRunnable(validator);
         return scheduler.scheduleAtFixedRate(runnable,
-                1,
+                delayMinutes,
                 1440,
                 TimeUnit.MINUTES);
     }
