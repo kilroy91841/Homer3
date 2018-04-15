@@ -10,7 +10,7 @@ import javax.persistence.Table;
 /**
  * Created by arigolub on 2/14/16.
  */
-@Table(name = "history_team", schema = "homer")
+@Table(name = "history_teams", schema = "homer")
 public class HistoryTeam extends Team implements IHistoryObject {
 
     @Column
