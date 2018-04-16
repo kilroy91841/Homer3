@@ -69,7 +69,7 @@ public class FakeAuthService implements IAuthService {
     @Nullable
     @Override
     public User authenticate(String userName, String password) {
-        return $.of(FACTORY.getInstance().users).first(u -> userName.equals(u.getEmail()));
+        return $.of(FACTORY.getInstance().users).first(u -> userName.toLowerCase().equals(u.getEmail().toLowerCase()));
     }
 
     @Override
