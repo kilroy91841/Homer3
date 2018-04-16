@@ -210,9 +210,9 @@ public class FullTradeService implements IFullTradeService {
             } else if (tev.getPlayerId() != null) {
                 PlayerSeason playerSeason = playerSeasonService.getCurrentPlayerSeason(tev.getPlayerId());
                 checkNotNull(playerSeason);
-                if (Objects.equals(playerSeason.getTeamId(), teamFromId))
+                if (!Objects.equals(playerSeason.getTeamId(), teamFromId))
                 {
-                       throw new IllegalArgumentException("One or more of the involved players was no longer on the trading team");
+                    throw new IllegalArgumentException("One or more of the involved players was no longer on the trading team");
                 }
                 PlayerElf.switchTeam(playerSeason, teamToId);
                 playersToUpdate.add(playerSeason);
