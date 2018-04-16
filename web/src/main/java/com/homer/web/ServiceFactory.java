@@ -50,7 +50,7 @@ public final class ServiceFactory {
         instanceMap.put(IPlayerSeasonService.class, new PlayerSeasonService(get(IPlayerSeasonRepository.class), get(EventBus.class)));
 
         instanceMap.put(IDraftDollarRepository.class, new DraftDollarRepository());
-        instanceMap.put(IDraftDollarService.class, new DraftDollarService(get(IDraftDollarRepository.class)));
+        instanceMap.put(IDraftDollarService.class, new DraftDollarService(get(IDraftDollarRepository.class), get(ITeamService.class)));
 
         instanceMap.put(IMinorLeaguePickRepository.class, new MinorLeaguePickRepository());
         instanceMap.put(IMinorLeaguePickService.class, new MinorLeaguePickService(get(IMinorLeaguePickRepository.class)));

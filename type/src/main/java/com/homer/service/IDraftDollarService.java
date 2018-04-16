@@ -18,6 +18,7 @@ public interface IDraftDollarService extends IIdService<DraftDollar> {
     List<DraftDollar> getDraftDollars();
 
     List<DraftDollar> getDraftDollarsBySeason(int season);
+    List<DraftDollar> generateDraftDollarsForSeason(int season);
 
     List<DraftDollar> getDraftDollarsByTeams(Collection<Long> teamIds);
     default List<DraftDollar> getDraftDollarsByTeam(long teamId) {

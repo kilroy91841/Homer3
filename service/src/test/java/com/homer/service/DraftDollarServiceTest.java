@@ -50,7 +50,7 @@ public class DraftDollarServiceTest {
             return dd;
         });
 
-        service = new DraftDollarService(repo);
+        service = new DraftDollarService(repo, null);
     }
 
     @Test

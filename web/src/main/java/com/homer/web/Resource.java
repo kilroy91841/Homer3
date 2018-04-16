@@ -388,4 +388,11 @@ public class Resource {
     {
         return RestUtility.safelyDo(() -> scheduler.cancel(MinorLeaguePick.class, id), (ignored) -> "Success");
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("generateDraftDollars/{season}")
+    public ApiResponse getSchedule(@PathParam("season") int season) {
+        return RestUtility.safelyDo(() -> draftDollarService.generateDraftDollarsForSeason(season), (ignored) -> "Success");
+    }
 }

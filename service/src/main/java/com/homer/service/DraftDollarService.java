@@ -5,11 +5,13 @@ import com.homer.data.common.IDraftDollarRepository;
 import com.homer.exception.ObjectNotFoundException;
 import com.homer.type.DraftDollar;
 import com.homer.type.DraftDollarType;
+import com.homer.type.Team;
 import com.homer.type.history.HistoryDraftDollar;
 import com.homer.util.LeagueUtil;
 import com.homer.util.core.Tuple;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,13 +22,18 @@ import java.util.Map;
 public class DraftDollarService extends BaseVersionedIdService<DraftDollar, HistoryDraftDollar> implements IDraftDollarService {
 
     private IDraftDollarRepository repo;
+    private ITeamService teamService;
 
     public static final int MLB_DRAFT_DOLLAR_MIN = 220;
     public static final int MLB_DRAFT_DOLLAR_MAX = 325;
+    public static final int DEFAULT_MLB_DRAFT = 260;
+    public static final int DEFAULT_FREE_AGENT_AUCTION = 100;
 
-    public DraftDollarService(IDraftDollarRepository repo) {
+    public DraftDollarService(IDraftDollarRepository repo,
+                              ITeamService teamService) {
         super(repo);
         this.repo = repo;
+        this.teamService = teamService;
     }
 
     @Override
@@ -75,6 +82,29 @@ public class DraftDollarService extends BaseVersionedIdService<DraftDollar, Hist
         }
 
         return new Tuple<>(fromDollar, toDollar);
+    }
+
+    @Override
+    public List<DraftDollar> generateDraftDollarsForSeason(int season) {
+        List<Team> teams = teamService.getTeams();
+        List<DraftDollar> draftDollars = new ArrayList<>();
+        for (Team team : teams)
+        {
+            DraftDollar majorLeagueDraftDollar = new DraftDollar();
+            majorLeagueDraftDollar.setTeamId(team.getId());
+            majorLeagueDraftDollar.setDraftDollarType(DraftDollarType.MLBAUCTION);
+            majorLeagueDraftDollar.setSeason(season);
+            majorLeagueDraftDollar.setAmount(DEFAULT_MLB_DRAFT);
+            draftDollars.add(repo.upsert(majorLeagueDraftDollar));
+
+            DraftDollar freeAgentAuction = new DraftDollar();
+            freeAgentAuction.setTeamId(team.getId());
+            freeAgentAuction.setDraftDollarType(DraftDollarType.FREEAGENTAUCTION);
+            freeAgentAuction.setSeason(season);
+            freeAgentAuction.setAmount(DEFAULT_FREE_AGENT_AUCTION);
+            draftDollars.add(repo.upsert(freeAgentAuction));
+        }
+        return draftDollars;
     }
 
     @Override
