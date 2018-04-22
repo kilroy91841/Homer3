@@ -147,6 +147,12 @@ public class Transaction extends BaseObject implements Comparable<Transaction> {
         if (this.getTransactionType().getId() > o.getTransactionType().getId()) {
             return 1;
         }
+        if (TransactionType.MOVE.equals(this.getTransactionType()) && this.getTransactionType() == o.getTransactionType()
+                && this.getPlayerId() == o.getPlayerId() && this.getOldPosition() == Position.DISABLEDLIST && o.getOldPosition() ==
+                Position.BENCH)
+        {
+            return -1;
+        }
         return 0;
     }
 

@@ -2,6 +2,7 @@ package com.homer.external.rest.espn.parser;
 
 import com.google.common.collect.Lists;
 import com.homer.external.common.espn.ESPNTransaction;
+import com.homer.util.LeagueUtil;
 import com.homer.util.core.$;
 import com.homer.util.core.Pair;
 import org.joda.time.DateTime;
@@ -107,8 +108,7 @@ public class TransactionsParser {
     private static DateTime parseTime(Element e) {
         Node timeNode = e.childNode(0);
         String time = ((Element)timeNode).text();
-        DateTime dateTime = DateTime.parse("2015" + time.split(",")[1], dateFormatter);
-        return dateTime;
+        return DateTime.parse(LeagueUtil.SEASON + time.split(",")[1], dateFormatter);
     }
 
     private static int parseTeamId(Element e) {
