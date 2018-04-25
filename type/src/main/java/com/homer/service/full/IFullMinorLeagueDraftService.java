@@ -2,6 +2,7 @@ package com.homer.service.full;
 
 import com.homer.exception.IllegalMinorLeagueDraftPickException;
 import com.homer.type.view.MinorLeagueDraftAdminView;
+import com.homer.type.view.MinorLeagueDraftHistoryView;
 import com.homer.type.view.MinorLeagueDraftView;
 import com.homer.type.view.MinorLeaguePickView;
 
@@ -19,5 +20,7 @@ public interface IFullMinorLeagueDraftService {
     MinorLeaguePickView draftPlayer(MinorLeaguePickView minorLeaguePick) throws IllegalMinorLeagueDraftPickException;
 
     MinorLeaguePickView skipPick(long pickId);
+
+    MinorLeagueDraftHistoryView GetMinorLeagueDraftHistory();
 
 }

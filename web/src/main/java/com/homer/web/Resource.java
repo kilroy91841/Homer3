@@ -375,4 +375,15 @@ public class Resource {
     {
         return RestUtility.safelyDo(() -> scheduler.cancel(MinorLeaguePick.class, id), (ignored) -> "Success");
     }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("minorLeagueDraftHistory")
+    public ApiResponse minorLeagueDraftHistory() {
+        try {
+            return new ApiResponse("success", minorLeagueDraftService.GetMinorLeagueDraftHistory());
+        } catch (Exception e) {
+            return new ApiResponse(e.getMessage(), null);
+        }
+    }
 }

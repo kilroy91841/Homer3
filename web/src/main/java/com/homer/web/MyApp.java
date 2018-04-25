@@ -22,7 +22,7 @@ public class MyApp  {
         }
 
         SchedulingManager schedulingManager = new SchedulingManager();
-        schedulingManager.run();
+//        schedulingManager.run();
 
         String port = envUtil.getInstancePort();
         String uri = "http://0.0.0.0:" + port;

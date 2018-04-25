@@ -375,4 +375,11 @@ public class FullMinorLeagueDraftService implements IFullMinorLeagueDraftService
         emailRequest.setToAddresses(emails);
         emailService.sendEmail(emailRequest);
     }
+
+    @Override
+    public MinorLeagueDraftHistoryView GetMinorLeagueDraftHistory() {
+        MinorLeagueDraftHistoryView resp = new MinorLeagueDraftHistoryView();
+        resp.setTest("DARREN");
+        return resp;
+    }
 }
