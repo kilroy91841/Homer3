@@ -85,6 +85,15 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
     }
 
     @Override
+    public Player getOrCreatePlayer(Player player) {
+        Player existingPlayer = getPlayerByName(player.getName());
+        if (existingPlayer != null) {
+            return existingPlayer;
+        }
+        return super.upsert(player);
+    }
+
+    @Override
     public Player updatePlayer(Player player) {
         Player existingPlayer = getById(player.getId());
         if (existingPlayer == null) {

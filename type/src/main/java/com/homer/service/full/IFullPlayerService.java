@@ -18,5 +18,6 @@ public interface IFullPlayerService {
 
     List<PlayerView> updateMinorLeaguerStatusForPlayers();
 
+    PlayerView createPlayerForSeason(PlayerView playerView);
     List<PlayerView> createPlayerSeasonForNonKeepers();
 }

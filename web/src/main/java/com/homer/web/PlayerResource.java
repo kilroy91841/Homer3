@@ -77,6 +77,14 @@ public class PlayerResource {
         }
     }
 
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @POST
+    @Path("/adminCreate")
+    public ApiResponse adminCreatePlayer(PlayerView playerView) {
+        return safelyDo(() -> fullPlayerService.createPlayerForSeason(playerView));
+    }
+
     @AuthRequired
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

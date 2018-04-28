@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -57,6 +58,33 @@ public class FullPlayerService implements IFullPlayerService {
         List<PlayerSeasonView> playerSeasons = Lists.newArrayList(playerSeasonView);
         view.setPlayerSeasons(playerSeasons);
         return view;
+    }
+
+    @Override
+    public PlayerView createPlayerForSeason(PlayerView playerView)
+    {
+        Player player = playerService.getOrCreatePlayer(playerView);
+        List<PlayerSeason> existingPlayerSeasons = playerSeasonService.getPlayerSeasons(player.getId());
+        PlayerSeason playerSeasonToCreate = $.of(playerView.getPlayerSeasons()).first();
+        PlayerSeason playerSeasonToUpsert = $.of(existingPlayerSeasons).first(playerSeason -> playerSeason.getSeason() == playerSeasonToCreate.getSeason());
+        if (playerSeasonToUpsert == null)
+        {
+            playerSeasonToUpsert = new PlayerSeason();
+            playerSeasonToUpsert.setPlayerId(player.getId());
+            playerSeasonToUpsert.setSeason(playerSeasonToCreate.getSeason());
+            playerSeasonToUpsert.setMlbStatus(Status.UNKNOWN);
+        }
+        playerSeasonToUpsert.setTeamId(playerSeasonToCreate.getTeamId());
+        playerSeasonToUpsert.setKeeperTeamId(playerSeasonToCreate.getKeeperTeamId());
+        playerSeasonToUpsert.setDraftTeamId(playerSeasonToCreate.getDraftTeamId());
+        playerSeasonToUpsert.setKeeperSeason(playerSeasonToCreate.getKeeperSeason());
+        playerSeasonToUpsert.setSalary(playerSeasonToCreate.getSalary());
+        playerSeasonToUpsert.setIsMinorLeaguer(playerSeasonToCreate.getIsMinorLeaguer());
+        PlayerSeason upsertedPlayerSeason = playerSeasonService.upsert(playerSeasonToUpsert);
+        PlayerView result = PlayerView.from(player);
+        result.setPlayerSeasons(new ArrayList<>());
+        result.getPlayerSeasons().add(PlayerSeasonView.from(upsertedPlayerSeason));
+        return result;
     }
 
     @Override
