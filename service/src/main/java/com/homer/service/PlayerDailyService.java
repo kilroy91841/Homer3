@@ -23,8 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -105,85 +104,24 @@ public class PlayerDailyService extends BaseVersionedIdService<PlayerDaily, Hist
         logger.info("Date: " + date + ", Scoring Period: " + scoringPeriodId);
         List<PlayerDaily> playerDailies = Lists.newArrayList();
 
-        List<ESPNPlayer> espnPlayers = espnClient.getRoster(teamId, scoringPeriodId);
+        List<ESPNPlayer> allEspnPlayers = espnClient.getRoster(teamId, scoringPeriodId);
+        List<ESPNPlayer> espnPlayers = new ArrayList<>();
+        Set<Integer> espnPlayerIds = new HashSet<>();
+        for (ESPNPlayer espnPlayer : allEspnPlayers)
+        {
+            if (!espnPlayerIds.contains(espnPlayer.getEspnPlayerId()))
+            {
+                espnPlayers.add(espnPlayer);
+                espnPlayerIds.add(espnPlayer.getEspnPlayerId());
+            }
+        }
         logger.info("Found " + espnPlayers.size() + " ESPN players");
         Map<String, Player> homerPlayers =
                 $.of(playerService.getPlayersByNames($.of(espnPlayers).toList(ESPNPlayer::getName))).toMap(Player::getName);
         Map<Long, Player> homerPlayersByEspnPlayerId =
                 $.of(playerService.getPlayersByEspnPlayerIds($.of(espnPlayers).toList(ESPNPlayer::getEspnPlayerId))).toMap(Player::getEspnPlayerId);
         logger.info("Found " + homerPlayers.keySet().size() + " Homer players");
-        List<Callable<List<PlayerDaily>>> callables = $.of(espnPlayers).toList(espnPlayer ->
-                () ->
-        {
-            try {
-                Player player = homerPlayers.get(espnPlayer.getName());
-                if (player == null) {
-                    player = homerPlayersByEspnPlayerId.get(new Long(espnPlayer.getEspnPlayerId()));
-                    if (player == null) {
-                        String message = "No Homer player for ESPN player with name " + espnPlayer.getName();
-                        logger.error(message);
-                        throw new PlayerDailyException(message, new RuntimeException());
-                    }
-                }
-                if (player.getEspnPlayerId() == null) {
-                    logger.info("Saving new ESPN player id for " + player.getName() + ", espnPlayerId: " + espnPlayer.getEspnPlayerId());
-                    player.setEspnPlayerId(new Long(espnPlayer.getEspnPlayerId()));
-                    playerService.upsert(player);
-                }
-
-                if (player.getMlbPlayerId() == null) {
-                    String message = "No MLB playerId for Homer player with name " + player.getName();
-                    logger.error(message);
-                    throw new PlayerDailyException(message, new RuntimeException());
-                }
-
-                Stats stats = mlbClient.getStats(player.getMlbPlayerId(), player.isBatter());
-                List<BaseStats> dailyStats = getStatsOnDate(stats, date);
-
-                logger.info("Stats found for " + player.getName() + ", count= " + dailyStats.size());
-                List<PlayerDaily> playerDailiesForDate = Lists.newArrayList();
-                for (BaseStats singleStat : dailyStats) {
-                    PlayerDaily pd = new PlayerDaily();
-                    pd.setPlayer(player);
-                    pd.setPlayerId(player.getId());
-                    pd.setDate(date);
-                    pd.setTeamId(new Long(espnPlayer.getTeamId()));
-                    pd.setFantasyPosition(translateESPNPosition(espnPlayer.getPosition()));
-                    pd.setScoringPeriodId(scoringPeriodId);
-                    pd.setGameId(getGameId(singleStat, date));
-                    if (singleStat != null) {
-                        if (player.isBatter()) {
-                            HittingStats hittingStats = (HittingStats) singleStat;
-                            pd.setHits(toInt(hittingStats.getHits()));
-                            pd.setAtBats(toInt(hittingStats.getAtBats()));
-                            pd.setRuns(toInt(hittingStats.getRuns()));
-                            pd.setRbi(toInt(hittingStats.getRbi()));
-                            pd.setHomeRuns(toInt(hittingStats.getHomeRuns()));
-                            pd.setStolenBases(toInt(hittingStats.getStolenBases()));
-                            pd.setWalks(toInt(hittingStats.getWalks()));
-                            pd.setHitByPitches(toInt(hittingStats.getHitByPitches()));
-                            pd.setSacFlies(toInt(hittingStats.getSacFlies()));
-                            pd.setTotalBases(toInt(hittingStats.getTotalBases()));
-                        } else {
-                            PitchingStats pitchingStats = (PitchingStats) singleStat;
-                            pd.setInningsPitched(toDouble(pitchingStats.getInningsPitched()));
-                            pd.setWins(toInt(pitchingStats.getWins()));
-                            pd.setSaves(toInt(pitchingStats.getSaves()));
-                            pd.setStrikeouts(toInt(pitchingStats.getStrikeouts()));
-                            pd.setHits(toInt(pitchingStats.getHits()));
-                            pd.setWalks(toInt(pitchingStats.getWalks()));
-                            pd.setEarnedRuns(toInt(pitchingStats.getEarnedRuns()));
-                        }
-                    }
-                    this.upsert(pd);
-                    playerDailiesForDate.add(pd);
-                }
-                return playerDailiesForDate;
-            } catch (Exception e) {
-                logger.error("Error creating PlayerDaily for " + espnPlayer.getName(), e);
-                throw new PlayerDailyException(e.getMessage(), e.getCause());
-            }
-        });
+        List<Callable<List<PlayerDaily>>> callables = $.of(espnPlayers).toList(espnPlayer -> () -> getPlayerDailies(espnPlayer, homerPlayers, homerPlayersByEspnPlayerId, scoringPeriodId, date));
         ExecutorService executor = Executors.newWorkStealingPool();
         try {
             $.of(executor.invokeAll(callables)).forEach(future -> {
@@ -201,6 +139,106 @@ public class PlayerDailyService extends BaseVersionedIdService<PlayerDaily, Hist
             logger.error("Error processing TeamDailies", e);
         }
         return playerDailies;
+    }
+
+    private List<PlayerDaily> getPlayerDailies(ESPNPlayer espnPlayer,
+                                               Map<String, Player> homerPlayers,
+                                               Map<Long, Player> homerPlayersByEspnPlayerId,
+                                               int scoringPeriodId,
+                                               DateTime date)
+    {
+        try {
+            Player player = homerPlayers.get(espnPlayer.getName());
+            if (player == null) {
+                player = homerPlayersByEspnPlayerId.get(new Long(espnPlayer.getEspnPlayerId()));
+                if (player == null) {
+                    player = $.of(homerPlayersByEspnPlayerId.values()).first(p -> espnPlayer.getName().equals(p.getEspnName()));
+                    if (player == null)
+                    {
+                        String message = "No Homer player for ESPN player with name " + espnPlayer.getName();
+                        logger.error(message);
+                        throw new PlayerDailyException(message, new RuntimeException());
+                    }
+                }
+            }
+            if (player.getEspnPlayerId() == null) {
+                logger.info("Saving new ESPN player id for " + player.getName() + ", espnPlayerId: " + espnPlayer.getEspnPlayerId());
+                player.setEspnPlayerId(new Long(espnPlayer.getEspnPlayerId()));
+                playerService.upsert(player);
+            }
+
+            if (player.getMlbPlayerId() == null) {
+                String message = "No MLB playerId for Homer player with name " + player.getName();
+                logger.error(message);
+                throw new PlayerDailyException(message, new RuntimeException());
+            }
+
+            // Shoheit Ohtani: can only accrue pitching or hitting stats in one day
+            if (player.getId() == 523)
+            {
+                if (Position.PITCHER == translateESPNPosition(espnPlayer.getPosition()))
+                {
+                    return getPlayerDailiesForDate(player, false, date, espnPlayer, scoringPeriodId);
+                }
+                else
+                {
+                    return getPlayerDailiesForDate(player, true, date, espnPlayer, scoringPeriodId);
+                }
+            }
+            else
+            {
+                return getPlayerDailiesForDate(player, player.isBatter(), date, espnPlayer, scoringPeriodId);
+            }
+        } catch (Exception e) {
+            logger.error("Error creating PlayerDaily for " + espnPlayer.getName(), e);
+            throw new PlayerDailyException(e.getMessage(), e.getCause());
+        }
+    }
+
+    private List<PlayerDaily> getPlayerDailiesForDate(Player player, boolean isBatter, DateTime date, ESPNPlayer espnPlayer, int scoringPeriodId)
+    {
+        Stats stats = mlbClient.getStats(player.getMlbPlayerId(), isBatter);
+        List<BaseStats> dailyStats = getStatsOnDate(stats, date);
+
+        logger.info("Stats found for " + player.getName() + ", count= " + dailyStats.size());
+        List<PlayerDaily> playerDailiesForDate = Lists.newArrayList();
+        for (BaseStats singleStat : dailyStats) {
+            PlayerDaily pd = new PlayerDaily();
+            pd.setPlayer(player);
+            pd.setPlayerId(player.getId());
+            pd.setDate(date);
+            pd.setTeamId(new Long(espnPlayer.getTeamId()));
+            pd.setFantasyPosition(translateESPNPosition(espnPlayer.getPosition()));
+            pd.setScoringPeriodId(scoringPeriodId);
+            pd.setGameId(getGameId(singleStat, date));
+            if (singleStat != null) {
+                if (isBatter) {
+                    HittingStats hittingStats = (HittingStats) singleStat;
+                    pd.setHits(toInt(hittingStats.getHits()));
+                    pd.setAtBats(toInt(hittingStats.getAtBats()));
+                    pd.setRuns(toInt(hittingStats.getRuns()));
+                    pd.setRbi(toInt(hittingStats.getRbi()));
+                    pd.setHomeRuns(toInt(hittingStats.getHomeRuns()));
+                    pd.setStolenBases(toInt(hittingStats.getStolenBases()));
+                    pd.setWalks(toInt(hittingStats.getWalks()));
+                    pd.setHitByPitches(toInt(hittingStats.getHitByPitches()));
+                    pd.setSacFlies(toInt(hittingStats.getSacFlies()));
+                    pd.setTotalBases(toInt(hittingStats.getTotalBases()));
+                } else {
+                    PitchingStats pitchingStats = (PitchingStats) singleStat;
+                    pd.setInningsPitched(toDouble(pitchingStats.getInningsPitched()));
+                    pd.setWins(toInt(pitchingStats.getWins()));
+                    pd.setSaves(toInt(pitchingStats.getSaves()));
+                    pd.setStrikeouts(toInt(pitchingStats.getStrikeouts()));
+                    pd.setHits(toInt(pitchingStats.getHits()));
+                    pd.setWalks(toInt(pitchingStats.getWalks()));
+                    pd.setEarnedRuns(toInt(pitchingStats.getEarnedRuns()));
+                }
+            }
+            this.upsert(pd);
+            playerDailiesForDate.add(pd);
+        }
+        return playerDailiesForDate;
     }
 
     private void sendPlayerDailyExceptionEmail(Exception e) {

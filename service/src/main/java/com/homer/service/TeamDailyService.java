@@ -107,14 +107,14 @@ public class TeamDailyService extends BaseVersionedIdService<TeamDaily, HistoryT
         teamDaily.setInningsPitched($.of(playerDailies).reduceToDouble(PlayerDaily::getInningsPitched));
         teamDaily.setEarnedRuns($.of(playerDailies).reduceToInt(PlayerDaily::getEarnedRuns));
 
-        teamDaily.setWalks($.of(playerDailies).filter(pd -> pd.getPlayer().isBatter()).reduceToInt(PlayerDaily::getWalks));
-        teamDaily.setPitcherWalks($.of(playerDailies).filter(pd -> !pd.getPlayer().isBatter()).reduceToInt(PlayerDaily::getWalks));
+        teamDaily.setWalks($.of(playerDailies).filter(pd -> pd.getFantasyPosition() != Position.PITCHER).reduceToInt(PlayerDaily::getWalks));
+        teamDaily.setPitcherWalks($.of(playerDailies).filter(pd -> pd.getFantasyPosition() == Position.PITCHER).reduceToInt(PlayerDaily::getWalks));
 
-        teamDaily.setHits($.of(playerDailies).filter(pd -> pd.getPlayer().isBatter()).reduceToInt(PlayerDaily::getHits));
-        teamDaily.setPitcherHits($.of(playerDailies).filter(pd -> !pd.getPlayer().isBatter()).reduceToInt(PlayerDaily::getHits));
+        teamDaily.setHits($.of(playerDailies).filter(pd -> pd.getFantasyPosition() != Position.PITCHER).reduceToInt(PlayerDaily::getHits));
+        teamDaily.setPitcherHits($.of(playerDailies).filter(pd -> pd.getFantasyPosition() == Position.PITCHER).reduceToInt(PlayerDaily::getHits));
 
-        teamDaily.setStrikeouts($.of(playerDailies).filter(pd -> pd.getPlayer().isBatter()).reduceToInt(PlayerDaily::getStrikeouts));
-        teamDaily.setPitcherStrikeouts($.of(playerDailies).filter(pd -> !pd.getPlayer().isBatter()).reduceToInt(PlayerDaily::getStrikeouts));
+        teamDaily.setStrikeouts($.of(playerDailies).filter(pd -> pd.getFantasyPosition() != Position.PITCHER).reduceToInt(PlayerDaily::getStrikeouts));
+        teamDaily.setPitcherStrikeouts($.of(playerDailies).filter(pd -> pd.getFantasyPosition() == Position.PITCHER).reduceToInt(PlayerDaily::getStrikeouts));
 
         return this.upsert(teamDaily);
     }
