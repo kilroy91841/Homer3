@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
  */
 public final class ESPNUtility {
 
-    public static final DateTime SCORING_PERIOD_1 = DateTime.parse("2018-03-31T12:00:00");
+    public static final DateTime SCORING_PERIOD_1 = DateTime.parse("2018-03-29T12:00:00");
 
     public static ScoringPeriod getScoringPeriod(DateTime date) {
         return new ScoringPeriod(date.dayOfYear().get() - SCORING_PERIOD_1.dayOfYear().get() + 1, date);
