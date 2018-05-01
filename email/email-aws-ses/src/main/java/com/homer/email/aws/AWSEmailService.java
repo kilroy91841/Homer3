@@ -54,7 +54,6 @@ public class AWSEmailService implements IEmailService {
         }
 
         // Construct an object to contain the recipient address.
-        emailRequest.getToAddresses().remove("jshap2000@gmail.com");
         Destination destination = new Destination().withToAddresses(emailRequest.getToAddresses());
 
         // Create the subject and body of the message.
