@@ -4,6 +4,7 @@ import com.homer.external.common.IMLBClient;
 import com.homer.external.common.mlb.*;
 import com.homer.external.rest.mlb.parser.JSONPlayerParser;
 import com.homer.external.rest.mlb.parser.JSONRosterParser;
+import com.homer.external.rest.mlb.parser.JSONScheduleParser;
 import com.homer.external.rest.mlb.parser.JSONStatParser;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,7 @@ public class MLBRestClient implements IMLBClient {
     private static final String URL_PITCHERSTATS    = "http://mlb.mlb.com/lookup/json/named.mlb_bio_pitching_last_10.bam";
     private static final String URL_SCHEDULEPART1   = "http://gd2.mlb.com/components/game/mlb/";
     private static final String URL_SCHEDULEPART2   = "/master_scoreboard.json";
+    private static final String URL_STANDINGS       = "http://lookup-service-prod.mlb.com/lookup/json/named.standings_schedule_date.bam?season={season}&schedule_game_date.game_date=%272018/05/02%27&sit_code=%27h0%27&league_id=103&league_id=104&all_star_sw=%27N%27&version=2";
 
     private static final String PARAM_SPORTCODE     = "sport_code";
     private static final String PARAM_PLAYERID      = "player_id";
@@ -115,6 +118,23 @@ public class MLBRestClient implements IMLBClient {
             e.printStackTrace();
         }
         return stats;
+    }
+
+    @Override
+    public List<Team> getTeamRecords()
+    {
+        HttpRequest request = Unirest.get(URL_STANDINGS.replace("{season}", String.valueOf(VALUE_SEASON)));
+        try
+        {
+            logger.info("Making request to url " + request.getUrl());
+            HttpResponse<JsonNode> response = request.asJson();
+            return JSONScheduleParser.parseSchedule(response.getBody());
+        }
+        catch (UnirestException e)
+        {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 
     private Map<String, Object> getStatsParameters(long playerId) {

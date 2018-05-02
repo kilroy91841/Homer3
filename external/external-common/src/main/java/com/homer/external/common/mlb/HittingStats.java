@@ -7,8 +7,10 @@ import java.time.LocalDate;
  */
 public class HittingStats extends BaseStats {
 
+    private Integer games;
     private Integer hits;
     private Integer atBats;
+    private Integer plateAppearances;
     private Integer homeRuns;
     private Integer runs;
     private Integer rbi;
@@ -16,6 +18,7 @@ public class HittingStats extends BaseStats {
     private Integer walks;
     private Integer hitByPitches;
     private Integer sacFlies;
+    private Integer sacBunts;
     private Integer totalBases;
     private Double battingAverage;
     private Double onBasePercentage;
@@ -23,6 +26,16 @@ public class HittingStats extends BaseStats {
     private Double sluggingPercentage;
 
     public HittingStats() { }
+
+    public Integer getGames()
+    {
+        return games;
+    }
+
+    public void setGames(Integer games)
+    {
+        this.games = games;
+    }
 
     public Integer getHits() {
         return hits;
@@ -134,5 +147,25 @@ public class HittingStats extends BaseStats {
 
     public void setTotalBases(Integer totalBases) {
         this.totalBases = totalBases;
+    }
+
+    public Integer getPlateAppearances()
+    {
+        return plateAppearances;
+    }
+
+    public void setPlateAppearances(Integer plateAppearances)
+    {
+        this.plateAppearances = plateAppearances;
+    }
+
+    public Integer getSacBunts()
+    {
+        return sacBunts;
+    }
+
+    public void setSacBunts(Integer sacBunts)
+    {
+        this.sacBunts = sacBunts;
     }
 }

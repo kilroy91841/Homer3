@@ -16,6 +16,8 @@ public interface IMLBClient {
     Stats getStats(long playerId, boolean isBatter);
 
     List<MLBPlayer> get40ManRoster(long teamId);
+
+    List<Team> getTeamRecords();
 //
 //    List<Game> getSchedule(LocalDate date);
 }

@@ -96,7 +96,8 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
                 Objects.equals(player.getLastName(), existingPlayer.getLastName()) &&
                 Objects.equals(player.getMlbPlayerId(), existingPlayer.getMlbPlayerId()) &&
                 Objects.equals(player.getPosition(), existingPlayer.getPosition()) &&
-                Objects.equals(player.getEspnName(), existingPlayer.getEspnName())) {
+                Objects.equals(player.getEspnName(), existingPlayer.getEspnName()) &&
+                Objects.equals(player.getFangraphsPlayerId(), existingPlayer.getFangraphsPlayerId())) {
             return existingPlayer;
         }
 
@@ -106,6 +107,7 @@ public class PlayerService extends BaseVersionedIdService<Player, HistoryPlayer>
         existingPlayer.setMlbPlayerId(player.getMlbPlayerId());
         existingPlayer.setPosition(player.getPosition());
         existingPlayer.setEspnName(player.getEspnName());
+        existingPlayer.setFangraphsPlayerId(player.getFangraphsPlayerId());
 
         return super.upsert(existingPlayer);
     }
