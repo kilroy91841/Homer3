@@ -7,9 +7,11 @@ import com.homer.data.*;
 import com.homer.data.common.*;
 import com.homer.email.IEmailService;
 import com.homer.email.aws.AWSEmailService;
+import com.homer.external.common.IFangraphsClient;
 import com.homer.external.common.IMLBClient;
 import com.homer.external.common.espn.IESPNClient;
 import com.homer.external.rest.espn.ESPNRestClient;
+import com.homer.external.rest.fangraphs.FangraphsClient;
 import com.homer.external.rest.mlb.MLBRestClient;
 import com.homer.service.*;
 import com.homer.service.auth.IAuthService;
@@ -95,6 +97,8 @@ public final class ServiceFactory {
                 get(IDraftDollarService.class), get(IPlayerSeasonService.class), get(ITradeElementService.class), get(IGatherer.class),
                 get(IEmailService.class), get(IUserService.class)));
         instanceMap.put(IMLBClient.class, new MLBRestClient());
+
+        instanceMap.put(IFangraphsClient.class, new FangraphsClient());
 
         instanceMap.put(IFullPlayerService.class, new FullPlayerService(
                 get(IPlayerService.class),
@@ -198,6 +202,10 @@ public final class ServiceFactory {
         ));
 
         instanceMap.put(PlayerSeasonChangeEventRecorder.class, new PlayerSeasonChangeEventRecorder(get(IKeeperService.class)));
+
+        instanceMap.put(IProjectionRepository.class, new ProjectionsRepository());
+        instanceMap.put(IProjectionService.class, new ProjectionService(get(IFangraphsClient.class),
+                get(IProjectionRepository.class), get(IPlayerSeasonService.class), get(IPlayerService.class)));
 
         registerEventBus();
     }

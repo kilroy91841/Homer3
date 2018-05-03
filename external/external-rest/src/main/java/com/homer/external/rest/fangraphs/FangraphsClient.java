@@ -1,5 +1,6 @@
 package com.homer.external.rest.fangraphs;
 
+import com.homer.external.common.IFangraphsClient;
 import com.homer.external.common.mlb.HittingStats;
 import com.homer.external.common.mlb.PitchingStats;
 import com.homer.external.common.mlb.Stats;
@@ -21,7 +22,7 @@ import java.util.function.BiConsumer;
  * @author ari@mark43.com
  * @since 5/2/18
  */
-public class FangraphsClient
+public class FangraphsClient implements IFangraphsClient
 {
     private static final Map<BiConsumer<HittingStats, Integer>, Integer> BATTING_STAT_TO_INDEX = new HashMap<>();
     private static final Map<BiConsumer<PitchingStats, Integer>, Integer> PITCHING_STAT_TO_INDEX = new HashMap<>();
@@ -32,13 +33,15 @@ public class FangraphsClient
 
     public static void main(String[] args)
     {
-        Stats mikeTroutStats = FangraphsClient.getProjections(10155, true);
+        FangraphsClient fangraphsClient = new FangraphsClient();
+        Stats mikeTroutStats = fangraphsClient.getProjections(10155, true);
         System.out.println(mikeTroutStats);
-        Stats jakeArrietaStats = FangraphsClient.getProjections(4153, false);
+        Stats jakeArrietaStats = fangraphsClient.getProjections(4153, false);
         System.out.println(jakeArrietaStats);
     }
 
-    public static Stats getProjections(long playerId, boolean isBatter)
+    @Override
+    public Stats getProjections(long playerId, boolean isBatter)
     {
         String content = null;
         try
